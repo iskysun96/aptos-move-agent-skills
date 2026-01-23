@@ -40,6 +40,22 @@ module my_addr::my_module {
     use std::string::String;
     use std::vector;
     use aptos_framework::object::{Self, Object};
+    use aptos_framework::event;
+
+    // ============ Events ============
+    #[event]
+    struct ItemCreated has drop, store {
+        item: address,
+        creator: address,
+        name: String,
+    }
+
+    #[event]
+    struct ItemTransferred has drop, store {
+        item: address,
+        from: address,
+        to: address,
+    }
 
     // ============ Structs ============
     // Define your data structures
@@ -47,8 +63,13 @@ module my_addr::my_module {
     // ============ Constants ============
     // Define error codes and constants
 
-    // ============ Init Function ============
-    // Optional: Module initialization
+    // ============ Init Module ============
+    // REQUIRED for contract initialization on deployment
+    // Called ONCE when module is first published
+    fun init_module(deployer: &signer) {
+        // Initialize global state, registries, etc.
+        // Example: create singleton registry, set admin, etc.
+    }
 
     // ============ Public Entry Functions ============
     // User-facing functions
@@ -197,6 +218,21 @@ When writing Move contracts, you MUST:
 - ✅ Use inline functions for iteration: `inline fun for_each<T>(v: &vector<T>, f: |&T|)`
 - ✅ Use lambdas for operations: `for_each(&items, |item| { process(item); })`
 - ✅ Use proper imports: `use std::string::String;` not `use std::string;`
+- ✅ Use receiver-style method calls: `obj.is_owner(user)` instead of `is_owner(obj, user)` (define first param as `self`)
+- ✅ Use vector indexed expressions: `&mut vector[index]` instead of `vector::borrow_mut(&mut v, index)`
+- ✅ Use direct named addresses: `@marketplace_addr` instead of helper functions that just return `@marketplace_addr`
+
+### Initialization
+- ✅ Use `init_module(deployer: &signer)` for contract initialization on deployment
+- ✅ Put all initialization logic (registry creation, admin setup) inside `init_module`
+- ✅ `init_module` must be private (no `public` keyword)
+- ✅ `init_module` takes at most one parameter of type `&signer`
+
+### Events
+- ✅ Define events with `#[event]` attribute and `has drop, store` abilities
+- ✅ Emit events for ALL significant activities (create, transfer, update, delete)
+- ✅ Use `event::emit<EventType>(event_instance)` to emit events
+- ✅ Include relevant context in events (addresses, amounts, IDs)
 
 ## NEVER Rules
 
@@ -219,6 +255,10 @@ When writing Move contracts, you MUST NEVER:
 - ❌ NEVER use magic numbers for errors
 - ❌ NEVER ignore overflow/underflow checks
 - ❌ NEVER deploy without 100% test coverage
+- ❌ NEVER create helper functions that just return named addresses (use `@addr` directly)
+- ❌ NEVER forget to emit events for significant activities
+- ❌ NEVER use old syntax when V2 syntax is available (vector::borrow vs vector[i])
+- ❌ NEVER skip `init_module` for contracts that need initialization
 
 ## Common Patterns
 
@@ -434,6 +474,276 @@ public fun process_item_if_exists(
     } else {
         // Handle not found
     }
+}
+```
+
+### Pattern 7: init_module for Initialization
+
+**CORRECT:** Use init_module for contract initialization
+
+```move
+module marketplace_addr::marketplace {
+    use std::signer;
+    use aptos_framework::object::{Self, Object};
+
+    struct MarketplaceConfig has key {
+        admin: address,
+        fee_percentage: u64,
+        paused: bool,
+    }
+
+    // ✅ CORRECT: Private init_module for initialization
+    fun init_module(deployer: &signer) {
+        // Initialize global config on deployment
+        let constructor_ref = object::create_named_object(
+            deployer,
+            b"MARKETPLACE_CONFIG_V1"
+        );
+        let object_signer = object::generate_signer(&constructor_ref);
+
+        move_to(&object_signer, MarketplaceConfig {
+            admin: signer::address_of(deployer),
+            fee_percentage: 250, // 2.5%
+            paused: false,
+        });
+    }
+
+    // Access config directly using named address
+    public fun get_config(): Object<MarketplaceConfig> {
+        let config_addr = object::create_object_address(&@marketplace_addr, b"MARKETPLACE_CONFIG_V1");
+        object::address_to_object<MarketplaceConfig>(config_addr)
+    }
+}
+```
+
+**INCORRECT:** Don't create separate init functions or helper functions for named addresses
+
+```move
+// ❌ WRONG: Separate public init function
+public entry fun initialize(deployer: &signer) {
+    // This won't be called automatically on deployment
+}
+
+// ❌ WRONG: Unnecessary helper function for named address
+fun get_marketplace_address(): address {
+    @marketplace_addr  // Just use @marketplace_addr directly!
+}
+```
+
+### Pattern 8: Event Emission
+
+**CORRECT:** Emit events for all significant activities
+
+```move
+module my_addr::nft_marketplace {
+    use std::signer;
+    use aptos_framework::object::{Self, Object};
+    use aptos_framework::event;
+
+    // ✅ Define events with #[event] attribute
+    #[event]
+    struct ListingCreated has drop, store {
+        listing_id: address,
+        seller: address,
+        nft: address,
+        price: u64,
+        timestamp: u64,
+    }
+
+    #[event]
+    struct ListingCancelled has drop, store {
+        listing_id: address,
+        seller: address,
+        timestamp: u64,
+    }
+
+    #[event]
+    struct ItemSold has drop, store {
+        listing_id: address,
+        seller: address,
+        buyer: address,
+        nft: address,
+        price: u64,
+        timestamp: u64,
+    }
+
+    struct Listing has key {
+        nft: Object<NFT>,
+        seller: address,
+        price: u64,
+    }
+
+    /// Create listing with event emission
+    public entry fun create_listing(
+        seller: &signer,
+        nft: Object<NFT>,
+        price: u64
+    ) {
+        let seller_addr = signer::address_of(seller);
+
+        // Verify ownership
+        assert!(object::owner(nft) == seller_addr, E_NOT_OWNER);
+        assert!(price > 0, E_INVALID_PRICE);
+
+        // Create listing object
+        let constructor_ref = object::create_object(seller_addr);
+        let listing_addr = object::address_from_constructor_ref(&constructor_ref);
+        let object_signer = object::generate_signer(&constructor_ref);
+
+        move_to(&object_signer, Listing {
+            nft,
+            seller: seller_addr,
+            price,
+        });
+
+        // ✅ ALWAYS emit event for significant activities
+        event::emit(ListingCreated {
+            listing_id: listing_addr,
+            seller: seller_addr,
+            nft: object::object_address(&nft),
+            price,
+            timestamp: aptos_framework::timestamp::now_seconds(),
+        });
+    }
+
+    /// Cancel listing with event
+    public entry fun cancel_listing(
+        seller: &signer,
+        listing: Object<Listing>
+    ) acquires Listing {
+        let seller_addr = signer::address_of(seller);
+        let listing_addr = object::object_address(&listing);
+
+        // Verify seller owns listing
+        assert!(object::owner(listing) == seller_addr, E_NOT_OWNER);
+
+        // Remove listing
+        let Listing { nft: _, seller: _, price: _ } = move_from<Listing>(listing_addr);
+
+        // ✅ Emit cancellation event
+        event::emit(ListingCancelled {
+            listing_id: listing_addr,
+            seller: seller_addr,
+            timestamp: aptos_framework::timestamp::now_seconds(),
+        });
+    }
+}
+```
+
+**INCORRECT:** Don't skip events
+
+```move
+// ❌ WRONG: No events emitted
+public entry fun create_listing(
+    seller: &signer,
+    nft: Object<NFT>,
+    price: u64
+) {
+    // ... create listing logic ...
+    // Missing event emission!
+}
+```
+
+### Pattern 9: V2 Syntax - Method Calls
+
+**CORRECT:** Use receiver-style method calls with `self`
+
+```move
+module my_addr::items {
+    use std::signer;
+    use aptos_framework::object::{Self, Object};
+
+    struct Item has key {
+        owner: address,
+        value: u64,
+    }
+
+    // ✅ CORRECT: Use 'self' as first parameter name
+    public fun is_owner(self: &Object<Item>, user: &signer): bool acquires Item {
+        let item_data = borrow_global<Item>(object::object_address(self));
+        item_data.owner == signer::address_of(user)
+    }
+
+    public fun get_value(self: &Object<Item>): u64 acquires Item {
+        let item_data = borrow_global<Item>(object::object_address(self));
+        item_data.value
+    }
+
+    // ✅ CORRECT: Call with dot notation
+    public entry fun update_if_owner(
+        user: &signer,
+        item: Object<Item>,
+        new_value: u64
+    ) acquires Item {
+        // Receiver-style call (syntactic sugar for is_owner(&item, user))
+        assert!(item.is_owner(user), E_NOT_OWNER);
+
+        let item_data = borrow_global_mut<Item>(object::object_address(&item));
+        item_data.value = new_value;
+    }
+}
+```
+
+**INCORRECT:** Old function call style (still works but less modern)
+
+```move
+// ❌ LESS MODERN: Not using 'self' parameter
+public fun is_owner(item: &Object<Item>, user: &signer): bool acquires Item {
+    // ...
+}
+
+// Must call with function-style syntax
+assert!(is_owner(&item, user), E_NOT_OWNER);  // Old style
+```
+
+### Pattern 10: V2 Syntax - Vector Indexing
+
+**CORRECT:** Use index notation for vectors
+
+```move
+module my_addr::registry {
+    use std::vector;
+
+    struct Registry has key {
+        items: vector<u64>,
+    }
+
+    // ✅ CORRECT: Use vector[index] syntax
+    public fun get_item(registry: &Registry, index: u64): u64 {
+        *&registry.items[index]  // V2 index notation
+    }
+
+    public fun update_item(registry: &mut Registry, index: u64, value: u64) {
+        *&mut registry.items[index] = value;  // V2 mutable index notation
+    }
+
+    // ✅ CORRECT: Iterate with index notation
+    public fun sum_all(registry: &Registry): u64 {
+        let sum = 0;
+        let i = 0;
+        let len = vector::length(&registry.items);
+
+        while (i < len) {
+            sum = sum + registry.items[i];  // Clean V2 syntax
+            i = i + 1;
+        };
+
+        sum
+    }
+}
+```
+
+**INCORRECT:** Old vector borrow syntax (still works but less modern)
+
+```move
+// ❌ LESS MODERN: Using vector::borrow
+public fun get_item(registry: &Registry, index: u64): u64 {
+    *vector::borrow(&registry.items, index)  // Old style
+}
+
+// ❌ LESS MODERN: Using vector::borrow_mut
+public fun update_item(registry: &mut Registry, index: u64, value: u64) {
+    *vector::borrow_mut(&mut registry.items, index) = value;  // Old style
 }
 ```
 

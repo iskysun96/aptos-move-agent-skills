@@ -395,6 +395,234 @@ public fun process_vector(numbers: &mut vector<u64>) {
 }
 ```
 
+### Vector Index Notation (Move 2)
+
+Move 2 introduces cleaner syntax for vector access using index notation instead of `vector::borrow`.
+
+**MODERN (V2 Syntax):**
+
+```move
+use std::vector;
+
+struct Registry has key {
+    items: vector<u64>,
+}
+
+// ✅ V2: Use index notation for reading
+public fun get_item(registry: &Registry, index: u64): u64 {
+    *&registry.items[index]  // Clean and readable
+}
+
+// ✅ V2: Use index notation for writing
+public fun update_item(registry: &mut Registry, index: u64, value: u64) {
+    *&mut registry.items[index] = value;  // Clean mutation
+}
+
+// ✅ V2: Iterate with index notation
+public fun sum_all(registry: &Registry): u64 {
+    let sum = 0;
+    let i = 0;
+    let len = vector::length(&registry.items);
+
+    while (i < len) {
+        sum = sum + registry.items[i];  // Much cleaner!
+        i = i + 1;
+    };
+
+    sum
+}
+```
+
+**OLD (Pre-V2 Syntax):**
+
+```move
+// ❌ OLD: vector::borrow syntax
+public fun get_item_old(registry: &Registry, index: u64): u64 {
+    *vector::borrow(&registry.items, index)  // More verbose
+}
+
+// ❌ OLD: vector::borrow_mut syntax
+public fun update_item_old(registry: &mut Registry, index: u64, value: u64) {
+    *vector::borrow_mut(&mut registry.items, index) = value;
+}
+
+// ❌ OLD: Iteration with borrow
+public fun sum_all_old(registry: &Registry): u64 {
+    let sum = 0;
+    let i = 0;
+    let len = vector::length(&registry.items);
+
+    while (i < len) {
+        sum = sum + *vector::borrow(&registry.items, i);  // Verbose
+        i = i + 1;
+    };
+
+    sum
+}
+```
+
+---
+
+## Receiver-Style Method Calls (Move 2)
+
+Move 2 introduced receiver-style function calls that allow using dot notation `value.func(arg)` instead of `func(&value, arg)`.
+
+### Defining Receiver Functions
+
+Use `self` as the first parameter name to enable dot notation:
+
+```move
+module my_addr::items {
+    use std::signer;
+    use aptos_framework::object::{Self, Object};
+
+    struct Item has key {
+        owner: address,
+        value: u64,
+        name: String,
+    }
+
+    // ✅ MODERN: Use 'self' as first parameter
+    public fun is_owner(self: &Object<Item>, user: &signer): bool acquires Item {
+        let item_data = borrow_global<Item>(object::object_address(self));
+        item_data.owner == signer::address_of(user)
+    }
+
+    public fun get_value(self: &Object<Item>): u64 acquires Item {
+        let item_data = borrow_global<Item>(object::object_address(self));
+        item_data.value
+    }
+
+    public fun get_name(self: &Object<Item>): String acquires Item {
+        let item_data = borrow_global<Item>(object::object_address(self));
+        item_data.name
+    }
+
+    // Mutable receiver
+    public fun set_value(self: &Object<Item>, new_value: u64) acquires Item {
+        let item_data = borrow_global_mut<Item>(object::object_address(self));
+        item_data.value = new_value;
+    }
+}
+```
+
+### Using Receiver-Style Calls
+
+```move
+module my_addr::marketplace {
+    use my_addr::items;
+
+    // ✅ MODERN: Call with dot notation
+    public entry fun update_item_if_owner(
+        user: &signer,
+        item: Object<Item>,
+        new_value: u64
+    ) {
+        // Receiver-style call - reads much more naturally!
+        assert!(item.is_owner(user), E_NOT_OWNER);
+
+        // Can chain multiple calls
+        let current = item.get_value();
+        assert!(new_value > current, E_VALUE_TOO_LOW);
+
+        item.set_value(new_value);
+    }
+
+    // ❌ OLD: Traditional function call style
+    public entry fun update_item_old_style(
+        user: &signer,
+        item: Object<Item>,
+        new_value: u64
+    ) {
+        // Less readable function call syntax
+        assert!(items::is_owner(&item, user), E_NOT_OWNER);
+        let current = items::get_value(&item);
+        items::set_value(&item, new_value);
+    }
+}
+```
+
+### Automatic Discovery
+
+The compiler automatically discovers receiver functions - no need to import them explicitly:
+
+```move
+// Receiver functions are discovered automatically based on type
+public fun use_item(item: Object<Item>) {
+    // Compiler finds is_owner, get_value, etc. automatically
+    // No need to: use my_addr::items::is_owner;
+    let value = item.get_value();  // Works!
+}
+```
+
+### Benefits of Receiver Style
+
+1. **More readable**: `item.is_owner(user)` reads like English
+2. **Familiar syntax**: Similar to methods in other languages
+3. **Chainable**: `item.get_value() * 2` is cleaner
+4. **Auto-discovery**: Compiler finds functions automatically
+
+### Complete Example
+
+```move
+module marketplace_addr::listings {
+    use std::signer;
+    use aptos_framework::object::{Self, Object};
+
+    struct Listing has key {
+        seller: address,
+        price: u64,
+        active: bool,
+    }
+
+    // ✅ Define receiver-style functions with 'self'
+    public fun is_active(self: &Object<Listing>): bool acquires Listing {
+        let listing = borrow_global<Listing>(object::object_address(self));
+        listing.active
+    }
+
+    public fun get_price(self: &Object<Listing>): u64 acquires Listing {
+        let listing = borrow_global<Listing>(object::object_address(self));
+        listing.price
+    }
+
+    public fun is_seller(self: &Object<Listing>, user: &signer): bool acquires Listing {
+        let listing = borrow_global<Listing>(object::object_address(self));
+        listing.seller == signer::address_of(user)
+    }
+
+    public fun deactivate(self: &Object<Listing>) acquires Listing {
+        let listing = borrow_global_mut<Listing>(object::object_address(self));
+        listing.active = false;
+    }
+
+    // ✅ Use receiver style in other functions
+    public entry fun cancel_listing(
+        seller: &signer,
+        listing: Object<Listing>
+    ) acquires Listing {
+        // Beautiful, readable code!
+        assert!(listing.is_active(), E_ALREADY_INACTIVE);
+        assert!(listing.is_seller(seller), E_NOT_SELLER);
+
+        listing.deactivate();
+    }
+
+    public entry fun purchase_listing(
+        buyer: &signer,
+        listing: Object<Listing>
+    ) acquires Listing {
+        // Chain checks naturally
+        assert!(listing.is_active(), E_NOT_ACTIVE);
+
+        let price = listing.get_price();
+        // ... payment logic ...
+
+        listing.deactivate();
+    }
+}
+```
+
 ---
 
 ## Option Type
@@ -578,12 +806,21 @@ module my_addr::marketplace {
 - ✅ Group related functionality in modules
 - ✅ Use phantom types for type witnesses
 - ✅ Use Option<T> for optional values
+- ✅ Use `init_module(deployer: &signer)` for contract initialization
+- ✅ Emit events with `#[event]` attribute and `event::emit()`
+- ✅ Use receiver-style method calls with `self` parameter
+- ✅ Use vector index notation `vector[i]` instead of `vector::borrow`
+- ✅ Use direct named addresses `@addr` instead of helper functions
 
 **DON'T:**
 - ❌ Use raw addresses instead of `Object<T>`
 - ❌ Use magic numbers for errors (use named constants)
 - ❌ Ignore ability constraints on generics
 - ❌ Mix old and new patterns in same codebase
+- ❌ Create helper functions that just return named addresses
+- ❌ Skip event emission for significant activities
+- ❌ Use old syntax (`vector::borrow`) when V2 syntax (`vector[i]`) is available
+- ❌ Skip `init_module` when contracts need initialization
 
 ---
 
