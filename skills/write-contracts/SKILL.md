@@ -191,6 +191,16 @@ public entry fun burn_object(owner: &signer, obj: Object<MyObject>) acquires MyO
 
 When writing Move contracts, you MUST:
 
+### Digital Assets (NFTs) ⭐ CRITICAL
+- ✅ **ALWAYS use Digital Asset (DA) standard** for ALL NFT-related contracts (collections, marketplaces, minting)
+- ✅ **ALWAYS import** `aptos_token_objects::collection` and `aptos_token_objects::token` modules
+- ✅ **ALWAYS use** `Object<AptosToken>` for NFT references (NOT generic `Object<T>`)
+- ✅ **ALWAYS create collections** with `collection::create_fixed_collection()` or `collection::create_unlimited_collection()`
+- ✅ **ALWAYS mint tokens** with `token::create_named_token()` or `token::create()` (unnamed)
+- ✅ **ALWAYS set royalties** when creating collections using `royalty::create()`
+- ✅ **ALWAYS verify collection exists** before minting tokens
+- ✅ See `../../patterns/DIGITAL_ASSETS.md` for complete NFT patterns
+
 ### Object Model
 - ✅ Use `Object<T>` for all object references (NOT addresses)
 - ✅ Generate all refs (TransferRef, DeleteRef) in constructor before ConstructorRef destroyed
@@ -237,6 +247,14 @@ When writing Move contracts, you MUST:
 ## NEVER Rules
 
 When writing Move contracts, you MUST NEVER:
+
+### Digital Assets (NFTs) ⭐ CRITICAL
+- ❌ **NEVER use legacy TokenV1 standard** (deprecated, all tokens migrated to Digital Asset)
+- ❌ **NEVER import** `aptos_token::token` (legacy module - use `aptos_token_objects::token` instead)
+- ❌ **NEVER use** generic `Object<T>` for NFTs (use `Object<AptosToken>` specifically)
+- ❌ **NEVER create tokens** without a parent collection
+- ❌ **NEVER skip royalty configuration** when creating collections
+- ❌ **NEVER use** `token::create_token_script()` or other legacy token functions
 
 ### Legacy Patterns
 - ❌ NEVER use resource accounts (use named objects instead)
@@ -901,14 +919,19 @@ module my_addr::nft_collection {
 ## References
 
 **Official Documentation:**
+- Digital Asset Standard: https://aptos.dev/build/smart-contracts/digital-asset
+- Digital Asset (Standards): https://aptos.dev/standards/digital-asset/
+- Your First NFT Tutorial: https://aptos.dev/tutorials/your-first-nft/
 - Object Model: https://aptos.dev/build/smart-contracts/object
 - Security Guidelines: https://aptos.dev/build/smart-contracts/move-security-guidelines
 - Move Book: https://aptos.dev/build/smart-contracts/book
 
 **Example Repositories:**
 - aptos-core/aptos-move/move-examples/
+- aptos-core/aptos-move/framework/aptos-token-objects/
 
 **Pattern Documentation (Local):**
+- `../../patterns/DIGITAL_ASSETS.md` - ⭐ Digital Asset (NFT) standard - CRITICAL for NFTs
 - `../../patterns/OBJECTS.md` - Comprehensive object model guide
 - `../../patterns/SECURITY.md` - Security checklist and patterns
 - `../../patterns/MOVE_V2_SYNTAX.md` - Modern syntax examples

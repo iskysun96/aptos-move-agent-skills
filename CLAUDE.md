@@ -7,6 +7,7 @@ This repository provides specialized skills for AI assistants to build secure, m
 ## Quick Links
 
 - **[AI Assistant Guide](setups/AGENTS.md)** - Main orchestration file with workflows
+- **[Digital Assets](patterns/DIGITAL_ASSETS.md)** - ⭐ NFT standard (CRITICAL for NFTs)
 - **[Object Patterns](patterns/OBJECTS.md)** - Object model reference
 - **[Security Guide](patterns/SECURITY.md)** - Security checklist
 - **[Testing Guide](patterns/TESTING.md)** - Test generation patterns
@@ -26,10 +27,11 @@ This repository provides specialized skills for AI assistants to build secure, m
 ## Core Principles
 
 1. **Search first** - Check aptos-core examples before writing
-2. **Use objects** - Always use `Object<T>` references (never addresses)
-3. **Security first** - Verify signers, validate inputs, protect references
-4. **Test everything** - 100% coverage required
-5. **Modern syntax** - Use inline functions, lambdas, V2 patterns
+2. **Use Digital Asset standard** - For ALL NFT contracts (collections, marketplaces, minting)
+3. **Use objects** - Always use `Object<T>` references (never addresses)
+4. **Security first** - Verify signers, validate inputs, protect references
+5. **Test everything** - 100% coverage required
+6. **Modern syntax** - Use inline functions, lambdas, V2 patterns
 
 ## Integration
 

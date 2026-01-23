@@ -53,6 +53,7 @@ move-agent-skills/
 │   ├── deploy-contracts/            # Deploy to networks
 │   └── troubleshoot-errors/         # Debug common errors
 ├── patterns/                         # Reference documentation
+│   ├── DIGITAL_ASSETS.md            # NFT standard (Digital Assets) ⭐
 │   ├── OBJECTS.md                   # Object model patterns ⭐
 │   ├── SECURITY.md                  # Security checklist ⭐
 │   ├── TESTING.md                   # Test patterns
@@ -80,7 +81,24 @@ move-agent-skills/
 → Adapts from official aptos-core examples
 ```
 
-### 2. Object-Centric Development
+### 2. Digital Asset Standard for NFTs
+```move
+// ✅ MODERN: Aptos Digital Asset standard
+use aptos_token_objects::collection;
+use aptos_token_objects::token;
+use aptos_token_objects::aptos_token::AptosToken;
+
+public entry fun list_nft(
+    seller: &signer,
+    nft: Object<AptosToken>,  // Digital Asset standard
+    price: u64
+)
+
+// ❌ LEGACY: TokenV1 (deprecated, all migrated)
+use aptos_token::token;  // Don't use this module
+```
+
+### 3. Object-Centric Development
 ```move
 // ✅ MODERN (V2): Type-safe objects
 public entry fun transfer_item(
