@@ -4,17 +4,20 @@ Thank you for your interest in improving the Aptos Move agent skills! This guide
 
 ## Overview
 
-This repository provides specialized skills for AI assistants to build secure Aptos Move V2 smart contracts. We use an **iterative testing workflow** to continuously improve these skills.
+This repository provides specialized skills for AI assistants to build secure Aptos Move V2 smart contracts. We use an
+**iterative testing workflow** to continuously improve these skills.
 
 ## Iterative Skills Improvement Workflow
 
-We maintain a separate testing repository that systematically generates test dApps, validates them, and uses findings to improve the skills.
+We maintain a separate testing repository that systematically generates test dApps, validates them, and uses findings to
+improve the skills.
 
 ### Testing Repository
 
 Location: `../aptos-move-agent-skills-testing/`
 
 The testing workflow:
+
 1. **Generate** - Create 3-5 contract-only dApps using `create-aptos-dapp`
 2. **Validate** - Run automated checks (compile/test/coverage)
 3. **Review** - Perform manual security review against SECURITY.md
@@ -67,6 +70,7 @@ git commit -m "Apply findings from iteration NNN"
 **Preferred method:** Use the iterative testing workflow described above.
 
 This systematically identifies gaps and ensures improvements are:
+
 - Based on real failure modes
 - Comprehensive (fixing patterns, not one-off issues)
 - Prioritized by severity
@@ -77,18 +81,21 @@ This systematically identifies gaps and ensures improvements are:
 If you find specific issues without running the full workflow:
 
 **For skill files (`skills/*/SKILL.md`):**
+
 - Add missing ALWAYS/NEVER rules
 - Add code examples
 - Update checklists
 - Clarify ambiguous guidance
 
 **For pattern files (`patterns/*.md`):**
+
 - Add missing security patterns
 - Expand examples
 - Clarify best practices
 - Add anti-patterns
 
 **For setup files:**
+
 - Improve `setups/AGENTS.md` orchestration
 - Add missing integrations
 - Update tool references
@@ -111,6 +118,7 @@ To add a new skill:
 ### 4. Bug Fixes
 
 If you find bugs in:
+
 - Code examples: Fix and explain the issue
 - Documentation: Clarify or correct
 - Scripts: Test and verify the fix
@@ -120,6 +128,7 @@ If you find bugs in:
 ### Quality Standards
 
 **All contributions must:**
+
 - Be based on Aptos Move V2 (not V1)
 - Follow security best practices from `SECURITY.md`
 - Include clear examples
@@ -127,15 +136,17 @@ If you find bugs in:
 - Reference official Aptos documentation where relevant
 
 **For code examples:**
+
 - Must compile with latest Aptos CLI
 - Must follow patterns from `patterns/*.md`
 - Must include inline comments explaining key concepts
 - Must demonstrate secure patterns
 
 **For security guidance:**
+
 - Must reference specific attack vectors
 - Must show both vulnerable and secure code
-- Must explain *why* the pattern is important
+- Must explain _why_ the pattern is important
 - Must be verifiable through testing
 
 ### Commit Message Format
@@ -153,6 +164,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 **Types:**
+
 - `feat:` - New skill or major feature
 - `fix:` - Bug fix or correction
 - `docs:` - Documentation improvements
@@ -161,6 +173,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 - `refactor:` - Restructuring without behavior change
 
 **Example:**
+
 ```
 security: Add unbounded iteration pattern to write-contracts
 
@@ -180,6 +193,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ### Pull Request Process
 
 1. **Create a branch:**
+
    ```bash
    git checkout -b feature/your-improvement
    ```
@@ -195,12 +209,14 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
    - Check markdown rendering
 
 4. **Commit:**
+
    ```bash
    git add .
    git commit -m "descriptive message"
    ```
 
 5. **Push and create PR:**
+
    ```bash
    git push origin feature/your-improvement
    ```
@@ -235,6 +251,7 @@ Current focus areas for improvement:
 ## Recognition
 
 Contributors will be recognized in:
+
 - Git commit history (use Co-Authored-By for AI assistance)
 - Release notes for significant contributions
 - Special recognition for systematic improvements via testing workflow

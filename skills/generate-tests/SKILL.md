@@ -1,6 +1,8 @@
 ---
 name: generate-tests
-description: Generate comprehensive unit tests for Aptos Move V2 contracts with 100% coverage. Use when "write tests", "test contract", "add test coverage", or AUTOMATICALLY after writing any contract.
+description:
+  Generate comprehensive unit tests for Aptos Move V2 contracts with 100% coverage. Use when "write tests", "test
+  contract", "add test coverage", or AUTOMATICALLY after writing any contract.
 ---
 
 # Generate Tests Skill
@@ -153,7 +155,8 @@ fun test_staking_rewards(framework: &signer, user: &signer) {
 
 ❌ **NEVER use** `aptos_governance::get_signer_testnet_sig()` (doesn't exist, causes compilation errors)
 
-✅ **ALWAYS use** `#[test(framework = @0x1)]` attribute and pass framework signer to `set_time_has_started_for_testing()`
+✅ **ALWAYS use** `#[test(framework = @0x1)]` attribute and pass framework signer to
+`set_time_has_started_for_testing()`
 
 ❌ **NEVER assume** time starts at 0 without initialization
 
@@ -510,11 +513,10 @@ public fun test_random_mint_is_entry_function(user: &signer) {
 
 **Gas Balance Testing:**
 
-> **Note:** Aptos Move unit tests do not currently provide a built-in `estimate_gas` helper.
-> The example below is **conceptual pseudo-code** showing what you want to verify.
-> In practice, compare compiled bytecode and gas schedules, or measure gas usage
-> on a localnet/testnet by sending transactions for each path and recording
-> the gas used from the node/CLI output.
+> **Note:** Aptos Move unit tests do not currently provide a built-in `estimate_gas` helper. The example below is
+> **conceptual pseudo-code** showing what you want to verify. In practice, compare compiled bytecode and gas schedules,
+> or measure gas usage on a localnet/testnet by sending transactions for each path and recording the gas used from the
+> node/CLI output.
 
 ```move
 // PSEUDO-CODE ONLY — not executable as-is.
@@ -557,12 +559,14 @@ aptos move coverage summary
 ```
 
 **Coverage report example:**
+
 ```
 module: my_module
 coverage: 100.0% (150/150 lines covered)
 ```
 
 **If coverage < 100%:**
+
 1. Check uncovered lines in report
 2. Write tests for missing paths
 3. Repeat until 100%
@@ -654,17 +658,20 @@ module my_addr::module_tests {
 For each contract, verify you have tests for:
 
 **Happy Paths:**
+
 - [ ] Object creation works
 - [ ] State updates work
 - [ ] Transfers work
 - [ ] All main features work
 
 **Access Control:**
+
 - [ ] Non-owners cannot modify objects
 - [ ] Non-admins cannot call admin functions
 - [ ] Unauthorized users blocked
 
 **Input Validation:**
+
 - [ ] Zero amounts rejected
 - [ ] Excessive amounts rejected
 - [ ] Empty strings rejected
@@ -672,11 +679,13 @@ For each contract, verify you have tests for:
 - [ ] Zero addresses rejected
 
 **Edge Cases:**
+
 - [ ] Maximum values work
 - [ ] Minimum values work
 - [ ] Empty states handled
 
 **Security Tests ⭐ CRITICAL:**
+
 - [ ] Division precision loss prevented (minimum thresholds enforced, fees > 0)
 - [ ] Left shift overflow validated (shift amount < 64)
 - [ ] Global storage scoped to signer (cannot modify other accounts)
@@ -688,6 +697,7 @@ For each contract, verify you have tests for:
 - [ ] Randomness security (entry functions, gas balanced) - if applicable
 
 **Coverage:**
+
 - [ ] 100% line coverage achieved
 - [ ] All error codes tested
 - [ ] All functions tested
@@ -704,9 +714,12 @@ For each contract, verify you have tests for:
 - ✅ ALWAYS verify all state changes in tests
 - ✅ ALWAYS run `aptos move test --coverage` before deployment
 - ✅ **ALWAYS generate minimum 10 tests:** 5 happy path, 3 error conditions, 2 access control
-- ✅ **ALWAYS create all test accounts in setup function BEFORE any operations** - Never call `aptos_account::create_account()` mid-test if the account was already created with `account::create_account_for_test()`
+- ✅ **ALWAYS create all test accounts in setup function BEFORE any operations** - Never call
+  `aptos_account::create_account()` mid-test if the account was already created with
+  `account::create_account_for_test()`
 
 ### Security Testing ⭐ CRITICAL - See [SECURITY.md](../../patterns/SECURITY.md)
+
 - ✅ **ALWAYS test division precision loss**: Verify minimum thresholds enforced, fees > 0
 - ✅ **ALWAYS test left shift validation**: Reject shift amounts >= 64
 - ✅ **ALWAYS test global storage scoping**: Multi-user tests verify isolation
@@ -726,6 +739,7 @@ For each contract, verify you have tests for:
 - ❌ NEVER batch tests without verifying each case
 
 ### Security Testing Violations ⭐ CRITICAL
+
 - ❌ NEVER skip testing minimum thresholds (division precision loss)
 - ❌ NEVER skip testing left shift validation (silent overflow)
 - ❌ NEVER skip testing cross-account isolation (global storage scoping)
@@ -737,13 +751,16 @@ For each contract, verify you have tests for:
 ## References
 
 **Pattern Documentation:**
+
 - `../../patterns/TESTING.md` - Comprehensive testing guide
 - `../../patterns/SECURITY.md` - Security testing requirements
 
 **Official Documentation:**
+
 - https://aptos.dev/build/smart-contracts/book/unit-testing
 
 **Related Skills:**
+
 - `write-contracts` - Generate code to test
 - `security-audit` - Verify security after testing
 
