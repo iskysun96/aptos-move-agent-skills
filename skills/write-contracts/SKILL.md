@@ -1299,6 +1299,7 @@ module my_addr::nft_collection {
 **Pattern Documentation (Local):**
 
 - `../../patterns/DIGITAL_ASSETS.md` - ⭐ Digital Asset (NFT) standard - CRITICAL for NFTs
+- `../../patterns/FUNGIBLE_ASSETS.md` - ⭐ Fungible Asset (Token/Coin) standard - CRITICAL for tokens
 - `../../patterns/OBJECTS.md` - Comprehensive object model guide
 - `../../patterns/SECURITY.md` - Security checklist and patterns
 - `../../patterns/MOVE_V2_SYNTAX.md` - Modern syntax examples

@@ -96,6 +96,9 @@ module my_addr::my_token {
         transfer_ref: TransferRef,
     }
 
+    /// Error codes
+    const E_NOT_ADMIN: u64 = 1;
+
     /// Initialize token on module deployment
     fun init_module(deployer: &signer) {
         // Create metadata object for the token
@@ -188,6 +191,9 @@ module my_addr::fixed_token {
 
     const MAX_SUPPLY: u64 = 1_000_000; // 1 million tokens
     const DECIMALS: u8 = 8;
+
+    /// Error codes
+    const E_NOT_ADMIN: u64 = 1;
 
     struct ManagingRefs has key {
         mint_ref: MintRef,
