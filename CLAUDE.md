@@ -8,6 +8,7 @@ This repository provides specialized skills for AI assistants to build secure, m
 
 - **[AI Assistant Guide](setups/AGENTS.md)** - Main orchestration file with workflows
 - **[Digital Assets](patterns/DIGITAL_ASSETS.md)** - ⭐ NFT standard (CRITICAL for NFTs)
+- **[Fungible Assets](patterns/FUNGIBLE_ASSETS.md)** - ⭐ Token standard (CRITICAL for tokens/coins)
 - **[Object Patterns](patterns/OBJECTS.md)** - Object model reference
 - **[Security Guide](patterns/SECURITY.md)** - Security checklist
 - **[Testing Guide](patterns/TESTING.md)** - Test generation patterns
@@ -32,12 +33,13 @@ This repository provides specialized skills for AI assistants to build secure, m
 ## Core Principles
 
 1. **Search first** - Check aptos-core examples before writing
-2. **Use Digital Asset standard** - For ALL NFT contracts (collections, marketplaces, minting)
-3. **Use objects** - Always use `Object<T>` references (never addresses)
-4. **Security first** - Verify signers, validate inputs, protect references
-5. **Test everything** - 100% coverage required
-6. **Modern syntax** - Use inline functions, lambdas, V2 patterns
-7. **Format with prettier** - Always run `npx prettier --write <files>` before committing
+2. **Use Digital Asset standard** - For ALL NFT contracts (use Object<AptosToken>)
+3. **Use Fungible Asset standard** - For ALL token/coin contracts (use Object<Metadata>)
+4. **Use objects** - Always use `Object<T>` references (never addresses)
+5. **Security first** - Verify signers, validate inputs, protect references
+6. **Test everything** - 100% coverage required
+7. **Modern syntax** - Use inline functions, lambdas, V2 patterns
+8. **Format with prettier** - Always run `npx prettier --write <files>` before committing
 
 ## Code Formatting
 

@@ -8,10 +8,13 @@ Build secure, modern Aptos Move V2 smart contracts using object-centric patterns
 When helping developers with Aptos Move V2:
 
 1. **Search first**: Check `aptos-core/move-examples` and official docs before writing code
-2. **Use objects**: Always use `Object<T>` references, never raw addresses (unless legacy integration)
-3. **Security first**: Verify signer authority, validate inputs, protect references
-4. **Test everything**: Generate comprehensive tests with 100% coverage
-5. **Modern syntax**: Use inline functions, lambdas, current object model
+2. **Token standards**:
+   - Digital Assets for NFTs (Object<AptosToken>)
+   - Fungible Assets for tokens/coins (Object<Metadata>)
+3. **Use objects**: Always use `Object<T>` references, never raw addresses (unless legacy integration)
+4. **Security first**: Verify signer authority, validate inputs, protect references
+5. **Test everything**: Generate comprehensive tests with 100% coverage
+6. **Modern syntax**: Use inline functions, lambdas, current object model
 
 ## Core Workflows
 

@@ -18,6 +18,22 @@ This skill guides you in writing secure, modern Aptos Move V2 smart contracts. A
 4. **Modern syntax**: Use inline functions, lambdas, current object model
 5. **Document clearly**: Add clear error codes and comments
 
+## Pre-Generation Checklist ⚠️ MANDATORY
+
+**STOP - Answer these questions before writing ANY contract code:**
+
+1. **Does this contract involve NFTs?** (collections, marketplaces, minting, trading)
+   - ✅ YES → You MUST use Digital Asset standard (see Step 2.5 below)
+   - ❌ NO → Continue
+
+2. **Does this contract involve fungible tokens?** (coins, tokens, currencies, reward points)
+   - ✅ YES → You MUST use Fungible Asset standard (see Step 2.6 below)
+   - ❌ NO → Continue
+
+3. **Does this contract need global configuration?** (fees, admin settings, registry)
+   - ✅ YES → You MUST use init_module() for deployment initialization
+   - ❌ NO → Use public entry functions
+
 ## Core Workflow
 
 ### Step 1: Search for Examples
@@ -84,6 +100,145 @@ module my_addr::my_module {
     // Internal helpers
 }
 ```
+
+### Step 2.5: Identify Token Standard - Digital Assets (NFTs) ⭐ CRITICAL
+
+**IF YOUR CONTRACT INVOLVES NFTs** (collections, marketplaces, minting, trading):
+
+⚠️ STOP AND READ THIS SECTION CAREFULLY ⚠️
+
+**CRITICAL TYPE RULE:**
+
+```move
+// ✅ CORRECT - Use this type for ALL NFT references
+use aptos_token_objects::aptos_token::{Self, AptosToken};
+
+public entry fun list_nft(
+    seller: &signer,
+    nft: Object<AptosToken>,  // ← AptosToken type!
+    price: u64
+) { ... }
+
+// ❌ WRONG - DO NOT USE (causes violations)
+use aptos_token_objects::token;
+
+public entry fun list_nft(
+    seller: &signer,
+    nft: Object<token::Token>,  // ← Generic Token - VIOLATION!
+    price: u64
+) { ... }
+```
+
+**Required Imports - Copy exactly:**
+
+```move
+use aptos_token_objects::collection;
+use aptos_token_objects::token;
+use aptos_token_objects::aptos_token::{Self, AptosToken};  // ← Import AptosToken!
+use aptos_token_objects::royalty::{Self, Royalty};
+```
+
+**NFT Marketplace Pattern:**
+
+For NFT marketplaces, you MUST:
+
+1. Use `init_module()` (NOT public `initialize()`)
+2. Marketplace object owns the collection
+3. Use extend_ref to mint as marketplace signer
+
+```move
+fun init_module(deployer: &signer) {
+    // Create marketplace state object
+    let marketplace_ref = object::create_named_object(deployer, b"MARKETPLACE_STATE");
+    let marketplace_signer = object::generate_signer(&marketplace_ref);
+
+    // Marketplace object creates collection
+    collection::create_unlimited_collection(
+        &marketplace_signer,  // ← Marketplace signer owns collection
+        string::utf8(b"Collection description"),
+        string::utf8(b"Collection Name"),
+        option::none(),
+        string::utf8(b"https://uri.com"),
+    );
+
+    // Store config with extend_ref
+    move_to(&marketplace_signer, MarketplaceConfig {
+        admin: signer::address_of(deployer),
+        extend_ref: object::generate_extend_ref(&marketplace_ref),
+    });
+}
+
+public entry fun mint_nft(creator: &signer, name: String, uri: String) acquires MarketplaceConfig {
+    let config = borrow_global<MarketplaceConfig>(get_marketplace_addr());
+    let marketplace_signer = object::generate_signer_for_extending(&config.extend_ref);
+
+    // Mint with marketplace signer
+    token::create_named_token(
+        &marketplace_signer,  // ← Must be collection owner
+        string::utf8(b"Collection Name"),
+        string::utf8(b"Description"),
+        name,
+        option::none(),
+        uri,
+    );
+}
+```
+
+**See:** `../../patterns/DIGITAL_ASSETS.md` lines 381-589 for complete marketplace example
+
+### Step 2.6: Identify Token Standard - Fungible Assets (Tokens/Coins) ⭐ CRITICAL
+
+**IF YOUR CONTRACT INVOLVES FUNGIBLE TOKENS** (coins, tokens, currencies, points):
+
+⚠️ STOP AND READ THIS SECTION CAREFULLY ⚠️
+
+**CRITICAL TYPE RULE:**
+
+```move
+// ✅ CORRECT - Use Fungible Asset standard
+use aptos_framework::fungible_asset::{Self, Metadata, FungibleAsset};
+
+public entry fun transfer(sender: &signer, recipient: address, amount: u64) {
+    let metadata = get_token_metadata();  // Returns Object<Metadata>
+    primary_fungible_store::transfer(sender, metadata, recipient, amount);
+}
+
+// ❌ WRONG - DO NOT use legacy coin module for new tokens
+use aptos_framework::coin;  // ← Deprecated for new tokens
+```
+
+**Required Imports:**
+
+```move
+use aptos_framework::fungible_asset::{Self, Metadata, FungibleAsset, MintRef, BurnRef};
+use aptos_framework::primary_fungible_store;
+use aptos_framework::object::{Self, Object};
+```
+
+**Token Creation Pattern (in init_module):**
+
+```move
+fun init_module(deployer: &signer) {
+    let constructor_ref = &object::create_named_object(deployer, b"MY_TOKEN");
+
+    primary_fungible_store::create_primary_store_enabled_fungible_asset(
+        constructor_ref,
+        option::none(), // max_supply (none = unlimited)
+        string::utf8(b"My Token"),
+        string::utf8(b"MTK"),
+        8, // decimals
+        string::utf8(b"https://icon.png"),
+        string::utf8(b"https://project.com"),
+    );
+
+    // Store permission refs
+    let mint_ref = fungible_asset::generate_mint_ref(constructor_ref);
+    let burn_ref = fungible_asset::generate_burn_ref(constructor_ref);
+    // ... store refs securely
+}
+```
+
+**See:** `../../patterns/FUNGIBLE_ASSETS.md` for complete FA patterns
 
 ### Step 3: Implement Object Creation
 
@@ -196,15 +351,24 @@ When writing Move contracts, you MUST:
 
 ### Digital Assets (NFTs) ⭐ CRITICAL
 
-- ✅ **ALWAYS use Digital Asset (DA) standard** for ALL NFT-related contracts (collections, marketplaces, minting)
-- ✅ **ALWAYS import** `aptos_token_objects::collection` and `aptos_token_objects::token` modules
-- ✅ **ALWAYS use** `Object<AptosToken>` for NFT references (NOT generic `Object<T>`)
+- ✅ **ALWAYS use** `Object<AptosToken>` for NFT references (NOT `Object<token::Token>`, NOT generic `Object<T>`)
+- ✅ **ALWAYS import** `aptos_token_objects::aptos_token::{Self, AptosToken}`
+- ✅ **ALWAYS use Digital Asset (DA) standard** for ALL NFT-related contracts
 - ✅ **ALWAYS create collections** with `collection::create_fixed_collection()` or
   `collection::create_unlimited_collection()`
-- ✅ **ALWAYS mint tokens** with `token::create_named_token()` or `token::create()` (unnamed)
-- ✅ **ALWAYS set royalties** when creating collections using `royalty::create()`
-- ✅ **ALWAYS verify collection exists** before minting tokens
-- ✅ See `../../patterns/DIGITAL_ASSETS.md` for complete NFT patterns
+- ✅ **ALWAYS use init_module()** for marketplace contracts (NOT public `initialize()`)
+- ✅ **ALWAYS have marketplace object own collection** (use extend_ref to mint)
+- ✅ See `../../patterns/DIGITAL_ASSETS.md` for complete patterns
+
+### Fungible Assets (Tokens/Coins) ⭐ CRITICAL
+
+- ✅ **ALWAYS use Fungible Asset (FA) standard** for ALL token/coin contracts
+- ✅ **ALWAYS use** `Object<Metadata>` for token type references
+- ✅ **ALWAYS import** `aptos_framework::fungible_asset` and `primary_fungible_store`
+- ✅ **ALWAYS use init_module()** to create metadata object
+- ✅ **ALWAYS enable primary store** with `create_primary_store_enabled_fungible_asset()`
+- ✅ **ALWAYS store permission refs** (MintRef, BurnRef, TransferRef) securely
+- ✅ See `../../patterns/FUNGIBLE_ASSETS.md` for complete patterns
 
 ### Object Model
 
@@ -395,12 +559,19 @@ When writing Move contracts, you MUST NEVER:
 
 ### Digital Assets (NFTs) ⭐ CRITICAL
 
-- ❌ **NEVER use legacy TokenV1 standard** (deprecated, all tokens migrated to Digital Asset)
-- ❌ **NEVER import** `aptos_token::token` (legacy module - use `aptos_token_objects::token` instead)
-- ❌ **NEVER use** generic `Object<T>` for NFTs (use `Object<AptosToken>` specifically)
+- ❌ **NEVER use** `Object<token::Token>` for NFTs (use `Object<AptosToken>` specifically)
+- ❌ **NEVER use** generic `Object<T>` for NFTs (use `Object<AptosToken>`)
+- ❌ **NEVER use legacy TokenV1** (deprecated - use Digital Asset standard)
+- ❌ **NEVER import** `aptos_token::token` (legacy - use `aptos_token_objects::token`)
 - ❌ **NEVER create tokens** without a parent collection
-- ❌ **NEVER skip royalty configuration** when creating collections
-- ❌ **NEVER use** `token::create_token_script()` or other legacy token functions
+- ❌ **NEVER use public `initialize()`** for marketplace setup (use `init_module()`)
+
+### Fungible Assets (Tokens/Coins) ⭐ CRITICAL
+
+- ❌ **NEVER use legacy coin module** for new token contracts
+- ❌ **NEVER import** `aptos_framework::coin` for new tokens (use FA instead)
+- ❌ **NEVER require recipient opt-in** (FA doesn't need `coin::register()`)
+- ❌ **NEVER expose MintRef/BurnRef** publicly without authorization
 
 ### Legacy Patterns
 

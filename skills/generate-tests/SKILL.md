@@ -540,6 +540,155 @@ public fun test_gas_balanced_across_outcomes(user: &signer) {
 }
 ```
 
+### Step 6.8: Fungible Asset Tests ⭐ CRITICAL (if applicable)
+
+**For contracts using Fungible Assets:**
+
+#### Basic FA Operations
+
+```move
+#[test(deployer = @my_addr, user1 = @0x100, user2 = @0x200)]
+public fun test_mint_transfer_burn(deployer: &signer, user1: &signer, user2: &signer) {
+    // Initialize token
+    my_token::init_module(deployer);
+
+    let user1_addr = signer::address_of(user1);
+    let user2_addr = signer::address_of(user2);
+    let metadata = my_token::get_metadata();
+
+    // Test mint
+    my_token::mint(deployer, user1_addr, 1000);
+    assert!(primary_fungible_store::balance(user1_addr, metadata) == 1000, 0);
+
+    // Test transfer
+    my_token::transfer(user1, user2_addr, 400);
+    assert!(primary_fungible_store::balance(user1_addr, metadata) == 600, 1);
+    assert!(primary_fungible_store::balance(user2_addr, metadata) == 400, 2);
+
+    // Test burn
+    my_token::burn(user1, 100);
+    assert!(primary_fungible_store::balance(user1_addr, metadata) == 500, 3);
+}
+
+#[test(deployer = @my_addr, user = @0x100)]
+#[expected_failure(abort_code = E_ZERO_AMOUNT)]
+public fun test_zero_amount_transfer_rejected(deployer: &signer, user: &signer) {
+    my_token::init_module(deployer);
+    my_token::mint(deployer, signer::address_of(user), 1000);
+    my_token::transfer(user, @0x200, 0); // Should abort
+}
+
+#[test(deployer = @my_addr, user = @0x100)]
+#[expected_failure]
+public fun test_insufficient_balance_transfer_rejected(deployer: &signer, user: &signer) {
+    my_token::init_module(deployer);
+    my_token::mint(deployer, signer::address_of(user), 100);
+    my_token::transfer(user, @0x200, 200); // Should abort - insufficient balance
+}
+```
+
+#### Authorization Tests
+
+```move
+#[test(deployer = @my_addr, attacker = @0x999)]
+#[expected_failure(abort_code = E_NOT_ADMIN)]
+public fun test_unauthorized_mint_blocked(deployer: &signer, attacker: &signer) {
+    my_token::init_module(deployer);
+    my_token::mint(attacker, @0x100, 1000); // Should abort
+}
+
+#[test(deployer = @my_addr, attacker = @0x999)]
+#[expected_failure(abort_code = E_NOT_ADMIN)]
+public fun test_unauthorized_burn_blocked(deployer: &signer, attacker: &signer) {
+    my_token::init_module(deployer);
+    my_token::burn_from_account(attacker, @0x100, 100); // Should abort
+}
+```
+
+#### Max Supply Tests (Fixed Supply)
+
+```move
+#[test(deployer = @my_addr, user = @0x100)]
+#[expected_failure(abort_code = fungible_asset::EMAX_SUPPLY_EXCEEDED)]
+public fun test_cannot_exceed_max_supply(deployer: &signer, user: &signer) {
+    my_token::init_module(deployer); // Creates token with max supply
+
+    // Attempt to mint more than max supply
+    let max_plus_one = 1_000_001 * 100_000_000; // Assuming 1M max with 8 decimals
+    my_token::mint(deployer, signer::address_of(user), max_plus_one);
+}
+
+#[test(deployer = @my_addr)]
+public fun test_can_mint_up_to_max_supply(deployer: &signer) {
+    my_token::init_module(deployer);
+
+    // Mint exactly max supply
+    let max_supply = 1_000_000 * 100_000_000;
+    my_token::mint(deployer, @0x100, max_supply);
+
+    let metadata = my_token::get_metadata();
+    assert!(primary_fungible_store::balance(@0x100, metadata) == max_supply, 0);
+}
+```
+
+#### Pausable Token Tests (if applicable)
+
+```move
+#[test(deployer = @my_addr, user = @0x100)]
+#[expected_failure(abort_code = E_PAUSED)]
+public fun test_paused_transfer_blocked(deployer: &signer, user: &signer) {
+    pausable_token::init_module(deployer);
+
+    // Mint some tokens
+    pausable_token::mint(deployer, signer::address_of(user), 1000);
+
+    // Pause transfers
+    pausable_token::pause(deployer);
+
+    // Attempt transfer (should fail)
+    pausable_token::transfer(user, @0x200, 100);
+}
+
+#[test(deployer = @my_addr, user = @0x100)]
+public fun test_unpause_allows_transfers(deployer: &signer, user: &signer) {
+    pausable_token::init_module(deployer);
+    pausable_token::mint(deployer, signer::address_of(user), 1000);
+
+    // Pause and unpause
+    pausable_token::pause(deployer);
+    pausable_token::unpause(deployer);
+
+    // Transfer should work now
+    pausable_token::transfer(user, @0x200, 100);
+
+    let metadata = pausable_token::get_metadata();
+    assert!(primary_fungible_store::balance(@0x200, metadata) == 100, 0);
+}
+```
+
+#### Balance Query Tests
+
+```move
+#[test(deployer = @my_addr, user = @0x100)]
+public fun test_balance_queries_correct(deployer: &signer, user: &signer) {
+    my_token::init_module(deployer);
+
+    let user_addr = signer::address_of(user);
+
+    // Initial balance should be 0
+    assert!(my_token::balance(user_addr) == 0, 0);
+
+    // Mint tokens
+    my_token::mint(deployer, user_addr, 500);
+    assert!(my_token::balance(user_addr) == 500, 1);
+
+    // Transfer some
+    my_token::transfer(user, @0x200, 200);
+    assert!(my_token::balance(user_addr) == 300, 2);
+    assert!(my_token::balance(@0x200) == 200, 3);
+}
+```
+
 ### Step 7: Verify Coverage
 
 **Run tests with coverage:**
@@ -695,6 +844,17 @@ For each contract, verify you have tests for:
 - [ ] Front-running prevention (atomic operations tested)
 - [ ] Token ID collisions prevented (object addresses used)
 - [ ] Randomness security (entry functions, gas balanced) - if applicable
+
+**Fungible Asset Tests (if applicable):**
+
+- [ ] Mint, transfer, burn operations work
+- [ ] Zero amount transfers rejected
+- [ ] Insufficient balance transfers rejected
+- [ ] Unauthorized minting blocked
+- [ ] Unauthorized burning blocked
+- [ ] Max supply enforced (if fixed supply)
+- [ ] Pausable functionality works (if applicable)
+- [ ] Balance queries return correct values
 
 **Coverage:**
 
