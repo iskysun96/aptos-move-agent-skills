@@ -448,6 +448,8 @@ public fun calculate_power_of_two(exponent: u8): u64 {
     1 << exponent
 }
 
+// Error codes
+const E_OVERFLOW: u64 = 1;
 // ✅ CORRECT: Validate shift amount
 public fun calculate_power_of_two_safe(exponent: u8): u64 {
     assert!(exponent < 64, E_OVERFLOW);
