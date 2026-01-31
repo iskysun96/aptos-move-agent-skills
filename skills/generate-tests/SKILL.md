@@ -13,8 +13,9 @@ This skill generates comprehensive test suites for Move contracts with **100% li
 - ✅ Access control (unauthorized users blocked)
 - ✅ Input validation (invalid inputs rejected)
 - ✅ Edge cases (boundaries, limits, empty states)
+- ✅ **Security patterns** (arithmetic safety, storage scoping, reference safety, business logic) ⭐ CRITICAL
 
-**Critical Rule:** NEVER deploy without 100% test coverage.
+**Critical Rule:** NEVER deploy without 100% test coverage and comprehensive security tests.
 
 ## Core Workflow
 
@@ -218,7 +219,254 @@ public fun test_empty_collection_operations(user: &signer) {
 }
 ```
 
-### Step 6: Verify Coverage
+### Step 6: Write Security Tests ⭐ CRITICAL
+
+**Test security-critical patterns from [SECURITY.md](../../patterns/SECURITY.md):**
+
+#### 6.1 Arithmetic Safety Tests
+
+**Division Precision Loss - CRITICAL:**
+
+```move
+#[test(user = @0x1)]
+#[expected_failure(abort_code = my_module::E_AMOUNT_TOO_SMALL)]
+public fun test_amount_below_minimum_rejected(user: &signer) {
+    // Amount too small causes fee to round to zero
+    my_module::process_order(user, 100); // MIN_ORDER_SIZE is 1000
+}
+
+#[test(user = @0x1)]
+public fun test_fee_calculation_non_zero(user: &signer) {
+    // Test that fee is actually calculated for valid amounts
+    let fee = my_module::calculate_fee(1000); // Minimum valid amount
+    assert!(fee > 0, 0); // Fee must be non-zero
+}
+
+#[test(user = @0x1)]
+public fun test_minimum_threshold_enforced(user: &signer) {
+    // Test that minimum threshold prevents precision loss
+    let amount = my_module::MIN_ORDER_SIZE;
+    let fee = my_module::calculate_fee(amount);
+    assert!(fee > 0, 0);
+}
+```
+
+**Left Shift Overflow - CRITICAL:**
+
+```move
+#[test]
+#[expected_failure(abort_code = my_module::E_OVERFLOW)]
+public fun test_shift_amount_overflow_rejected() {
+    // Left shift >= 64 must be rejected
+    my_module::calculate_power_of_two(64); // Should abort
+}
+
+#[test]
+public fun test_max_shift_amount_allowed() {
+    // Maximum safe shift should work
+    let result = my_module::calculate_power_of_two(63);
+    // Verify result is correct
+}
+
+#[test]
+#[expected_failure(abort_code = my_module::E_OVERFLOW)]
+public fun test_shift_with_u8_overflow() {
+    // If using u8 shift amounts, test overflow
+    my_module::shift_operation(255); // u8 max
+}
+```
+
+#### 6.2 Global Storage Scoping Tests - CRITICAL
+
+**Test functions ONLY modify signer's own storage:**
+
+```move
+#[test(user1 = @0x1, user2 = @0x2)]
+public fun test_update_only_affects_own_account(
+    user1: &signer,
+    user2: &signer
+) {
+    // Setup both accounts
+    my_module::init_account(user1);
+    my_module::init_account(user2);
+
+    my_module::set_balance(user1, 100);
+    my_module::set_balance(user2, 200);
+
+    // User1 updates their balance
+    my_module::update_balance(user1, 50);
+
+    // Verify user1's balance changed, user2's did NOT
+    assert!(my_module::get_balance(signer::address_of(user1)) == 150, 0);
+    assert!(my_module::get_balance(signer::address_of(user2)) == 200, 1); // Unchanged
+}
+
+// ❌ BAD CONTRACT: If function accepts arbitrary address parameter
+// #[test(user = @0x1)]
+// #[expected_failure]  // This test would FAIL if contract is vulnerable
+// public fun test_cannot_modify_other_account(user: &signer) {
+//     // If contract accepts target_addr parameter, this is a vulnerability
+//     my_module::update_balance_wrong(user, @0x999, 1000); // Should NOT be possible
+// }
+```
+
+#### 6.3 Resource Management Tests
+
+**Unbounded Iteration Prevention:**
+
+```move
+#[test(admin = @0x1)]
+public fun test_user_data_stored_in_user_account(admin: &signer) {
+    // Verify user data is stored in user's account, NOT global vector
+    my_module::init_module(admin);
+
+    // Check implementation doesn't use global vector
+    // (This test validates architecture, not runtime behavior)
+}
+
+#[test(user = @0x1)]
+public fun test_scalable_per_user_storage(user: &signer) {
+    // Test that operations scale per-user (no iteration over all users)
+    my_module::init_account(user);
+    my_module::add_item(user, string::utf8(b"Item"));
+
+    // Operation should be O(1), not O(n) where n = total users
+    // Gas cost should be constant regardless of total system users
+}
+```
+
+#### 6.4 Generic Type Validation Tests
+
+**Flash Loan Protection:**
+
+```move
+use aptos_framework::coin::{Self, Coin};
+use aptos_framework::aptos_coin::AptosCoin;
+
+#[test(user = @0x1)]
+public fun test_flash_loan_requires_matching_type(user: &signer) {
+    // Borrow AptosCoin
+    let receipt = my_module::flash_borrow<AptosCoin>(user, 1000);
+
+    // Must repay with SAME type (Receipt<phantom AptosCoin> enforces this)
+    let coins = coin::withdraw<AptosCoin>(user, 1000);
+    my_module::flash_repay<AptosCoin>(receipt, coins); // Type must match!
+}
+
+// This should NOT compile if types don't match:
+// #[test(user = @0x1)]
+// public fun test_flash_loan_type_mismatch(user: &signer) {
+//     let receipt = my_module::flash_borrow<AptosCoin>(user, 1000);
+//     let fake_coins = coin::withdraw<FakeCoin>(user, 1000);
+//     my_module::flash_repay<FakeCoin>(receipt, fake_coins); // Compile error!
+// }
+```
+
+#### 6.5 Reference Safety Tests
+
+**Callback Validation:**
+
+```move
+#[test(owner = @0x1)]
+public fun test_invariants_preserved_after_callback(owner: &signer) {
+    // Setup
+    let obj = my_module::create_object(owner, 100);
+
+    // Check invariant before callback
+    assert!(my_module::get_value(obj) == 100, 0);
+
+    // Execute function that calls external code with &mut ref
+    my_module::process_with_callback(owner, obj);
+
+    // CRITICAL: Re-verify invariants after callback
+    // Malicious callback could have violated invariants
+    assert!(my_module::get_value(obj) >= 0, 1); // Still valid
+    assert!(my_module::is_initialized(obj), 2); // Still initialized
+}
+```
+
+#### 6.6 Business Logic Tests
+
+**Front-Running Prevention (Atomic Operations):**
+
+```move
+#[test(user = @0x1)]
+public fun test_set_and_evaluate_atomic(user: &signer) {
+    // Operation should be atomic (not split into set + evaluate)
+    my_module::set_and_evaluate_price(user, 100);
+
+    // Verify both operations happened together
+    // (No way for attacker to front-run between set and evaluate)
+}
+
+#[test(attacker = @0x2, victim = @0x3)]
+public fun test_cannot_front_run_price_update(
+    attacker: &signer,
+    victim: &signer
+) {
+    // Setup victim's operation
+    my_module::set_and_evaluate_price(victim, 100);
+
+    // Attacker cannot observe price before evaluation
+    // (Operations are atomic in same transaction)
+}
+```
+
+**Token ID Collision Prevention:**
+
+```move
+#[test(user = @0x1)]
+public fun test_token_ids_use_object_addresses(user: &signer) {
+    // Create two tokens with same metadata
+    let token1 = my_module::create_token(user, string::utf8(b"Token"), 1);
+    let token2 = my_module::create_token(user, string::utf8(b"Token"), 1);
+
+    // IDs must be different (object addresses are unique)
+    assert!(object::object_address(&token1) != object::object_address(&token2), 0);
+}
+
+// ❌ BAD: String concatenation causes collisions
+// #[test(user = @0x1)]
+// public fun test_string_concat_collision() {
+//     // "A" + "BC" = "ABC"
+//     // "AB" + "C" = "ABC"  <-- COLLISION!
+// }
+```
+
+#### 6.7 Randomness Security Tests (if applicable)
+
+**Entry Function Protection:**
+
+```move
+// ✅ CORRECT: Randomness function is `entry` (not public)
+#[test(user = @0x1)]
+public fun test_random_mint_is_entry_function(user: &signer) {
+    // Can call directly
+    my_module::random_mint(user);
+
+    // But CANNOT be composed (prevents test-and-abort attacks)
+    // my_module::try_random_mint(user); // Would not compile
+}
+```
+
+**Gas Balance Testing:**
+
+```move
+#[test(user = @0x1)]
+public fun test_gas_balanced_across_outcomes(user: &signer) {
+    // Winning path gas cost
+    let gas_win = estimate_gas(|| my_module::random_mint_win_case(user));
+
+    // Losing path gas cost
+    let gas_lose = estimate_gas(|| my_module::random_mint_lose_case(user));
+
+    // Gas costs should be similar (prevent undergasing attacks)
+    let diff = if (gas_win > gas_lose) { gas_win - gas_lose } else { gas_lose - gas_win };
+    assert!(diff < 1000, 0); // Within 1000 gas units
+}
+```
+
+### Step 7: Verify Coverage
 
 **Run tests with coverage:**
 
@@ -292,6 +540,40 @@ module my_addr::module_tests {
     public fun test_boundary_condition(user: &signer) {
         // Test edge cases
     }
+
+    // ========== Security Tests ⭐ CRITICAL ==========
+
+    #[test(user = @0x1)]
+    #[expected_failure(abort_code = E_AMOUNT_TOO_SMALL)]
+    public fun test_division_precision_loss_prevented(user: &signer) {
+        // Test minimum threshold enforced
+    }
+
+    #[test]
+    #[expected_failure(abort_code = E_OVERFLOW)]
+    public fun test_left_shift_overflow_rejected() {
+        // Test shift validation
+    }
+
+    #[test(user1 = @0x1, user2 = @0x2)]
+    public fun test_global_storage_scoping(user1: &signer, user2: &signer) {
+        // Test cross-account isolation
+    }
+
+    #[test(user = @0x1)]
+    public fun test_no_unbounded_iteration(user: &signer) {
+        // Test per-user storage architecture
+    }
+
+    #[test(user = @0x1)]
+    public fun test_invariants_after_callback(user: &signer) {
+        // Test reference safety
+    }
+
+    #[test(user = @0x1)]
+    public fun test_atomic_operations(user: &signer) {
+        // Test front-running prevention
+    }
 }
 ```
 
@@ -322,10 +604,22 @@ For each contract, verify you have tests for:
 - [ ] Minimum values work
 - [ ] Empty states handled
 
+**Security Tests ⭐ CRITICAL:**
+- [ ] Division precision loss prevented (minimum thresholds enforced, fees > 0)
+- [ ] Left shift overflow validated (shift amount < 64)
+- [ ] Global storage scoped to signer (cannot modify other accounts)
+- [ ] Unbounded iterations prevented (per-user storage, not global vectors)
+- [ ] Generic type validation (flash loan repayment type matches)
+- [ ] Reference safety (invariants preserved after callbacks)
+- [ ] Front-running prevention (atomic operations tested)
+- [ ] Token ID collisions prevented (object addresses used)
+- [ ] Randomness security (entry functions, gas balanced) - if applicable
+
 **Coverage:**
 - [ ] 100% line coverage achieved
 - [ ] All error codes tested
 - [ ] All functions tested
+- [ ] All security patterns tested
 
 ## ALWAYS Rules
 
@@ -338,6 +632,17 @@ For each contract, verify you have tests for:
 - ✅ ALWAYS verify all state changes in tests
 - ✅ ALWAYS run `aptos move test --coverage` before deployment
 
+### Security Testing ⭐ CRITICAL - See [SECURITY.md](../../patterns/SECURITY.md)
+- ✅ **ALWAYS test division precision loss**: Verify minimum thresholds enforced, fees > 0
+- ✅ **ALWAYS test left shift validation**: Reject shift amounts >= 64
+- ✅ **ALWAYS test global storage scoping**: Multi-user tests verify isolation
+- ✅ **ALWAYS test unbounded iteration prevention**: Verify per-user storage architecture
+- ✅ **ALWAYS test generic type validation**: Flash loan type matching (if applicable)
+- ✅ **ALWAYS test reference safety**: Verify invariants before AND after callbacks
+- ✅ **ALWAYS test atomic operations**: Verify no front-running opportunities
+- ✅ **ALWAYS test token ID uniqueness**: Object addresses prevent collisions
+- ✅ **ALWAYS test randomness security**: Entry functions, gas balance (if applicable)
+
 ## NEVER Rules
 
 - ❌ NEVER deploy without 100% coverage
@@ -345,6 +650,15 @@ For each contract, verify you have tests for:
 - ❌ NEVER skip access control tests
 - ❌ NEVER use unclear test names
 - ❌ NEVER batch tests without verifying each case
+
+### Security Testing Violations ⭐ CRITICAL
+- ❌ NEVER skip testing minimum thresholds (division precision loss)
+- ❌ NEVER skip testing left shift validation (silent overflow)
+- ❌ NEVER skip testing cross-account isolation (global storage scoping)
+- ❌ NEVER skip testing scalability (unbounded iteration DOS)
+- ❌ NEVER skip testing invariants after callbacks (reference safety)
+- ❌ NEVER skip testing atomic operations (front-running)
+- ❌ NEVER skip testing randomness functions if contract uses randomness
 
 ## References
 
