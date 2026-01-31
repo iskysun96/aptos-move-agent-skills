@@ -342,12 +342,14 @@ Copilot has limited context window. For best results:
 ### Pattern Recognition
 
 Copilot learns from:
+
 - Your current file
 - Open files in editor
 - Comments and documentation
 - Your coding history
 
 Improve recognition:
+
 - Keep pattern files open
 - Add explicit comments
 - Use consistent naming
@@ -355,6 +357,7 @@ Improve recognition:
 ### Move Language Support
 
 Move is relatively new, so:
+
 - Be more explicit than with popular languages
 - Verify generated code against patterns
 - Test thoroughly (100% coverage!)
@@ -364,6 +367,7 @@ Move is relatively new, so:
 ### Suggestions Not Following Patterns
 
 **Solution:**
+
 1. Add more explicit comments referencing patterns
 2. Keep pattern files open in editor
 3. Use Copilot Chat with explicit references
@@ -371,6 +375,7 @@ Move is relatively new, so:
 ### Incorrect Object Pattern
 
 **Solution:**
+
 ```move
 // CRITICAL: Return Object<T>, NOT ConstructorRef
 // REF: move-agent-skills/patterns/OBJECTS.md - Anti-Patterns
@@ -381,6 +386,7 @@ Move is relatively new, so:
 ### Missing Security Checks
 
 **Solution:**
+
 ```move
 // REQUIRED SECURITY CHECKS (move-agent-skills/patterns/SECURITY.md):
 // 1. assert!(signer::address_of(user) == expected, E_UNAUTHORIZED);

@@ -1,6 +1,8 @@
 ---
 name: scaffold-project
-description: Scaffold new Aptos Move V2 project with proper structure and configuration. Use when "create move project", "new aptos project", "scaffold move app", "init move module".
+description:
+  Scaffold new Aptos Move V2 project with proper structure and configuration. Use when "create move project", "new aptos
+  project", "scaffold move app", "init move module".
 ---
 
 # Scaffold Project Skill
@@ -102,11 +104,13 @@ aptos move init --name <project_name>
 ```
 
 **Example:**
+
 ```bash
 aptos move init --name my_nft_marketplace
 ```
 
 This creates:
+
 ```
 my_nft_marketplace/
 ├── Move.toml
@@ -171,6 +175,7 @@ mkdir -p tests/unit tests/integration
 ```
 
 **Recommended structure:**
+
 ```
 project/
 ├── Move.toml
@@ -255,7 +260,7 @@ module my_addr::main_tests {
 
 **Create `README.md`:**
 
-```markdown
+````markdown
 # Project Name
 
 Brief description of your Move module.
@@ -291,6 +296,7 @@ aptos move test --coverage
 # View coverage report
 aptos move coverage source --module <module_name>
 ```
+````
 
 ## Deployment
 
@@ -318,7 +324,8 @@ aptos move deploy-object --address-name my_addr --assume-yes
 ## License
 
 MIT
-```
+
+````
 
 ### Step 7: Initialize Git (Optional)
 
@@ -330,7 +337,7 @@ echo "node_modules/" >> .gitignore
 
 git add .
 git commit -m "Initial commit: Scaffold Aptos Move project"
-```
+````
 
 ### Step 8: Verify Setup
 
@@ -454,7 +461,7 @@ local = "../my-other-module"
 - ✅ ALWAYS create tests/ directory
 - ✅ ALWAYS include README.md with setup instructions
 - ✅ ALWAYS verify project compiles after scaffolding
-- ✅ ALWAYS use named addresses (my_addr = "_")
+- ✅ ALWAYS use named addresses (my*addr = "*")
 - ✅ ALWAYS set up dev-addresses for testing
 
 ## NEVER Rules
@@ -504,11 +511,13 @@ aptos move test
 ## References
 
 **Official Documentation:**
+
 - CLI Reference: https://aptos.dev/build/cli
 - Move.toml: https://aptos.dev/build/cli/working-with-move-contracts
 - Project Structure: https://aptos.dev/build/smart-contracts
 
 **Related Skills:**
+
 - `write-contracts` - Write modules after scaffolding
 - `generate-tests` - Create test suite
 - `use-aptos-cli` - CLI commands reference

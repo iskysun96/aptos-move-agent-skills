@@ -8,9 +8,11 @@
 
 ## Overview
 
-The **Digital Asset (DA) standard** is the modern NFT framework for Aptos. It replaces the legacy TokenV1 standard (which has been migrated).
+The **Digital Asset (DA) standard** is the modern NFT framework for Aptos. It replaces the legacy TokenV1 standard
+(which has been migrated).
 
 **Key Benefits:**
+
 - 🚀 **50% gas reduction** compared to legacy tokens
 - ✅ **Direct transfers** - no recipient opt-in required
 - 🔗 **Composable NFTs** - NFTs can own other NFTs
@@ -25,6 +27,7 @@ The **Digital Asset (DA) standard** is the modern NFT framework for Aptos. It re
 ### Collections
 
 A **Collection** is a group of related NFTs with:
+
 - Name (unique identifier)
 - Description
 - URI (collection metadata)
@@ -34,6 +37,7 @@ A **Collection** is a group of related NFTs with:
 ### Tokens (Digital Assets)
 
 A **Token** (Digital Asset) represents a unique NFT with:
+
 - Name
 - Description
 - URI (links to asset metadata/image)
@@ -41,6 +45,7 @@ A **Token** (Digital Asset) represents a unique NFT with:
 - Optional properties (key-value pairs)
 
 **Token Types:**
+
 - **Named tokens**: Deterministic addresses (not deletable)
 - **Unnamed tokens**: Non-deterministic addresses (deletable)
 
@@ -310,6 +315,7 @@ public entry fun mint_simple(
 When creating a marketplace that mints NFTs, you MUST understand the ownership hierarchy:
 
 **WRONG Pattern:**
+
 ```move
 // ❌ WRONG: Collection creates tokens in itself
 fun init_module(deployer: &signer) {
@@ -333,6 +339,7 @@ public entry fun mint_nft(creator: &signer) acquires Config {
 ```
 
 **CORRECT Pattern:**
+
 ```move
 // ✅ CORRECT: Marketplace object owns collection and creates tokens
 fun init_module(deployer: &signer) {
@@ -361,6 +368,7 @@ public entry fun mint_nft(creator: &signer) acquires MarketplaceConfig {
 **Why?** `token::create_named_token()` requires the signer to be the OWNER of the collection, not the collection itself.
 
 **Hierarchy:**
+
 ```
 Marketplace Object
   └── Owns Collection
@@ -587,6 +595,7 @@ module marketplace_addr::nft_marketplace {
 When working with NFTs on Aptos:
 
 ### Digital Asset Standard
+
 - ✅ **ALWAYS use Digital Asset (DA) standard** for ALL NFT contracts
 - ✅ **ALWAYS import** `aptos_token_objects::collection` and `aptos_token_objects::token`
 - ✅ **ALWAYS use** `Object<AptosToken>` for NFT references (not generic `Object<T>`)
@@ -594,18 +603,21 @@ When working with NFTs on Aptos:
 - ✅ **ALWAYS emit events** for minting, transfers, and sales
 
 ### Collection Creation
+
 - ✅ **ALWAYS use** `collection::create_fixed_collection()` for limited supply
 - ✅ **ALWAYS use** `collection::create_unlimited_collection()` for unlimited supply
 - ✅ **ALWAYS set royalties** when creating collections (use `royalty::create()`)
 - ✅ **ALWAYS provide** collection description, name, and URI
 
 ### Token Minting
+
 - ✅ **ALWAYS use** `token::create_named_token()` for standard NFTs
 - ✅ **ALWAYS use** `token::create()` for deletable NFTs
 - ✅ **ALWAYS verify** collection exists before minting
 - ✅ **ALWAYS provide** token description, name, and URI
 
 ### Marketplace Contracts
+
 - ✅ **ALWAYS verify** token ownership before listing
 - ✅ **ALWAYS use** escrow pattern (transfer to listing object)
 - ✅ **ALWAYS validate** prices (non-zero, within limits)
@@ -616,12 +628,14 @@ When working with NFTs on Aptos:
 ## NEVER Rules
 
 ### Legacy Token Standard
+
 - ❌ **NEVER use** the legacy TokenV1 standard (deprecated, all tokens migrated)
 - ❌ **NEVER import** `aptos_token::token` (legacy module)
 - ❌ **NEVER use** `token::create_token_script()` (legacy function)
 - ❌ **NEVER require** recipient opt-in for transfers (DA doesn't need it)
 
 ### Bad Patterns
+
 - ❌ **NEVER use** generic `Object<T>` for NFTs (use `Object<AptosToken>`)
 - ❌ **NEVER skip** royalty configuration for collections
 - ❌ **NEVER forget** to transfer NFTs to escrow in marketplaces
@@ -723,6 +737,7 @@ public fun get_token_description(token: Object<AptosToken>): String {
 **All legacy TokenV1 tokens have been migrated.** You should NOT support legacy tokens.
 
 If you encounter legacy code:
+
 - Replace `aptos_token::token` → `aptos_token_objects::token`
 - Replace `TokenId` → `Object<AptosToken>`
 - Remove opt-in logic (DA doesn't need it)
@@ -784,16 +799,19 @@ module my_addr::nft_tests {
 ## References
 
 **Official Documentation:**
+
 - [Digital Asset Standard](https://aptos.dev/build/smart-contracts/digital-asset)
 - [Digital Asset Standard (Standards)](https://aptos.dev/standards/digital-asset/)
 - [Your First NFT Tutorial](https://aptos.dev/tutorials/your-first-nft/)
 - [Token Objects Framework](https://github.com/aptos-labs/aptos-core/tree/main/aptos-move/framework/aptos-token-objects)
 
 **Related Patterns:**
+
 - `OBJECTS.md` - Object model fundamentals
 - `SECURITY.md` - NFT security considerations
 - `TESTING.md` - Testing NFT contracts
 
 ---
 
-**Remember:** Always use the Digital Asset standard for NFTs. Legacy TokenV1 is deprecated and all tokens have been migrated.
+**Remember:** Always use the Digital Asset standard for NFTs. Legacy TokenV1 is deprecated and all tokens have been
+migrated.

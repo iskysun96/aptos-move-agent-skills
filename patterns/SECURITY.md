@@ -883,8 +883,12 @@ public fun get_price(): u64 acquires OracleConfig {
 ```move
 // ❌ DANGEROUS: String concatenation can collide
 public fun get_lp_token_symbol(token_a: String, token_b: String): String {
+    let result = string::utf8(b"LP-");
+    string::append(&mut result, token_a);
+    string::append(&mut result, string::utf8(b"-"));
+    string::append(&mut result, token_b);
     // "AB" + "C" == "A" + "BC" - COLLISION!
-    string::utf8(b"LP-") + token_a + string::utf8(b"-") + token_b
+    result
 }
 
 // ✅ CORRECT: Use object addresses (guaranteed unique)

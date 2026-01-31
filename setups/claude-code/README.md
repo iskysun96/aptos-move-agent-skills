@@ -4,7 +4,8 @@ This guide explains how to use Aptos Move V2 Agent Skills with Claude Code.
 
 ## Automatic Integration
 
-Claude Code automatically detects and loads the `CLAUDE.md` file in your repository, which provides access to all skills and patterns.
+Claude Code automatically detects and loads the `CLAUDE.md` file in your repository, which provides access to all skills
+and patterns.
 
 **No configuration needed!**
 
@@ -23,6 +24,7 @@ When you work with Claude Code:
 ### 2. Context-Aware Assistance
 
 Claude Code understands the full context:
+
 - Current files in your workspace
 - Recent changes you've made
 - Error messages and compilation output
@@ -103,16 +105,16 @@ Security audit complete. Ready for deployment.
 
 ## Available Skills
 
-| Skill | Activates When | What It Does |
-|-------|---------------|--------------|
-| `scaffold-project` | "create project", "new move app" | Initializes Move project |
-| `write-contracts` | "write contract", "build module" | Generates secure Move code |
-| `generate-tests` | After writing code, "add tests" | Creates test suite with 100% coverage |
-| `security-audit` | Before deployment, "audit" | Runs security checklist |
-| `search-aptos-examples` | Before writing, "find example" | Searches official examples |
-| `use-aptos-cli` | "how to compile", "aptos command" | CLI reference |
-| `deploy-contracts` | "deploy", "publish" | Guides deployment workflow |
-| `troubleshoot-errors` | When errors occur | Diagnoses and fixes errors |
+| Skill                   | Activates When                    | What It Does                          |
+| ----------------------- | --------------------------------- | ------------------------------------- |
+| `scaffold-project`      | "create project", "new move app"  | Initializes Move project              |
+| `write-contracts`       | "write contract", "build module"  | Generates secure Move code            |
+| `generate-tests`        | After writing code, "add tests"   | Creates test suite with 100% coverage |
+| `security-audit`        | Before deployment, "audit"        | Runs security checklist               |
+| `search-aptos-examples` | Before writing, "find example"    | Searches official examples            |
+| `use-aptos-cli`         | "how to compile", "aptos command" | CLI reference                         |
+| `deploy-contracts`      | "deploy", "publish"               | Guides deployment workflow            |
+| `troubleshoot-errors`   | When errors occur                 | Diagnoses and fixes errors            |
 
 ## Pattern References
 
@@ -128,6 +130,7 @@ Claude Code has access to comprehensive pattern documentation:
 ### 1. Be Specific in Requests
 
 **Good:**
+
 ```
 "Create an NFT marketplace with:
 - Fixed price listings
@@ -137,6 +140,7 @@ Claude Code has access to comprehensive pattern documentation:
 ```
 
 **Less Effective:**
+
 ```
 "Build a marketplace"
 ```
@@ -266,6 +270,7 @@ Claude Code supports various shortcuts (check your editor for specifics):
 **Issue:** Skills don't seem to activate automatically
 
 **Solution:**
+
 1. Ensure `CLAUDE.md` exists in repository root
 2. Restart Claude Code
 3. Try explicit skill request: "Use write-contracts skill to..."
@@ -275,6 +280,7 @@ Claude Code supports various shortcuts (check your editor for specifics):
 **Issue:** Code generated doesn't match latest Aptos docs
 
 **Solution:**
+
 1. Reference official docs: "Follow pattern from aptos.dev/build/smart-contracts/object"
 2. Pull latest repository updates
 3. Report issue if pattern is incorrect
@@ -284,6 +290,7 @@ Claude Code supports various shortcuts (check your editor for specifics):
 **Issue:** Tests don't achieve 100% coverage
 
 **Solution:**
+
 1. Ask: "Show me uncovered lines"
 2. Request: "Add tests for uncovered paths"
 3. Verify: "Run coverage report"

@@ -1,8 +1,7 @@
 # Aptos Move V2 Agent Skills - AI Assistant Guide
 
-**Version:** 1.0
-**Target:** AI assistants (Claude Code, Cursor, GitHub Copilot, future Aptos Vibe tool)
-**Purpose:** Build secure, modern Aptos Move V2 smart contracts using object-centric patterns
+**Version:** 1.0 **Target:** AI assistants (Claude Code, Cursor, GitHub Copilot, future Aptos Vibe tool) **Purpose:**
+Build secure, modern Aptos Move V2 smart contracts using object-centric patterns
 
 ## Quick Start for AI Assistants
 
@@ -21,6 +20,7 @@ When helping developers with Aptos Move V2:
 **Trigger:** User says "create move project", "new aptos project", "scaffold move app"
 
 **Steps:**
+
 1. Activate `scaffold-project` skill
 2. Run `aptos move init --name <project>`
 3. Configure Move.toml with proper dependencies
@@ -35,6 +35,7 @@ When helping developers with Aptos Move V2:
 **Trigger:** User says "write move contract", "create smart contract", "build module", "implement move code"
 
 **Steps:**
+
 1. Activate `search-aptos-examples` skill → find similar examples
 2. Activate `write-contracts` skill → generate code following patterns
 3. **Critical requirements:**
@@ -51,9 +52,11 @@ When helping developers with Aptos Move V2:
 
 ### Workflow 3: Generate Tests
 
-**Trigger:** User says "write tests", "test this contract", "add test coverage", or AUTOMATICALLY after writing any contract
+**Trigger:** User says "write tests", "test this contract", "add test coverage", or AUTOMATICALLY after writing any
+contract
 
 **Steps:**
+
 1. Activate `generate-tests` skill
 2. Create test module in tests/ directory
 3. **Required test categories:**
@@ -72,6 +75,7 @@ When helping developers with Aptos Move V2:
 **Trigger:** User says "audit contract", "check security", "review move code", or AUTOMATICALLY before deployment
 
 **Steps:**
+
 1. Activate `security-audit` skill
 2. Reference `patterns/SECURITY.md` checklist
 3. **Verify each category:**
@@ -90,6 +94,7 @@ When helping developers with Aptos Move V2:
 **Trigger:** User says "deploy contract", "publish module", "deploy to testnet/mainnet"
 
 **Steps:**
+
 1. Activate `security-audit` skill → ensure security checklist passes
 2. Activate `generate-tests` skill → ensure 100% coverage
 3. Run `aptos move compile` to verify compilation
@@ -101,20 +106,76 @@ When helping developers with Aptos Move V2:
 
 **Output:** Contract deployed with verification
 
+### Workflow 6: Optimize Gas Usage
+
+**Trigger:** User says "optimize gas", "reduce gas costs", "make contract cheaper", "gas efficiency"
+
+**Steps:**
+
+1. Activate `analyze-gas-optimization` skill
+2. Analyze current contract for expensive operations
+3. Identify optimization opportunities:
+   - Storage packing
+   - Batch operations
+   - Efficient data structures (Tables vs Vectors)
+   - Lazy evaluation patterns
+4. Apply optimizations while maintaining functionality
+5. Measure gas improvements
+6. Run tests to ensure correctness
+
+**Output:** Optimized contract with gas savings report
+
+### Workflow 7: Create Move Scripts
+
+**Trigger:** User says "create move script", "atomic transaction", "batch operations", "multiple operations in one
+transaction"
+
+**Steps:**
+
+1. Activate `generate-move-scripts` skill
+2. Identify operations to combine atomically
+3. Generate script structure with proper imports
+4. Implement atomic logic with rollback on any failure
+5. Handle multiple signers if needed
+6. Compile script to bytecode
+7. Provide execution instructions
+
+**Output:** Move script with atomic multi-operation logic
+
+### Workflow 8: Implement Upgradeable Contracts
+
+**Trigger:** User says "upgradeable contract", "contract upgrade", "version management", "migration pattern"
+
+**Steps:**
+
+1. Activate `implement-upgradeable-contracts` skill
+2. Design upgrade strategy (gradual migration, proxy pattern, etc.)
+3. Implement version management
+4. Create migration functions
+5. Ensure backward compatibility
+6. Add upgrade tests
+7. Document upgrade process
+
+**Output:** Upgradeable contract with migration path
+
 ## Skill Activation Table
 
-| Skill | Activates When | Priority | Auto-Active |
-|-------|---------------|----------|-------------|
-| `write-contracts` | "write move contract", "create smart contract", "build module" | CRITICAL | No |
-| `generate-tests` | "write tests", "add coverage", after any contract written | CRITICAL | Yes (after contracts) |
-| `security-audit` | "audit", "check security", before deployment | CRITICAL | Yes (before deploy) |
-| `scaffold-project` | "create project", "new move app", "scaffold" | High | No |
-| `search-aptos-examples` | "find example", "search aptos", before writing contracts | High | Yes (before writing) |
-| `use-aptos-cli` | "run aptos", "compile", "test", "deploy" | Medium | No |
-| `deploy-contracts` | "deploy", "publish" | Medium | No |
-| `troubleshoot-errors` | Error messages detected, "fix error", "debug" | Medium | Yes (on errors) |
+| Skill                             | Activates When                                                 | Priority | Auto-Active           |
+| --------------------------------- | -------------------------------------------------------------- | -------- | --------------------- |
+| `write-contracts`                 | "write move contract", "create smart contract", "build module" | CRITICAL | No                    |
+| `generate-tests`                  | "write tests", "add coverage", after any contract written      | CRITICAL | Yes (after contracts) |
+| `security-audit`                  | "audit", "check security", before deployment                   | CRITICAL | Yes (before deploy)   |
+| `scaffold-project`                | "create project", "new move app", "scaffold"                   | High     | No                    |
+| `search-aptos-examples`           | "find example", "search aptos", before writing contracts       | High     | Yes (before writing)  |
+| `analyze-gas-optimization`        | "optimize gas", "reduce gas costs", "gas efficiency"           | High     | No                    |
+| `use-aptos-cli`                   | "run aptos", "compile", "test", "deploy"                       | Medium   | No                    |
+| `deploy-contracts`                | "deploy", "publish"                                            | Medium   | No                    |
+| `generate-move-scripts`           | "create script", "atomic transaction", "batch operations"      | Medium   | No                    |
+| `implement-upgradeable-contracts` | "upgradeable", "contract upgrade", "version management"        | Medium   | No                    |
+| `troubleshoot-errors`             | Error messages detected, "fix error", "debug"                  | Medium   | Yes (on errors)       |
 
 **Auto-activation rules:**
+
 - Always search examples before writing new contracts
 - Always generate tests after writing contracts
 - Always run security audit before deployment
@@ -125,6 +186,7 @@ When helping developers with Aptos Move V2:
 When working with Aptos Move V2, you MUST:
 
 **Object Model:**
+
 - ✅ Use `Object<T>` for object references (modern)
 - ✅ Generate all refs (TransferRef, DeleteRef) in constructor BEFORE ConstructorRef is destroyed
 - ✅ Use `object::owner(obj)` to verify ownership
@@ -132,6 +194,7 @@ When working with Aptos Move V2, you MUST:
 - ✅ Use named objects for singletons: `object::create_named_object(creator, seed)`
 
 **Security:**
+
 - ✅ Verify signer authority: `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)`
 - ✅ Check object ownership: `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)`
 - ✅ Validate all numeric inputs: `assert!(amount > 0 && amount <= MAX, E_INVALID_AMOUNT)`
@@ -139,12 +202,14 @@ When working with Aptos Move V2, you MUST:
 - ✅ Protect critical fields from `mem::swap` attacks
 
 **Testing:**
+
 - ✅ Achieve 100% line coverage: `aptos move test --coverage`
 - ✅ Test all error paths with `#[expected_failure(abort_code = E_CODE)]`
 - ✅ Test access control with multiple signers
 - ✅ Test input validation with invalid data
 
 **Syntax:**
+
 - ✅ Use inline functions with lambdas for iteration
 - ✅ Use modern object functions: `object::address_to_object<T>(addr)`
 - ✅ Use proper error constants: `const E_NOT_OWNER: u64 = 1;`
@@ -154,11 +219,13 @@ When working with Aptos Move V2, you MUST:
 When working with Aptos Move V2, you MUST NEVER:
 
 **Legacy Patterns:**
+
 - ❌ NEVER use resource accounts (legacy pattern, use objects instead)
 - ❌ NEVER use raw addresses for objects (use `Object<T>`)
 - ❌ NEVER use `account::create_resource_account()` (replaced by named objects)
 
 **Security Violations:**
+
 - ❌ NEVER return ConstructorRef from functions (caller can destroy object)
 - ❌ NEVER expose `&mut` in public functions (allows mem::swap attacks)
 - ❌ NEVER skip signer verification in entry functions
@@ -166,6 +233,7 @@ When working with Aptos Move V2, you MUST NEVER:
 - ❌ NEVER allow ungated transfers without good reason
 
 **Bad Practices:**
+
 - ❌ NEVER deploy without 100% test coverage
 - ❌ NEVER skip input validation
 - ❌ NEVER ignore security checklist
@@ -283,20 +351,21 @@ public fun sum_amounts(amounts: &vector<u64>): u64 {
 
 ## Common Mistakes to Avoid
 
-| Mistake | Why It's Wrong | Correct Pattern |
-|---------|---------------|-----------------|
-| `public fun create(): ConstructorRef` | Caller can destroy object | Return `Object<T>` instead |
-| `public fun update(item: &mut T)` | Allows mem::swap attacks | Use `acquires`, borrow internally |
-| `entry fun transfer(item_addr: address)` | Legacy pattern, no type safety | Use `Object<Item>` |
-| `let obj = object::create(...); obj` | ConstructorRef returned | Store data, return `object::object_from_constructor_ref()` |
-| No signer verification | Anyone can call function | `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)` |
-| No input validation | Overflow, zero amounts, etc. | `assert!(amount > 0 && amount <= MAX, E_INVALID)` |
-| Skipping tests | Bugs in production | Write tests with 100% coverage |
-| Using resource accounts | Deprecated in V2 | Use named objects instead |
+| Mistake                                  | Why It's Wrong                 | Correct Pattern                                                 |
+| ---------------------------------------- | ------------------------------ | --------------------------------------------------------------- |
+| `public fun create(): ConstructorRef`    | Caller can destroy object      | Return `Object<T>` instead                                      |
+| `public fun update(item: &mut T)`        | Allows mem::swap attacks       | Use `acquires`, borrow internally                               |
+| `entry fun transfer(item_addr: address)` | Legacy pattern, no type safety | Use `Object<Item>`                                              |
+| `let obj = object::create(...); obj`     | ConstructorRef returned        | Store data, return `object::object_from_constructor_ref()`      |
+| No signer verification                   | Anyone can call function       | `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)` |
+| No input validation                      | Overflow, zero amounts, etc.   | `assert!(amount > 0 && amount <= MAX, E_INVALID)`               |
+| Skipping tests                           | Bugs in production             | Write tests with 100% coverage                                  |
+| Using resource accounts                  | Deprecated in V2               | Use named objects instead                                       |
 
 ## Error Handling
 
 **Define clear error constants:**
+
 ```move
 /// Error codes
 const E_NOT_OWNER: u64 = 1;
@@ -307,6 +376,7 @@ const E_NOT_FOUND: u64 = 5;
 ```
 
 **Test all error paths:**
+
 ```move
 #[test(owner = @0x1, attacker = @0x2)]
 #[expected_failure(abort_code = E_NOT_OWNER)]
@@ -319,6 +389,7 @@ public fun test_unauthorized_transfer(owner: &signer, attacker: &signer) {
 ## Documentation References
 
 **Official Aptos Docs:**
+
 - Object Model: https://aptos.dev/build/smart-contracts/object
 - Security Guidelines: https://aptos.dev/build/smart-contracts/move-security-guidelines
 - Move Book: https://aptos.dev/build/smart-contracts/book
@@ -326,10 +397,12 @@ public fun test_unauthorized_transfer(owner: &signer, attacker: &signer) {
 - Testing: https://aptos.dev/build/smart-contracts/book/unit-testing
 
 **Example Repositories:**
+
 - aptos-core/aptos-move/move-examples (53 official examples)
 - Priority: hello_blockchain, mint_nft, token_objects, fungible_asset, dao, marketplace
 
 **Pattern Documentation (Local):**
+
 - `patterns/OBJECTS.md` - Comprehensive object model guide
 - `patterns/SECURITY.md` - Security checklist and patterns
 - `patterns/TESTING.md` - Test generation patterns
@@ -338,39 +411,47 @@ public fun test_unauthorized_transfer(owner: &signer, attacker: &signer) {
 ## Troubleshooting Guide
 
 **Common Error: "LINKER_ERROR"**
+
 - **Cause:** Missing dependency in Move.toml
 - **Fix:** Add required package (AptosFramework, AptosStdlib, AptosToken)
 
 **Common Error: "ABORTED at 0x1"**
+
 - **Cause:** Assertion failed, no error code provided
 - **Fix:** Use `const E_CODE: u64 = N;` and `assert!(..., E_CODE)`
 
 **Common Error: "Type mismatch"**
+
 - **Cause:** Using `address` where `Object<T>` expected
 - **Fix:** Update function signature to use `Object<T>`
 
 **Common Error: "Coverage below 100%"**
+
 - **Cause:** Missing tests for some code paths
 - **Fix:** Run `aptos move coverage source --module <name>` to see uncovered lines
 
 **Common Error: "Resource already exists"**
+
 - **Cause:** Trying to `move_to` twice for same resource
 - **Fix:** Check if resource exists with `exists<T>(addr)` first
 
 ## Integration Notes
 
 **For Claude Code:**
+
 - Skills activate automatically based on context
 - Use `/commit` after significant changes
 - Use `/review-pr` before submitting code
 - This file is loaded when CLAUDE.md is detected
 
 **For Cursor/Copilot:**
+
 - Include this file in workspace context
 - Reference skill files explicitly: `@skills/write-contracts/SKILL.md`
 - Use inline comments to trigger patterns: `// PATTERN: object-creation`
 
 **For Future Aptos Vibe Tool:**
+
 - Skills designed for automatic activation
 - Follows Aptos Labs coding standards
 - Compatible with Aptos Developer Console workflows
@@ -378,6 +459,7 @@ public fun test_unauthorized_transfer(owner: &signer, attacker: &signer) {
 ## Version History
 
 **v1.0 (2026-01-23):**
+
 - Initial release
 - 8 core skills implemented
 - Object-centric patterns enforced
@@ -389,6 +471,7 @@ public fun test_unauthorized_transfer(owner: &signer, attacker: &signer) {
 **Next Steps for AI Assistant:**
 
 When user starts a task:
+
 1. Identify which workflow applies (create/write/test/audit/deploy)
 2. Activate relevant skills in order
 3. Follow ALWAYS rules strictly
@@ -397,4 +480,5 @@ When user starts a task:
 6. Generate comprehensive tests automatically
 7. Run security audit before deployment
 
-**Remember:** Security and correctness are more important than speed. Always verify patterns against official Aptos documentation and prioritize user asset safety.
+**Remember:** Security and correctness are more important than speed. Always verify patterns against official Aptos
+documentation and prioritize user asset safety.

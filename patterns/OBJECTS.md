@@ -24,6 +24,7 @@ The Aptos object model is the **modern, preferred way** to represent resources a
 ### Object vs Address
 
 **OLD (Legacy - Avoid):**
+
 ```move
 // Using raw addresses (V1 pattern)
 public entry fun transfer_item(user: &signer, item_addr: address, to: address) {
@@ -32,6 +33,7 @@ public entry fun transfer_item(user: &signer, item_addr: address, to: address) {
 ```
 
 **NEW (Modern - Always Use):**
+
 ```move
 // Using typed objects (V2 pattern)
 public entry fun transfer_item(user: &signer, item: Object<Item>, to: address) {
@@ -43,12 +45,14 @@ public entry fun transfer_item(user: &signer, item: Object<Item>, to: address) {
 ### ConstructorRef Lifecycle
 
 **Critical Understanding:** `ConstructorRef` is a one-time-use builder that:
+
 1. Lets you generate refs (TransferRef, DeleteRef, ExtendRef)
 2. Lets you get the object's signer to store data
 3. **Automatically destroyed** when function returns
 4. **NEVER RETURNED** from functions (security risk)
 
 **Constructor Pattern Flow:**
+
 ```
 ConstructorRef created
     ↓
@@ -234,11 +238,13 @@ public fun is_item_owner(user_addr: address, item: Object<Item>): bool {
 There are TWO ways to transfer objects, and using the wrong one will cause errors:
 
 **1. `object::transfer()` - For ungated transfers**
+
 - Requires ungated transfers to be ENABLED
 - Anyone can call this function
 - Used for freely transferable objects
 
 **2. `object::transfer_with_ref()` - For controlled transfers**
+
 - Requires a `TransferRef` (generated during object creation)
 - Works even when ungated transfers are DISABLED
 - Used for controlled, permission-based transfers
@@ -246,6 +252,7 @@ There are TWO ways to transfer objects, and using the wrong one will cause error
 ### Common Mistake: Wrong Transfer Function
 
 **❌ WRONG: Using `object::transfer()` after disabling ungated transfers**
+
 ```move
 public fun create_and_transfer_item(creator: &signer) {
     let constructor_ref = object::create_object(signer::address_of(creator));
@@ -262,6 +269,7 @@ public fun create_and_transfer_item(creator: &signer) {
 ```
 
 **✅ CORRECT: Using `object::transfer_with_ref()` when ungated transfers are disabled**
+
 ```move
 public fun create_and_transfer_item(creator: &signer, recipient: address): Object<Item> {
     let constructor_ref = object::create_object(signer::address_of(creator));
@@ -601,21 +609,21 @@ public entry fun update_item(item: Object<Item>, new_name: String) acquires Item
 
 ## Reference Table: Object Functions
 
-| Function | Purpose | When to Use |
-|----------|---------|-------------|
-| `object::create_object(owner_addr)` | Create random-address object | NFTs, items, unique entities |
-| `object::create_named_object(creator, seed)` | Create deterministic-address object | Singletons, registries, protocol state |
-| `object::generate_signer(&ConstructorRef)` | Get object's signer | During construction to store data |
-| `object::generate_transfer_ref(&ConstructorRef)` | Generate transfer capability | When you need controlled transfers |
-| `object::generate_delete_ref(&ConstructorRef)` | Generate delete capability | When object can be destroyed |
-| `object::generate_extend_ref(&ConstructorRef)` | Generate extension capability | When you need future extensions |
-| `object::object_from_constructor_ref<T>(&ConstructorRef)` | Convert ConstructorRef to Object<T> | Return from constructor function |
-| `object::owner(obj)` | Get object owner address | Verify ownership |
-| `object::object_address(&obj)` | Get object's address | Access stored data |
-| `object::address_to_object<T>(addr)` | Convert address to typed object | When you have address, need Object<T> |
-| `object::transfer_with_ref(LinearTransferRef, to)` | Transfer with TransferRef | Controlled transfers |
-| `object::enable_ungated_transfer(&ConstructorRef)` | Allow free transfers | Standard NFTs |
-| `object::delete(DeleteRef)` | Delete object | Destroy burnable objects |
+| Function                                                  | Purpose                             | When to Use                            |
+| --------------------------------------------------------- | ----------------------------------- | -------------------------------------- |
+| `object::create_object(owner_addr)`                       | Create random-address object        | NFTs, items, unique entities           |
+| `object::create_named_object(creator, seed)`              | Create deterministic-address object | Singletons, registries, protocol state |
+| `object::generate_signer(&ConstructorRef)`                | Get object's signer                 | During construction to store data      |
+| `object::generate_transfer_ref(&ConstructorRef)`          | Generate transfer capability        | When you need controlled transfers     |
+| `object::generate_delete_ref(&ConstructorRef)`            | Generate delete capability          | When object can be destroyed           |
+| `object::generate_extend_ref(&ConstructorRef)`            | Generate extension capability       | When you need future extensions        |
+| `object::object_from_constructor_ref<T>(&ConstructorRef)` | Convert ConstructorRef to Object<T> | Return from constructor function       |
+| `object::owner(obj)`                                      | Get object owner address            | Verify ownership                       |
+| `object::object_address(&obj)`                            | Get object's address                | Access stored data                     |
+| `object::address_to_object<T>(addr)`                      | Convert address to typed object     | When you have address, need Object<T>  |
+| `object::transfer_with_ref(LinearTransferRef, to)`        | Transfer with TransferRef           | Controlled transfers                   |
+| `object::enable_ungated_transfer(&ConstructorRef)`        | Allow free transfers                | Standard NFTs                          |
+| `object::delete(DeleteRef)`                               | Delete object                       | Destroy burnable objects               |
 
 ---
 
@@ -639,21 +647,25 @@ When implementing objects, verify:
 ## Additional Resources
 
 **Official Documentation:**
+
 - Object Model: https://aptos.dev/build/smart-contracts/object
 - Creating Objects: https://aptos.dev/build/smart-contracts/object/creating-objects
 - Using Objects: https://aptos.dev/en/build/smart-contracts/object/using-objects
 - Configurable Properties: https://aptos.dev/build/smart-contracts/object/configuring-objects
 
 **Example Code:**
+
 - aptos-core/aptos-move/move-examples/token_objects
 - aptos-core/aptos-move/move-examples/mint_nft
 - aptos-core/aptos-move/move-examples/fungible_asset
 
 **Related Patterns:**
+
 - `SECURITY.md` - Security implications of object usage
 - `TESTING.md` - Testing object operations
 - `MOVE_V2_SYNTAX.md` - Modern syntax with objects
 
 ---
 
-**Remember:** Objects are the modern, secure, type-safe way to handle resources in Aptos Move V2. Always prefer objects over raw addresses.
+**Remember:** Objects are the modern, secure, type-safe way to handle resources in Aptos Move V2. Always prefer objects
+over raw addresses.

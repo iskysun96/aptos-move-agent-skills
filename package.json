@@ -1,0 +1,13 @@
+{
+  "name": "aptos-move-agent-skills",
+  "version": "1.0.0",
+  "description": "Specialized skills for AI assistants to build secure, modern Aptos Move V2 smart contracts",
+  "private": true,
+  "scripts": {
+    "format": "prettier --write \"**/*.md\"",
+    "format:check": "prettier --check \"**/*.md\""
+  },
+  "devDependencies": {
+    "prettier": "^3.8.1"
+  }
+}

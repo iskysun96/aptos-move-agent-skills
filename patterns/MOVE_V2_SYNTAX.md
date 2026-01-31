@@ -465,7 +465,8 @@ public fun sum_all_old(registry: &Registry): u64 {
 
 ## Receiver-Style Method Calls (Move 2)
 
-Move 2 introduced receiver-style function calls that allow using dot notation `value.func(arg)` instead of `func(&value, arg)`.
+Move 2 introduced receiver-style function calls that allow using dot notation `value.func(arg)` instead of
+`func(&value, arg)`.
 
 ### Defining Receiver Functions
 
@@ -799,6 +800,7 @@ module my_addr::marketplace {
 ## Best Practices Summary
 
 **DO:**
+
 - ✅ Use inline functions for iteration logic
 - ✅ Use lambdas for concise operation definitions
 - ✅ Use `Object<T>` for type-safe object references
@@ -813,6 +815,7 @@ module my_addr::marketplace {
 - ✅ Use direct named addresses `@addr` instead of helper functions
 
 **DON'T:**
+
 - ❌ Use raw addresses instead of `Object<T>`
 - ❌ Use magic numbers for errors (use named constants)
 - ❌ Ignore ability constraints on generics
@@ -827,16 +830,19 @@ module my_addr::marketplace {
 ## Additional Resources
 
 **Official Documentation:**
+
 - Move Book: https://aptos.dev/build/smart-contracts/book
 - Functions: https://aptos.dev/build/smart-contracts/book/functions
 - Object Model: https://aptos.dev/build/smart-contracts/object
 - Generics: https://aptos.dev/build/smart-contracts/book/generics
 
 **Related Patterns:**
+
 - `OBJECTS.md` - Detailed object patterns
 - `SECURITY.md` - Security with modern syntax
 - `TESTING.md` - Testing modern code
 
 ---
 
-**Remember:** Use modern Move V2 syntax for cleaner, safer, more maintainable code. Embrace inline functions, lambdas, and type-safe objects.
+**Remember:** Use modern Move V2 syntax for cleaner, safer, more maintainable code. Embrace inline functions, lambdas,
+and type-safe objects.

@@ -11,6 +11,7 @@
 ## Testing Philosophy
 
 **Core Principles:**
+
 1. **100% Coverage Required**: Every line of code must be tested
 2. **Test All Paths**: Happy paths AND error paths (with #[expected_failure])
 3. **Test Access Control**: Verify unauthorized access is blocked
@@ -18,6 +19,7 @@
 5. **Test Edge Cases**: Boundary conditions, empty vectors, max values
 
 **When to Write Tests:**
+
 - ALWAYS after writing any contract code
 - BEFORE deploying to any network
 - After fixing bugs (add regression test)
@@ -541,6 +543,7 @@ aptos move coverage summary
 **Target: 100% line coverage**
 
 Must cover:
+
 - ✅ All happy paths (main functionality)
 - ✅ All error paths (with #[expected_failure])
 - ✅ All branches (if/else, match arms)
@@ -548,6 +551,7 @@ Must cover:
 - ✅ All entry functions
 
 Can skip:
+
 - Test-only functions (marked #[test_only])
 - Helper functions if they're tested indirectly
 
@@ -642,17 +646,20 @@ public fun test_complete_purchase_workflow(
 For each contract, verify you have tests for:
 
 **Happy Paths:**
+
 - [ ] Object creation works correctly
 - [ ] State updates work correctly
 - [ ] Transfers work correctly
 - [ ] All main features work as expected
 
 **Access Control:**
+
 - [ ] Non-owners cannot modify objects
 - [ ] Non-admins cannot call admin functions
 - [ ] Unauthorized users are blocked
 
 **Input Validation:**
+
 - [ ] Zero amounts rejected
 - [ ] Excessive amounts rejected
 - [ ] Empty strings rejected
@@ -662,16 +669,19 @@ For each contract, verify you have tests for:
 - [ ] Zero addresses rejected
 
 **Edge Cases:**
+
 - [ ] Maximum allowed values work
 - [ ] Minimum allowed values work
 - [ ] Boundary conditions handled
 - [ ] Empty states handled
 
 **Error Paths:**
+
 - [ ] All error codes tested with #[expected_failure]
 - [ ] Abort messages are clear
 
 **Coverage:**
+
 - [ ] 100% line coverage achieved
 - [ ] All branches covered
 - [ ] All functions tested
@@ -680,29 +690,32 @@ For each contract, verify you have tests for:
 
 ## Common Testing Mistakes
 
-| Mistake | Impact | Solution |
-|---------|--------|----------|
-| Not testing error paths | Bugs in error handling | Add #[expected_failure] tests |
-| Testing only happy paths | Miss edge cases | Test boundaries and invalid inputs |
-| Not testing access control | Security vulnerabilities | Test unauthorized access attempts |
-| Low coverage | Untested code has bugs | Achieve 100% coverage |
-| Unclear test names | Hard to understand failures | Use descriptive names like `test_unauthorized_transfer_fails` |
-| No test organization | Hard to maintain | Group tests by feature |
-| Duplicate setup code | Hard to maintain | Use test helper functions |
-| Not verifying all state changes | Incomplete tests | Assert all relevant state after operations |
+| Mistake                         | Impact                      | Solution                                                      |
+| ------------------------------- | --------------------------- | ------------------------------------------------------------- |
+| Not testing error paths         | Bugs in error handling      | Add #[expected_failure] tests                                 |
+| Testing only happy paths        | Miss edge cases             | Test boundaries and invalid inputs                            |
+| Not testing access control      | Security vulnerabilities    | Test unauthorized access attempts                             |
+| Low coverage                    | Untested code has bugs      | Achieve 100% coverage                                         |
+| Unclear test names              | Hard to understand failures | Use descriptive names like `test_unauthorized_transfer_fails` |
+| No test organization            | Hard to maintain            | Group tests by feature                                        |
+| Duplicate setup code            | Hard to maintain            | Use test helper functions                                     |
+| Not verifying all state changes | Incomplete tests            | Assert all relevant state after operations                    |
 
 ---
 
 ## Additional Resources
 
 **Official Testing Documentation:**
+
 - https://aptos.dev/build/smart-contracts/book/unit-testing
 - https://aptos.dev/build/cli (for coverage commands)
 
 **Related Patterns:**
+
 - `SECURITY.md` - Security testing requirements
 - `OBJECTS.md` - Testing object operations
 
 ---
 
-**Remember:** 100% test coverage is mandatory. Never deploy without comprehensive tests. Tests are your contract's proof of correctness.
+**Remember:** 100% test coverage is mandatory. Never deploy without comprehensive tests. Tests are your contract's proof
+of correctness.

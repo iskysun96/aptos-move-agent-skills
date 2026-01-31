@@ -451,18 +451,31 @@ public fun test_random_mint_is_entry_function(user: &signer) {
 
 **Gas Balance Testing:**
 
+> **Note:** Aptos Move unit tests do not currently provide a built-in `estimate_gas` helper.
+> The example below is **conceptual pseudo-code** showing what you want to verify.
+> In practice, compare compiled bytecode and gas schedules, or measure gas usage
+> on a localnet/testnet by sending transactions for each path and recording
+> the gas used from the node/CLI output.
+
 ```move
+// PSEUDO-CODE ONLY — not executable as-is.
+// Goal: ensure "win" and "lose" paths of randomness have similar gas usage
+// so an attacker cannot under-gas one branch to bias the outcome.
+//
+// Recommended approach:
+// 1. Identify the "win" and "lose" code paths (e.g., helper entry functions).
+// 2. Compile the module and inspect bytecode / use profiling tools, OR
+// 3. Execute each path on a localnet/testnet and record gas used per tx.
+// 4. Assert the absolute difference is below your chosen threshold.
+//
+// Example structure of the check (conceptual):
 #[test(user = @0x1)]
 public fun test_gas_balanced_across_outcomes(user: &signer) {
-    // Winning path gas cost
-    let gas_win = estimate_gas(|| my_module::random_mint_win_case(user));
-
-    // Losing path gas cost
-    let gas_lose = estimate_gas(|| my_module::random_mint_lose_case(user));
-
-    // Gas costs should be similar (prevent undergasing attacks)
-    let diff = if (gas_win > gas_lose) { gas_win - gas_lose } else { gas_lose - gas_win };
-    assert!(diff < 1000, 0); // Within 1000 gas units
+    // let gas_win = <measured gas for winning-path transaction>;
+    // let gas_lose = <measured gas for losing-path transaction>;
+    //
+    // let diff = if (gas_win > gas_lose) { gas_win - gas_lose } else { gas_lose - gas_win };
+    // assert!(diff < 1000, 0); // Within 1000 gas units (tune threshold as needed)
 }
 ```
 
