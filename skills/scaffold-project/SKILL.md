@@ -119,9 +119,11 @@ my_nft_marketplace/
 └── scripts/
 ```
 
-### Step 2: Configure Move.toml
+### Step 2: Configure Move.toml ⭐ CRITICAL
 
-**Edit Move.toml with proper dependencies:**
+**CRITICAL PATTERN:** Always use `"_"` for addresses and set up dev-addresses for testing/compilation.
+
+**Edit Move.toml with proper configuration:**
 
 ```toml
 [package]
@@ -130,10 +132,10 @@ version = "1.0.0"
 authors = []
 
 [addresses]
-my_addr = "_"  # Will be replaced during deployment
+my_addr = "_"  # ← ALWAYS use "_" (placeholder for deployment)
 
 [dev-addresses]
-my_addr = "0xCAFE"  # Address for testing
+my_addr = "0xCAFE"  # ← ALWAYS set dev address for testing/compilation
 
 [dependencies.AptosFramework]
 git = "https://github.com/aptos-labs/aptos-core.git"
@@ -339,17 +341,38 @@ git add .
 git commit -m "Initial commit: Scaffold Aptos Move project"
 ````
 
-### Step 8: Verify Setup
+### Step 8: Verify Setup ⭐ ALWAYS USE --dev FLAG
+
+**CRITICAL:** When addresses are set to `"_"`, you MUST use the `--dev` flag for compilation and testing.
 
 ```bash
-# Verify project compiles
-aptos move compile
+# Verify project compiles (MUST use --dev when addresses = "_")
+aptos move compile --dev
 
-# Run initial tests (should pass even if empty)
-aptos move test
+# Run initial tests (MUST use --dev when addresses = "_")
+aptos move test --dev
+
+# Run tests with coverage
+aptos move test --dev --coverage
 
 # Check dependencies
-aptos move compile --skip-fetch-latest-git-deps
+aptos move compile --dev --skip-fetch-latest-git-deps
+```
+
+**Why `--dev` is required:**
+
+- With `[addresses] my_addr = "_"`, the compiler needs a concrete address
+- The `--dev` flag tells the compiler to use `[dev-addresses]` values
+- Without `--dev`, compilation will fail with "unresolved addresses" error
+
+**Pattern:**
+
+```toml
+[addresses]
+my_addr = "_"         # Placeholder - requires --dev flag
+
+[dev-addresses]
+my_addr = "0xCAFE"    # Concrete address used with --dev
 ```
 
 ## Project Templates
@@ -458,16 +481,19 @@ local = "../my-other-module"
 - ✅ ALWAYS choose **Boilerplate Template** for general-purpose dApps (not specific feature templates)
 - ✅ ALWAYS run `aptos move init` for Move-only projects
 - ✅ ALWAYS configure Move.toml with proper dependencies
+- ✅ **ALWAYS use `"_"` for addresses in [addresses] section** (never hardcode addresses)
+- ✅ **ALWAYS set up [dev-addresses] with concrete values** (e.g., "0xCAFE")
+- ✅ **ALWAYS use `--dev` flag** when compiling/testing with addresses = "\_" (`aptos move test --dev`)
 - ✅ ALWAYS create tests/ directory
 - ✅ ALWAYS include README.md with setup instructions
 - ✅ ALWAYS verify project compiles after scaffolding
-- ✅ ALWAYS use named addresses (my*addr = "*")
-- ✅ ALWAYS set up dev-addresses for testing
 
 ## NEVER Rules
 
 - ❌ NEVER skip Move.toml configuration
-- ❌ NEVER use hardcoded addresses in code
+- ❌ **NEVER hardcode addresses in [addresses] section** (always use "\_")
+- ❌ **NEVER omit [dev-addresses] section** (required for testing/compilation)
+- ❌ **NEVER forget `--dev` flag** when compiling/testing with addresses = "\_"
 - ❌ NEVER skip creating test directory
 - ❌ NEVER forget to add AptosFramework dependency
 - ❌ NEVER use outdated dependency revisions
