@@ -54,6 +54,14 @@ struct MyObject has key {
     delete_ref: object::DeleteRef,
 }
 
+// Error constants
+const E_NOT_OWNER: u64 = 1;
+const E_EMPTY_STRING: u64 = 2;
+const E_NAME_TOO_LONG: u64 = 3;
+
+// Configuration constants
+const MAX_NAME_LENGTH: u64 = 100;
+
 /// Create object with proper pattern
 public fun create_my_object(creator: &signer, name: String): Object<MyObject> {
     // 1. Create object
@@ -216,13 +224,6 @@ module my_addr::my_module {
 - `references/storage-patterns.md` - ⭐ Use-case patterns and smart defaults
 - `references/storage-types.md` - Detailed comparison of all 6 storage types
 - `references/storage-gas-optimization.md` - Gas optimization strategies for storage
-- `references/object-patterns.md` - Named objects, collections, nested objects
-- `references/access-control.md` - RBAC and permission systems
-- `references/safe-arithmetic.md` - Overflow/underflow prevention
-- `references/initialization.md` - init_module patterns and registry creation
-- `references/events.md` - Event emission patterns
-- `references/v2-syntax.md` - Modern Move V2 features (method calls, indexing, lambdas)
-- `references/complete-example.md` - Full annotated NFT collection contract
 
 **Pattern Documentation (patterns/ folder):**
 - `../../patterns/DIGITAL_ASSETS.md` - ⭐ Digital Asset (NFT) standard - CRITICAL for NFTs

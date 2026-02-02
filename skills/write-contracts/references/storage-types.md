@@ -170,6 +170,9 @@ struct Config has key {
 }
 
 public entry fun set_feature_flag(admin: &signer, feature: String, enabled: bool) acquires Config {
+    // ✅ ALWAYS: Verify admin authorization
+    assert!(signer::address_of(admin) == @my_addr, E_UNAUTHORIZED);
+
     let config = borrow_global_mut<Config>(@my_addr);
 
     if (ordered_map::contains(&config.settings, &feature)) {
@@ -228,12 +231,18 @@ public entry fun update_score(player: &signer, new_score: u64) acquires Leaderbo
     let player_addr = signer::address_of(player);
     let leaderboard = borrow_global_mut<Leaderboard>(@my_addr);
 
-    // Remove old score if exists
-    big_ordered_map::for_each_mut(&mut leaderboard.scores, |score, addr| {
+    // Find old score to remove (collect key first to avoid nested borrow)
+    let old_score_opt = option::none<u64>();
+    big_ordered_map::for_each_ref(&leaderboard.scores, |score, addr| {
         if (*addr == player_addr) {
-            big_ordered_map::remove(&mut leaderboard.scores, score);
+            old_score_opt = option::some(*score);
         }
     });
+
+    // Remove old score if exists
+    if (option::is_some(&old_score_opt)) {
+        big_ordered_map::remove(&mut leaderboard.scores, option::extract(&mut old_score_opt));
+    };
 
     // Add new score
     big_ordered_map::add(&mut leaderboard.scores, new_score, player_addr);

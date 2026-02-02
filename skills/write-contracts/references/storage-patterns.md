@@ -51,7 +51,7 @@ public entry fun register_user(user: &signer, name: String) acquires UserRegistr
 - Unbounded stakers
 - Concurrent stake/unstake operations
 - No ordering needed
-- Fast lookup by staker or asset address
+- Fast lookup by asset (NFT) address
 
 **Gas:** Separate slots enable concurrent staking
 
