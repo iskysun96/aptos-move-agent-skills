@@ -369,6 +369,81 @@ Did you call object::disable_ungated_transfer()?
 
 ---
 
+## Pattern 3.5: Verifying Object Transfers
+
+### Always Verify Critical Transfers
+
+**IMPORTANT:** After transferring objects, verify that ownership actually changed.
+
+❌ **WRONG - No verification:**
+
+```move
+// Transfer NFT to auction escrow
+object::transfer(seller, nft, auction_addr);
+// Assumes transfer succeeded, but doesn't verify!
+// If transfer silently fails, auction proceeds without NFT
+```
+
+✅ **CORRECT - Verify ownership after transfer:**
+
+```move
+// Transfer NFT to auction escrow
+object::transfer(seller, nft, auction_addr);
+
+// Verify transfer succeeded
+assert!(object::owner(nft) == auction_addr, E_TRANSFER_FAILED);
+// Now we know auction actually holds the NFT
+```
+
+### Example: Auction Escrow Pattern
+
+```move
+public entry fun create_auction(
+    seller: &signer,
+    nft: Object<AptosToken>,
+    starting_price: u64,
+    duration: u64
+) acquires AuctionHouse {
+    // Verify seller owns NFT
+    assert!(object::owner(nft) == signer::address_of(seller), E_NOT_OWNER);
+
+    // Create auction object to hold NFT
+    let constructor_ref = object::create_object(signer::address_of(seller));
+    let object_signer = object::generate_signer(&constructor_ref);
+    let auction_addr = signer::address_of(&object_signer);
+
+    // Transfer NFT to auction object (escrow)
+    object::transfer(seller, nft, auction_addr);
+
+    // ✅ CRITICAL: Verify escrow succeeded
+    assert!(object::owner(nft) == auction_addr, E_ESCROW_FAILED);
+
+    // Now safe to store auction data
+    move_to(&object_signer, Auction {
+        nft_address: object::object_address(&nft),
+        seller: signer::address_of(seller),
+        highest_bid: 0,
+        end_time: timestamp::now_seconds() + duration,
+    });
+}
+```
+
+### When to Verify
+
+- ✅ **Always verify** when transferring to escrow/vault addresses
+- ✅ **Always verify** when transfer is critical to business logic
+- ✅ **Always verify** when dealing with high-value assets
+- ⚠️ **Optional** for simple user-to-user transfers (transfer aborts on failure anyway)
+
+### Why This Matters
+
+- Prevents logic errors if transfer fails silently
+- Ensures escrow actually holds assets
+- Provides clear error messages on failure
+- Defense-in-depth security
+
+---
+
 ## Pattern 4: Object Deletion
 
 ### Delete with DeleteRef

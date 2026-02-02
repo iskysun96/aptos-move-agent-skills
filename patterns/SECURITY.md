@@ -2,7 +2,8 @@
 
 **Purpose:** Comprehensive security guidelines for secure Aptos Move V2 smart contracts.
 
-**Based on:** [Official Aptos Move Security Guidelines](https://aptos.dev/build/smart-contracts/move-security-guidelines)
+**Based on:**
+[Official Aptos Move Security Guidelines](https://aptos.dev/build/smart-contracts/move-security-guidelines)
 
 **Target:** AI assistants generating Move V2 smart contracts
 
@@ -15,6 +16,7 @@
 Before deploying any Move module, verify ALL items in this checklist:
 
 ### Access Control
+
 - [ ] All `entry` functions verify signer authority with `assert!`
 - [ ] Object ownership verified with `object::owner()` before operations
 - [ ] Use `borrow_global_mut<T>(signer::address_of(user))` to scope operations to signer's storage
@@ -23,6 +25,8 @@ Before deploying any Move module, verify ALL items in this checklist:
 - [ ] No public functions that modify state without authorization checks
 
 ### Input Validation
+
+- [ ] **CRITICAL:** User-facing functions use explicit amount parameters (never implicit balance queries)
 - [ ] Numeric inputs checked for zero where appropriate: `assert!(amount > 0, E_ZERO_AMOUNT)`
 - [ ] Numeric inputs checked for minimum thresholds to prevent rounding to zero
 - [ ] Vector lengths validated: `assert!(vector::length(&items) > 0, E_EMPTY_VECTOR)`
@@ -31,6 +35,7 @@ Before deploying any Move module, verify ALL items in this checklist:
 - [ ] Generic type parameters validated for consistency (especially in flash loans)
 
 ### Object Safety
+
 - [ ] ConstructorRef never returned from public functions
 - [ ] All refs (TransferRef, DeleteRef, ExtendRef) generated in constructor before ConstructorRef destroyed
 - [ ] Object signer only used during construction or with ExtendRef
@@ -39,43 +44,69 @@ Before deploying any Move module, verify ALL items in this checklist:
 - [ ] DeleteRef only generated for truly burnable objects
 
 ### Reference Safety
+
 - [ ] No `&mut` references exposed in public function signatures
 - [ ] Critical fields protected from `mem::swap` attacks
 - [ ] Mutable references to untrusted code validated before AND after mutations
 - [ ] Mutable borrows minimized in scope
 
 ### Arithmetic Safety
+
 - [ ] All additions checked for overflow or use Move's abort-on-overflow
 - [ ] All subtractions checked for underflow or use Move's abort-on-underflow
 - [ ] Division by zero prevented: `assert!(divisor > 0, E_DIVISION_BY_ZERO)`
-- [ ] Division results validated for non-zero when fees expected
+- [ ] **CRITICAL:** Division results validated for non-zero when fees/increments expected
+- [ ] **CRITICAL:** Multi-step calculations restructured to prevent intermediate overflow
 - [ ] Left shift operations avoided or results validated (does NOT abort on overflow)
 - [ ] Multiplication checked for overflow when needed
 
 ### Resource Management
+
 - [ ] No unbounded iterations over publicly mutable structures
 - [ ] User-specific data stored in user accounts, not global storage
 - [ ] Use `SmartTable` or similar for efficient per-user scoped data
 - [ ] Module data in Objects, user data in user accounts
 
 ### Generic Type Safety
+
 - [ ] Use `phantom` for generic types not stored in fields: `struct Vault<phantom CoinType>`
 - [ ] Type witnesses used for authorization where appropriate
 - [ ] Generic function constraints appropriate (`drop`, `copy`, `store`, `key`)
 - [ ] Flash loan repayment types match borrowed types
 
 ### Business Logic
+
 - [ ] Front-running prevented through atomic operations
 - [ ] Price oracles use multiple independent sources (never single on-chain ratio)
 - [ ] Token identifiers use deterministic, collision-proof schemes (object addresses)
 - [ ] Pause functionality implemented for emergency response
 
+### DeFi-Specific (if applicable)
+
+- [ ] **CRITICAL:** Never assume 1:1 price ratios - always use price oracles
+- [ ] Multi-oracle design with fallback sources
+- [ ] Price staleness checks implemented (max age limits)
+- [ ] Price deviation limits between oracles
+- [ ] Slippage protection parameters for swaps
+- [ ] Deadline timestamps for time-sensitive operations
+- [ ] Partial liquidation support (not all-or-nothing)
+- [ ] Liquidation incentives properly bounded
+
+### Governance (if applicable)
+
+- [ ] All proposals have expiration times
+- [ ] Owner/member removal validates threshold requirements
+- [ ] Pending approvals handled on owner removal
+- [ ] Threshold changes validated against owner count
+
 ### Randomness (if applicable)
+
 - [ ] Randomness-using functions are `entry` (not `public`) to prevent composition
 - [ ] Gas consumption balanced across win/lose paths to prevent undergasing
 - [ ] Consider commit-reveal pattern for sensitive randomness
 
 ### Testing
+
 - [ ] 100% line coverage achieved: `aptos move test --coverage`
 - [ ] All error paths tested with `#[expected_failure(abort_code = E_CODE)]`
 - [ ] Access control tested with multiple signers (owner, attacker)
@@ -83,6 +114,7 @@ Before deploying any Move module, verify ALL items in this checklist:
 - [ ] Edge cases covered (empty vectors, max values, boundary conditions)
 
 ### Operations
+
 - [ ] Publishing keys separated by network (testnet vs mainnet)
 - [ ] Emergency pause mechanism implemented and tested
 - [ ] Upgrade functionality secured if contract is upgradable
@@ -258,9 +290,53 @@ module my_addr::marketplace {
 
 ---
 
-## Pattern 2: Input Validation
+## Pattern 2: Input Validation - Implicit Amounts (CRITICAL)
 
-### 2.1 Numeric Validation
+### 2.1 Never Use Implicit Amounts
+
+**CRITICAL RULE:** Never use balance queries as implicit transfer amounts.
+
+❌ **WRONG - Dangerous implicit amount:**
+
+```move
+public entry fun place_bid(bidder: &signer, auction: Object<Auction>) {
+    let bid_amount = coin::balance<AptosCoin>(signer::address_of(bidder));
+    // User loses ENTIRE balance!
+    coin::transfer<AptosCoin>(bidder, auction_addr, bid_amount);
+}
+```
+
+✅ **CORRECT - Explicit amount parameter:**
+
+```move
+public entry fun place_bid(
+    bidder: &signer,
+    auction: Object<Auction>,
+    bid_amount: u64  // User specifies exact amount
+) {
+    assert!(bid_amount > 0, E_ZERO_AMOUNT);
+    let user_balance = coin::balance<AptosCoin>(signer::address_of(bidder));
+    assert!(user_balance >= bid_amount, E_INSUFFICIENT_BALANCE);
+    coin::transfer<AptosCoin>(bidder, auction_addr, bid_amount);
+}
+```
+
+**Why This Matters:**
+
+- User consent: Users must explicitly approve exact amounts
+- Safety: Prevents draining entire balance accidentally
+- Predictability: Users know exactly what they're spending
+
+**Applies To:**
+
+- `coin::transfer` and `coin::withdraw`
+- `primary_fungible_store::transfer` and `withdraw`
+- Any user-facing token operation
+
+**Exception:** Internal/admin functions can query balances, but user-facing `entry` functions MUST have explicit amount
+parameters.
+
+### 2.2 Numeric Validation
 
 ```move
 const E_ZERO_AMOUNT: u64 = 10;
@@ -299,7 +375,7 @@ public entry fun transfer(
 }
 ```
 
-### 2.2 String Validation
+### 2.3 String Validation
 
 ```move
 const E_EMPTY_NAME: u64 = 20;
@@ -326,7 +402,7 @@ public entry fun set_name(
 }
 ```
 
-### 2.3 Vector Validation
+### 2.4 Vector Validation
 
 ```move
 const E_EMPTY_VECTOR: u64 = 30;
@@ -352,7 +428,7 @@ public entry fun add_items(
 }
 ```
 
-### 2.4 Generic Type Validation
+### 2.5 Generic Type Validation
 
 **CRITICAL: Prevent flash loan token type mismatch**
 
@@ -437,7 +513,90 @@ public fun calculate_fee(amount: u64): u64 {
 // - amount = 1000, fee = (1000 * 30) / 10000 = 3 ✅ Non-zero
 ```
 
-### 3.3 Left Shift Overflow (Does NOT abort!)
+### 3.3 Division Result Validation
+
+**CRITICAL:** Division can round to zero for small amounts, breaking fee logic and minimum increments.
+
+❌ **WRONG - Can round to zero:**
+
+```move
+let fee = amount / 100;  // Rounds to 0 if amount < 100!
+coin::transfer(user, platform, fee);  // Fee bypassed!
+
+let min_bid = highest_bid + (highest_bid / 20);  // 5% increment
+// For highest_bid < 20, increment = 0!
+```
+
+✅ **CORRECT - Validate non-zero or use minimum:**
+
+```move
+// Option 1: Minimum fee
+const MIN_FEE: u64 = 1;
+let fee = amount / 100;
+if (fee == 0 && amount > 0) {
+    fee = MIN_FEE;
+};
+
+// Option 2: Minimum amount to prevent rounding
+const MIN_AMOUNT_FOR_FEES: u64 = 100;
+assert!(amount >= MIN_AMOUNT_FOR_FEES, E_AMOUNT_TOO_SMALL);
+let fee = amount / 100;
+
+// Option 3: Check result non-zero
+let increment = highest_bid / 20;
+if (increment == 0) {
+    increment = 1;  // Minimum increment
+};
+```
+
+**When to Apply:**
+
+- Fee calculations (platform fees, protocol fees)
+- Percentage-based increments (auction minimum bids)
+- Any division where zero result breaks logic
+
+### 3.4 Multi-Step Calculation Overflow
+
+**Intermediate results can overflow even if final result fits.**
+
+❌ **WRONG - Risk of overflow:**
+
+```move
+// Each value might be safe individually, but a * b could overflow!
+let result = (a * b * c) / d;
+
+// Interest calculation example:
+let interest = (principal * rate * time_elapsed) / (PRECISION * SECONDS_PER_YEAR);
+// principal * rate * time_elapsed might overflow!
+```
+
+✅ **CORRECT - Restructure to reduce intermediate size:**
+
+```move
+// Option 1: Divide early to keep intermediates smaller
+let result = ((a / d) * b * c);
+
+// Option 2: Break into steps with overflow checks
+let temp = (a as u128) * (b as u128);  // Use larger type
+let result = ((temp * (c as u128)) / (d as u128)) as u64;
+
+// Option 3: For interest, restructure calculation
+let rate_per_second = ANNUAL_INTEREST_RATE / SECONDS_PER_YEAR;
+let interest = ((principal / PRECISION) * rate_per_second * time_elapsed);
+
+// Option 4: Add maximum amount checks
+const MAX_SAFE_PRINCIPAL: u128 = 1_000_000_000_000_000;  // Calculate based on formula
+assert!(principal <= MAX_SAFE_PRINCIPAL, E_AMOUNT_TOO_LARGE);
+let interest = (principal * rate * time_elapsed) / (PRECISION * SECONDS_PER_YEAR);
+```
+
+**When to Apply:**
+
+- Interest calculations over time
+- Complex fee formulas
+- Any formula with multiple multiplications
+
+### 3.5 Left Shift Overflow (Does NOT abort!)
 
 **CRITICAL: Left shift can produce incorrect values without aborting**
 
@@ -468,7 +627,7 @@ public fun calculate_power_of_two_safer(exponent: u8): u64 {
 }
 ```
 
-### 3.4 Division by Zero
+### 3.6 Division by Zero
 
 ```move
 const E_DIVISION_BY_ZERO: u64 = 44;
@@ -732,9 +891,204 @@ public fun get_admin_capability(admin: &signer): AdminCapability acquires Config
 
 ---
 
-## Pattern 7: Resource Management
+## Pattern 7: DeFi-Specific Security
 
-### 7.1 Avoid Unbounded Iterations
+### 7.1 Price Oracles (CRITICAL for DeFi)
+
+**CRITICAL RULE:** Never assume 1:1 price ratios between different assets.
+
+❌ **WRONG - Broken economics:**
+
+```move
+// Assumes all tokens have same value!
+let collateral_value = collateral_amount;
+let borrowed_value = borrowed_amount;
+let ratio = (collateral_value * 100) / borrowed_value;
+```
+
+**Impact:** Protocol can be drained by depositing worthless tokens and borrowing valuable ones.
+
+✅ **CORRECT - Use price oracles:**
+
+```move
+// Use Pyth, Switchboard, or other oracle
+let collateral_price = oracle::get_price(collateral_metadata);
+let borrow_price = oracle::get_price(borrow_metadata);
+
+let collateral_value = (collateral_amount as u128) * collateral_price;
+let borrowed_value = (borrowed_amount as u128) * borrow_price;
+
+let ratio = (collateral_value * 100) / borrowed_value;
+```
+
+**Requirements for Production DeFi:**
+
+1. **Multi-Oracle Design:**
+   - Use at least 2 independent oracle sources
+   - Implement fallback oracles
+   - Add circuit breaker if oracles disagree significantly
+
+2. **Price Staleness Checks:**
+
+   ```move
+   const MAX_PRICE_AGE: u64 = 300; // 5 minutes
+   let price_timestamp = oracle::get_price_timestamp(asset);
+   let current_time = timestamp::now_seconds();
+   assert!(current_time - price_timestamp <= MAX_PRICE_AGE, E_STALE_PRICE);
+   ```
+
+3. **Price Deviation Limits:**
+
+   ```move
+   const MAX_PRICE_DEVIATION_BPS: u128 = 1000; // 10%
+   let oracle1_price = oracle1::get_price(asset);
+   let oracle2_price = oracle2::get_price(asset);
+   let diff = if (oracle1_price > oracle2_price) {
+       oracle1_price - oracle2_price
+   } else {
+       oracle2_price - oracle1_price
+   };
+   let max_deviation = (oracle1_price * MAX_PRICE_DEVIATION_BPS) / 10000;
+   assert!(diff <= max_deviation, E_ORACLE_DEVIATION_TOO_HIGH);
+   ```
+
+4. **Never Use Single On-Chain Ratios:**
+   - Vulnerable to flash loan manipulation
+   - Use time-weighted average prices (TWAP)
+   - Add minimum liquidity requirements
+
+### 7.2 MEV Protection
+
+**Front-running Prevention:**
+
+- Use atomic operations (all-or-nothing)
+- Add slippage protection parameters
+- Implement deadline timestamps for time-sensitive operations
+
+```move
+public entry fun swap(
+    user: &signer,
+    amount_in: u64,
+    min_amount_out: u64,  // Slippage protection
+    deadline: u64         // MEV protection
+) {
+    let current_time = timestamp::now_seconds();
+    assert!(current_time <= deadline, E_DEADLINE_EXCEEDED);
+    // ... swap logic
+    assert!(amount_out >= min_amount_out, E_SLIPPAGE_TOO_HIGH);
+}
+```
+
+### 7.3 Liquidation Safety
+
+For lending/borrowing protocols:
+
+1. **Partial Liquidation:**
+   - Don't liquidate entire position at once
+   - Allow liquidators to specify amount
+   - Prevents excessive slippage
+
+2. **Liquidation Incentive:**
+   - Reward liquidators (e.g., 5-10% bonus)
+   - But cap maximum bonus to prevent abuse
+
+3. **Minimum Collateralization:**
+   - Enforce buffer between liquidation threshold and minimum ratio
+   - Example: 150% minimum, 120% liquidation threshold
+   - Gives borrowers time to add collateral
+
+---
+
+## Pattern 8: Governance and Multi-Sig Security
+
+### 8.1 Proposal Expiration
+
+**All governance proposals MUST have expiration times.**
+
+❌ **WRONG - No expiration:**
+
+```move
+struct Proposal has key {
+    description: String,
+    approvals: vector<address>,
+    executed: bool,
+}
+// Can be executed years later in changed circumstances!
+```
+
+✅ **CORRECT - With expiration:**
+
+```move
+struct Proposal has key {
+    description: String,
+    approvals: vector<address>,
+    executed: bool,
+    expiration_time: u64,  // Add this
+}
+
+public entry fun execute_proposal(executor: &signer, proposal: Object<Proposal>) {
+    // ... approval checks ...
+    let current_time = timestamp::now_seconds();
+    assert!(current_time <= proposal_data.expiration_time, E_PROPOSAL_EXPIRED);
+    // ... execute
+}
+```
+
+**Recommended Expiration Times:**
+
+- Standard proposals: 7 days
+- Urgent proposals: 3 days
+- Parameter changes: 14 days
+
+### 8.2 Owner/Member Removal Safety
+
+**When removing owners/members with voting power:**
+
+```move
+public entry fun propose_remove_owner(
+    proposer: &signer,
+    wallet: Object<MultiSigWallet>,
+    owner_to_remove: address
+) {
+    // 1. Check threshold still met after removal
+    let wallet_data = borrow_global<MultiSigWallet>(object_address);
+    let remaining_owners = vector::length(&wallet_data.owners) - 1;
+    assert!(wallet_data.threshold <= remaining_owners, E_THRESHOLD_TOO_HIGH);
+
+    // 2. Handle pending approvals (choose one):
+    // Option A: Reject removal if owner has approved pending proposals
+    assert!(!has_pending_approvals(owner_to_remove), E_HAS_PENDING_APPROVALS);
+
+    // Option B: Automatically revoke approvals from removed owner
+    revoke_all_approvals(owner_to_remove);
+}
+```
+
+### 8.3 Threshold Management
+
+**Never allow threshold to exceed number of owners:**
+
+```move
+public entry fun change_threshold(
+    wallet: Object<MultiSigWallet>,
+    new_threshold: u64
+) {
+    let wallet_data = borrow_global_mut<MultiSigWallet>(object_address);
+    let num_owners = vector::length(&wallet_data.owners);
+
+    // Validate bounds
+    assert!(new_threshold >= 1, E_THRESHOLD_TOO_LOW);
+    assert!(new_threshold <= num_owners, E_THRESHOLD_TOO_HIGH);
+
+    wallet_data.threshold = new_threshold;
+}
+```
+
+---
+
+## Pattern 9: Resource Management
+
+### 9.1 Avoid Unbounded Iterations
 
 **CRITICAL: Gas exhaustion attacks via unbounded loops**
 
@@ -785,7 +1139,7 @@ public fun get_order_by_id(
 }
 ```
 
-### 7.2 Storage Structure Best Practices
+### 9.2 Storage Structure Best Practices
 
 ```move
 // ✅ CORRECT: Module data in Objects, user data in user accounts
@@ -814,9 +1168,9 @@ module my_addr::marketplace {
 
 ---
 
-## Pattern 8: Business Logic Security
+## Pattern 10: Business Logic Security
 
-### 8.1 Front-Running Prevention
+### 10.1 Front-Running Prevention
 
 **CRITICAL: Atomic finalization prevents front-running**
 
@@ -849,7 +1203,7 @@ fun evaluate_bets_internal(lottery: &mut Lottery) {
 }
 ```
 
-### 8.2 Price Oracle Manipulation
+### 10.2 Price Oracle Manipulation
 
 **CRITICAL: Never use single on-chain ratio as sole price oracle**
 
@@ -882,7 +1236,7 @@ public fun get_price(): u64 acquires OracleConfig {
 }
 ```
 
-### 8.3 Token Identifier Collision
+### 10.3 Token Identifier Collision
 
 **CRITICAL: Use collision-proof identifiers**
 
@@ -910,7 +1264,7 @@ public fun get_lp_token_id<TokenA, TokenB>(): vector<u8> {
 }
 ```
 
-### 8.4 Pause Functionality
+### 10.4 Pause Functionality
 
 **REQUIRED: Emergency pause mechanism**
 
@@ -955,9 +1309,9 @@ public entry fun critical_operation(user: &signer) acquires Protocol {
 
 ---
 
-## Pattern 9: Randomness Security
+## Pattern 11: Randomness Security
 
-### 9.1 Prevent Test-and-Abort
+### 11.1 Prevent Test-and-Abort
 
 **CRITICAL: Randomness functions must be `entry` (not `public`)**
 
@@ -988,7 +1342,7 @@ entry fun play_lottery(user: &signer) acquires Lottery {
 }
 ```
 
-### 9.2 Prevent Undergasing
+### 11.2 Prevent Undergasing
 
 **CRITICAL: Balance gas consumption across outcomes**
 
@@ -1042,9 +1396,9 @@ entry fun reveal_game(user: &signer) acquires Game {
 
 ---
 
-## Pattern 10: Move Abilities
+## Pattern 12: Move Abilities
 
-### 10.1 Ability Restrictions
+### 12.1 Ability Restrictions
 
 ```move
 // Token type - NO copy (prevents double-spending)
@@ -1074,7 +1428,7 @@ struct NFT has key {
 
 ---
 
-## Pattern 11: Publishing Key Management
+## Pattern 13: Publishing Key Management
 
 **CRITICAL: Separate keys by network**
 
@@ -1102,23 +1456,30 @@ aptos move publish --profile mainnet
 
 ## Common Vulnerabilities Table
 
-| Vulnerability | Example | Impact | Fix |
-|---------------|---------|--------|-----|
-| Missing access control | No signer verification | Anyone calls admin functions | Add `assert!(signer::address_of(admin) == config.admin, E_NOT_ADMIN)` |
-| Missing ownership check | No `object::owner()` check | Anyone modifies any object | Add `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)` |
-| Cross-account manipulation | Accepts `target_addr` parameter | User modifies others' storage | Use `borrow_global_mut<T>(signer::address_of(user))` |
-| Generic type mismatch | No flash loan type validation | Borrow BTC, repay junk | Use `Receipt<phantom T>` pattern |
-| Unbounded iteration | Loop over global vector | Gas exhaustion DOS | Store per-user, use direct lookup |
-| Division rounds to zero | `(100 * 30) / 10000` = 0 | Fee-free transactions | Enforce `MIN_ORDER_SIZE`, validate `fee > 0` |
-| Left shift overflow | `1 << 64` (wrong value) | Incorrect calculations | Validate shift `< 64` or avoid |
-| Returning ConstructorRef | `return constructor_ref` | Caller destroys object | Return `Object<T>` instead |
-| Exposed &mut | `public fun get_mut()` | mem::swap attacks | Expose specific operations |
-| Single price oracle | Use one pool ratio | Price manipulation | Multi-oracle with fallbacks |
-| Front-running | Two-step operations | Attacker inserts between | Atomic finalization |
-| Token ID collision | String concatenation | Same ID, different tokens | Use object addresses |
-| No pause mechanism | No emergency stop | Can't respond to exploits | Implement pause functionality |
-| Public randomness | Composable lottery | Test-and-abort attacks | Use `entry` visibility |
-| Undergasing | Win uses less gas | Attacker guarantees wins | Balance gas across paths |
+| Vulnerability              | Example                         | Impact                        | Fix                                                                        |
+| -------------------------- | ------------------------------- | ----------------------------- | -------------------------------------------------------------------------- |
+| Missing access control     | No signer verification          | Anyone calls admin functions  | Add `assert!(signer::address_of(admin) == config.admin, E_NOT_ADMIN)`      |
+| Missing ownership check    | No `object::owner()` check      | Anyone modifies any object    | Add `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)` |
+| Cross-account manipulation | Accepts `target_addr` parameter | User modifies others' storage | Use `borrow_global_mut<T>(signer::address_of(user))`                       |
+| **Implicit amounts**       | **`coin::balance()` as amount** | **User loses entire balance** | **Add explicit `amount: u64` parameter**                                   |
+| Generic type mismatch      | No flash loan type validation   | Borrow BTC, repay junk        | Use `Receipt<phantom T>` pattern                                           |
+| Unbounded iteration        | Loop over global vector         | Gas exhaustion DOS            | Store per-user, use direct lookup                                          |
+| Division rounds to zero    | `(100 * 30) / 10000` = 0        | Fee-free transactions         | Enforce `MIN_ORDER_SIZE`, validate `fee > 0`                               |
+| **Multi-step overflow**    | **`(a * b * c) / d`**           | **Intermediate overflow**     | **Restructure or use u128**                                                |
+| Left shift overflow        | `1 << 64` (wrong value)         | Incorrect calculations        | Validate shift `< 64` or avoid                                             |
+| Returning ConstructorRef   | `return constructor_ref`        | Caller destroys object        | Return `Object<T>` instead                                                 |
+| Exposed &mut               | `public fun get_mut()`          | mem::swap attacks             | Expose specific operations                                                 |
+| **No price oracles**       | **Assume 1:1 ratio**            | **Protocol drained**          | **Use multi-oracle design**                                                |
+| Single price oracle        | Use one pool ratio              | Price manipulation            | Multi-oracle with fallbacks                                                |
+| **Stale prices**           | **No timestamp check**          | **Old prices exploited**      | **Add `MAX_PRICE_AGE` validation**                                         |
+| Front-running              | Two-step operations             | Attacker inserts between      | Atomic finalization                                                        |
+| **No slippage protection** | **No `min_amount_out`**         | **MEV/sandwich attacks**      | **Add slippage parameters**                                                |
+| Token ID collision         | String concatenation            | Same ID, different tokens     | Use object addresses                                                       |
+| No pause mechanism         | No emergency stop               | Can't respond to exploits     | Implement pause functionality                                              |
+| **No proposal expiration** | **Proposals live forever**      | **Stale proposals executed**  | **Add expiration timestamps**                                              |
+| **Threshold > owners**     | **Can't reach threshold**       | **Wallet locked**             | **Validate threshold <= owner count**                                      |
+| Public randomness          | Composable lottery              | Test-and-abort attacks        | Use `entry` visibility                                                     |
+| Undergasing                | Win uses less gas               | Attacker guarantees wins      | Balance gas across paths                                                   |
 
 ---
 
@@ -1171,15 +1532,18 @@ aptos move coverage summary
 ## Additional Resources
 
 **Official Documentation:**
+
 - [Aptos Move Security Guidelines](https://aptos.dev/build/smart-contracts/move-security-guidelines) ⭐
 - [Object Model](https://aptos.dev/build/smart-contracts/object)
 - [Move Book](https://aptos.dev/build/smart-contracts/book)
 
 **Related Patterns:**
+
 - `OBJECTS.md` - Object model best practices
 - `TESTING.md` - Security testing patterns
 - `DIGITAL_ASSETS.md` - NFT security considerations
 
 ---
 
-**Remember:** Security is not optional. Every checklist item must pass before deployment. User funds depend on your code's correctness. When in doubt, be more restrictive.
+**Remember:** Security is not optional. Every checklist item must pass before deployment. User funds depend on your
+code's correctness. When in doubt, be more restrictive.

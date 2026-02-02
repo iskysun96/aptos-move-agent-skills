@@ -402,6 +402,357 @@ module my_addr::data_separation {
 }
 ```
 
+### 8. Computational Complexity Limits
+
+#### Avoid Unbounded Loops
+
+**CRITICAL:** User-controlled input that affects loop iterations can cause gas exhaustion.
+
+❌ **WRONG - O(n²) complexity on user input:**
+
+```move
+// Checking for duplicates in owner list
+while (i < num_owners) {
+    let owner = *vector::borrow(&owners, i);
+    let j = i + 1;
+    while (j < num_owners) {
+        assert!(*vector::borrow(&owners, j) != owner, E_DUPLICATE_OWNER);
+        j = j + 1;
+    };
+    i = i + 1;
+};
+// For 100 owners, this does 10,000 iterations!
+```
+
+✅ **CORRECT - Add maximum size limits:**
+
+```move
+const MAX_OWNERS: u64 = 50;
+const MAX_BATCH_SIZE: u64 = 100;
+
+// Validate input size FIRST
+assert!(vector::length(&owners) <= MAX_OWNERS, E_TOO_MANY_OWNERS);
+
+// Then process (still O(n²), but bounded)
+while (i < num_owners) {
+    // ... duplicate check
+};
+```
+
+**Better Solution - Use SmartTable for O(1) lookups:**
+
+```move
+use aptos_std::smart_table::{Self, SmartTable};
+
+// Check duplicates in O(n) time
+let seen = smart_table::new<address, bool>();
+let i = 0;
+while (i < num_owners) {
+    let owner = *vector::borrow(&owners, i);
+    assert!(!smart_table::contains(&seen, &owner), E_DUPLICATE_OWNER);
+    smart_table::add(&mut seen, owner, true);
+    i = i + 1;
+};
+```
+
+#### Recommended Maximum Limits
+
+Based on gas cost analysis:
+
+| Operation                      | Recommended Max | Rationale            |
+| ------------------------------ | --------------- | -------------------- |
+| Vector iteration (single loop) | 1000 items      | ~100K gas            |
+| Nested loops (O(n²))           | 50 items        | 2500 iterations max  |
+| Batch operations               | 100 items       | User experience      |
+| Owner/member lists             | 50 members      | Multi-sig complexity |
+| Token batch mints              | 100 recipients  | Transaction size     |
+
+**Always Add Size Constants:**
+
+```move
+/// Maximum number of items in a batch operation
+const MAX_BATCH_SIZE: u64 = 100;
+
+/// Maximum number of owners in a multi-sig wallet
+const MAX_OWNERS: u64 = 50;
+
+/// Maximum number of proposals in a single query
+const MAX_PROPOSALS_PER_PAGE: u64 = 100;
+```
+
+#### Pagination Pattern
+
+For large datasets, implement pagination:
+
+```move
+#[view]
+public fun get_proposals_paginated(
+    wallet: Object<MultiSigWallet>,
+    start_index: u64,
+    limit: u64
+): vector<ProposalInfo> {
+    assert!(limit <= MAX_PROPOSALS_PER_PAGE, E_LIMIT_TOO_HIGH);
+
+    let wallet_data = borrow_global<MultiSigWallet>(object_address);
+    let total = vector::length(&wallet_data.proposal_ids);
+
+    let end_index = min(start_index + limit, total);
+    let results = vector::empty<ProposalInfo>();
+
+    let i = start_index;
+    while (i < end_index) {
+        let proposal_id = *vector::borrow(&wallet_data.proposal_ids, i);
+        vector::push_back(&mut results, get_proposal_info(proposal_id));
+        i = i + 1;
+    };
+
+    results
+}
+```
+
+### 9. Multi-Asset Storage Patterns
+
+#### Problem: Supporting Multiple Different Assets
+
+When users need to hold multiple different assets (tokens, NFTs, etc.), avoid hardcoding single asset fields.
+
+❌ **WRONG - Limited to single asset per user:**
+
+```move
+struct UserPosition has key {
+    collateral_amount: u128,
+    collateral_asset: address,  // Only ONE collateral type!
+    borrowed_amount: u128,
+    borrowed_asset: address,    // Only ONE borrowed type!
+    last_update_time: u64,
+}
+```
+
+**Problems:**
+
+- User can only have one collateral asset
+- Cannot diversify collateral
+- Requires closing position to switch assets
+- Breaking change to upgrade later
+
+❌ **WRONG - Hardcoded asset fields:**
+
+```move
+struct Portfolio has key {
+    usdc_amount: u64,
+    apt_amount: u64,
+    btc_amount: u64,
+    // What about new tokens?
+}
+```
+
+**Problems:**
+
+- Fixed set of assets
+- Cannot add new tokens without upgrade
+- Wastes storage for unused assets
+
+#### Solution 1: SmartTable for Asset Mapping
+
+✅ **CORRECT - Flexible multi-asset support:**
+
+```move
+use aptos_std::smart_table::{Self, SmartTable};
+
+struct UserPosition has key {
+    /// Maps asset address -> amount held
+    collateral: SmartTable<address, u128>,
+
+    /// Maps asset address -> amount borrowed
+    borrowed: SmartTable<address, u128>,
+
+    /// Maps asset address -> interest accrued
+    interest_accrued: SmartTable<address, u128>,
+
+    /// Last interest update time per asset
+    last_update_time: SmartTable<address, u64>,
+}
+```
+
+**Benefits:**
+
+- Unlimited asset types
+- Pay storage only for assets used
+- Can add new assets without upgrade
+- User can diversify collateral
+
+**Usage Example:**
+
+```move
+public entry fun deposit_collateral(
+    user: &signer,
+    asset: Object<Metadata>,
+    amount: u64
+) acquires UserPosition {
+    let user_addr = signer::address_of(user);
+
+    if (!exists<UserPosition>(user_addr)) {
+        // Initialize position with empty tables
+        move_to(user, UserPosition {
+            collateral: smart_table::new(),
+            borrowed: smart_table::new(),
+            interest_accrued: smart_table::new(),
+            last_update_time: smart_table::new(),
+        });
+    };
+
+    let position = borrow_global_mut<UserPosition>(user_addr);
+    let asset_addr = object::object_address(&asset);
+
+    // Update or add collateral for this asset
+    if (smart_table::contains(&position.collateral, &asset_addr)) {
+        let current = smart_table::borrow_mut(&mut position.collateral, &asset_addr);
+        *current = *current + (amount as u128);
+    } else {
+        smart_table::add(&mut position.collateral, asset_addr, amount as u128);
+    };
+
+    // Transfer tokens
+    primary_fungible_store::transfer(user, asset, protocol_address, amount);
+}
+```
+
+#### Solution 2: Vector of Structs (for small sets)
+
+For a small, bounded number of assets (< 10), you can use a vector:
+
+✅ **CORRECT - For small asset counts:**
+
+```move
+struct AssetBalance has store, drop {
+    asset: address,
+    amount: u64,
+}
+
+const MAX_ASSETS_PER_USER: u64 = 10;
+
+struct Portfolio has key {
+    assets: vector<AssetBalance>,
+}
+
+public entry fun add_asset(
+    user: &signer,
+    asset: address,
+    amount: u64
+) acquires Portfolio {
+    let portfolio = borrow_global_mut<Portfolio>(signer::address_of(user));
+
+    // Linear search for existing asset
+    let i = 0;
+    let len = vector::length(&portfolio.assets);
+    let found = false;
+
+    while (i < len) {
+        let balance = vector::borrow_mut(&mut portfolio.assets, i);
+        if (balance.asset == asset) {
+            balance.amount = balance.amount + amount;
+            found = true;
+            break
+        };
+        i = i + 1;
+    };
+
+    if (!found) {
+        assert!(len < MAX_ASSETS_PER_USER, E_TOO_MANY_ASSETS);
+        vector::push_back(&mut portfolio.assets, AssetBalance { asset, amount });
+    };
+}
+```
+
+**When to Use:**
+
+- Small, bounded number of assets (< 10)
+- Simple iteration patterns
+- Simpler than SmartTable for beginners
+
+**When NOT to Use:**
+
+- Unbounded asset types
+- DeFi protocols (use SmartTable)
+- High-frequency trading
+
+#### Solution 3: Multiple Tables (for different asset categories)
+
+For complex protocols with different asset categories:
+
+```move
+use aptos_std::smart_table::{Self, SmartTable};
+
+struct DeFiPosition has key {
+    /// Fungible assets as collateral
+    collateral_tokens: SmartTable<address, u128>,
+
+    /// NFTs held as collateral
+    collateral_nfts: SmartTable<address, vector<address>>,  // token -> nft IDs
+
+    /// Borrowed fungible assets
+    borrowed_tokens: SmartTable<address, u128>,
+
+    /// Reward tokens earned
+    rewards: SmartTable<address, u128>,
+}
+```
+
+**Benefits:**
+
+- Type safety (separate tables for tokens vs NFTs)
+- Clear categorization
+- Efficient queries per category
+
+#### Querying Multi-Asset Positions
+
+**Get all collateral assets:**
+
+```move
+#[view]
+public fun get_all_collateral(user_addr: address): vector<AssetInfo> acquires UserPosition {
+    let position = borrow_global<UserPosition>(user_addr);
+    let results = vector::empty<AssetInfo>();
+
+    // SmartTable iteration
+    smart_table::for_each_ref(&position.collateral, |asset_addr, amount| {
+        vector::push_back(&mut results, AssetInfo {
+            asset: *asset_addr,
+            amount: *amount,
+        });
+    });
+
+    results
+}
+```
+
+**Get collateral value (summed across all assets):**
+
+```move
+#[view]
+public fun get_total_collateral_value(user_addr: address): u128 acquires UserPosition {
+    let position = borrow_global<UserPosition>(user_addr);
+    let total_value = 0u128;
+
+    smart_table::for_each_ref(&position.collateral, |asset_addr, amount| {
+        let price = oracle::get_price(*asset_addr);
+        let value = (*amount) * price;
+        total_value = total_value + value;
+    });
+
+    total_value
+}
+```
+
+#### Best Practices Summary
+
+1. **Use SmartTable for unlimited asset types** (DeFi protocols)
+2. **Use Vector<Struct> for small, bounded sets** (< 10 assets)
+3. **Add MAX_ASSETS constants** even with SmartTable (sanity check)
+4. **Separate tables by asset category** for type safety
+5. **Provide view functions** to query all user assets
+6. **Never hardcode specific token addresses** in user structs
+
 ## Storage Calculation
 
 ### Size Estimation
