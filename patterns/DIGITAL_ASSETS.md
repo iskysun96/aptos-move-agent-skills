@@ -329,11 +329,15 @@ instead of the generic `collection` and `token` modules.
 
 ### Required Imports for AptosToken
 
+In addition to the general Digital Asset imports listed above, you will need the following when using `aptos_token`:
+
 ```move
 use aptos_token_objects::aptos_token::{Self, AptosToken};
 // Still need these for types
 use aptos_token_objects::collection;
 use aptos_token_objects::token;
+// Standard library helpers used in examples (e.g., string::utf8)
+use std::string;
 ```
 
 ### Creating AptosCollection ⭐ CRITICAL

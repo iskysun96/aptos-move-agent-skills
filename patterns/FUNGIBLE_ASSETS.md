@@ -648,6 +648,7 @@ If you have legacy coin contracts, migrate to FA for better UX:
 // ❌ OLD - Legacy coin (requires recipient registration)
 module my_addr::old_coin {
     use aptos_framework::coin;
+    use std::string;
 
     struct MyCoin {}
 
@@ -677,6 +678,7 @@ module my_addr::new_token {
     use aptos_framework::fungible_asset::{Self, Metadata, MintRef};
     use aptos_framework::primary_fungible_store;
     use aptos_framework::object::{Self, Object};
+    use std::{option, string};
 
     struct TokenRefs has key {
         mint_ref: MintRef,
