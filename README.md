@@ -2,11 +2,12 @@
 
 **AI-powered skills for building secure, modern Aptos Move V2 smart contracts**
 
-This repository provides specialized skills and patterns for AI assistants (Claude Code, Cursor, GitHub Copilot, future Aptos Vibe tool) to help developers build secure, well-tested Aptos Move V2 smart contracts following best practices.
+This repository provides specialized skills and patterns for AI assistants (Claude Code, Cursor, GitHub Copilot, future
+Aptos Vibe tool) to help developers build secure, well-tested Aptos Move V2 smart contracts following best practices.
 
 ## Features
 
-- **8 Specialized Skills** - Context-aware skills for common Move development tasks
+- **11 Specialized Skills** - Context-aware skills for common Move development tasks
 - **Object-Centric Patterns** - Modern V2 object model patterns (no legacy addresses)
 - **Security-First** - Comprehensive security checklist and audit patterns
 - **100% Test Coverage** - Automated test generation with coverage requirements
@@ -18,6 +19,7 @@ This repository provides specialized skills and patterns for AI assistants (Clau
 ### For Claude Code Users
 
 1. Clone this repository into your project or alongside it:
+
    ```bash
    git clone https://github.com/your-org/move-agent-skills.git
    ```
@@ -43,7 +45,7 @@ This repository provides specialized skills and patterns for AI assistants (Clau
 
 ```
 move-agent-skills/
-├── skills/                           # 8 skill modules
+├── skills/                           # 11 skill modules
 │   ├── scaffold-project/            # Initialize new projects
 │   ├── write-contracts/             # Generate Move contracts ⭐
 │   ├── generate-tests/              # Create test suites
@@ -51,13 +53,18 @@ move-agent-skills/
 │   ├── search-aptos-examples/       # Find example patterns
 │   ├── use-aptos-cli/               # CLI command reference
 │   ├── deploy-contracts/            # Deploy to networks
-│   └── troubleshoot-errors/         # Debug common errors
+│   ├── troubleshoot-errors/         # Debug common errors
+│   ├── analyze-gas-optimization/    # Optimize gas usage 🆕
+│   ├── generate-move-scripts/       # Create atomic scripts 🆕
+│   └── implement-upgradeable-contracts/ # Contract upgrades 🆕
 ├── patterns/                         # Reference documentation
 │   ├── DIGITAL_ASSETS.md            # NFT standard (Digital Assets) ⭐
 │   ├── OBJECTS.md                   # Object model patterns ⭐
 │   ├── SECURITY.md                  # Security checklist ⭐
 │   ├── TESTING.md                   # Test patterns
-│   └── MOVE_V2_SYNTAX.md           # Modern syntax guide
+│   ├── MOVE_V2_SYNTAX.md           # Modern syntax guide
+│   ├── ADVANCED_TYPES.md            # Advanced type patterns 🆕
+│   └── STORAGE_OPTIMIZATION.md      # Storage optimization 🆕
 ├── setups/
 │   ├── AGENTS.md                    # Main AI instruction file ⭐
 │   ├── claude-code/README.md       # Claude Code integration
@@ -75,6 +82,7 @@ move-agent-skills/
 ## Core Principles
 
 ### 1. Always Search Examples First
+
 ```
 "I want to build an NFT marketplace"
 → search-aptos-examples skill finds relevant patterns
@@ -82,6 +90,7 @@ move-agent-skills/
 ```
 
 ### 2. Digital Asset Standard for NFTs
+
 ```move
 // ✅ MODERN: Aptos Digital Asset standard
 use aptos_token_objects::collection;
@@ -99,6 +108,7 @@ use aptos_token::token;  // Don't use this module
 ```
 
 ### 3. Object-Centric Development
+
 ```move
 // ✅ MODERN (V2): Type-safe objects
 public entry fun transfer_item(
@@ -116,6 +126,7 @@ public entry fun transfer_item(
 ```
 
 ### 3. Security-First
+
 ```move
 // Every entry function verifies authorization
 public entry fun update_item(
@@ -136,6 +147,7 @@ public entry fun update_item(
 ```
 
 ### 4. 100% Test Coverage
+
 ```bash
 # Required before deployment
 aptos move test --coverage
@@ -144,6 +156,7 @@ aptos move coverage summary
 ```
 
 ### 5. Modern Syntax
+
 ```move
 // Inline functions with lambdas
 inline fun for_each<T>(v: &vector<T>, f: |&T|) {
@@ -165,11 +178,13 @@ for_each(&items, |item| {
 ### Critical Skills
 
 #### write-contracts ⭐
+
 **Most important skill** - Generates secure Move V2 contracts following object-centric patterns.
 
 **Activates when:** "write move contract", "create smart contract", "build module"
 
 **Key features:**
+
 - Uses `Object<T>` references (never addresses)
 - Implements proper constructor patterns
 - Adds access control automatically
@@ -177,22 +192,26 @@ for_each(&items, |item| {
 - Uses modern V2 syntax
 
 #### generate-tests
+
 Creates comprehensive test suites with 100% coverage requirement.
 
 **Activates when:** "write tests", "add coverage", or automatically after writing contracts
 
 **Test categories:**
+
 - Happy path tests
 - Access control tests
 - Input validation tests
 - Edge case tests
 
 #### security-audit
+
 Performs systematic security audits using comprehensive checklist.
 
 **Activates when:** "audit contract", "check security", or automatically before deployment
 
 **Checks:**
+
 - Access control verification
 - Input validation
 - Object safety
@@ -203,21 +222,25 @@ Performs systematic security audits using comprehensive checklist.
 ### Supporting Skills
 
 #### scaffold-project
+
 Initializes new Move projects with proper structure and configuration.
 
 **Command:** "create move project", "scaffold new app"
 
 #### search-aptos-examples
+
 Searches aptos-core/move-examples for similar patterns before writing code.
 
 **Auto-activates:** Before writing new contracts
 
 #### use-aptos-cli
+
 Comprehensive CLI command reference for Move development.
 
 **Command:** "how do I compile", "aptos command help"
 
 #### deploy-contracts
+
 Guides safe deployment to devnet, testnet, and mainnet.
 
 **Command:** "deploy contract", "publish to testnet"
@@ -225,6 +248,7 @@ Guides safe deployment to devnet, testnet, and mainnet.
 **Workflow:** Local tests → Devnet → Testnet → Mainnet
 
 #### troubleshoot-errors
+
 Diagnoses and fixes common Move errors.
 
 **Auto-activates:** When errors detected
@@ -393,6 +417,18 @@ public fun test_unauthorized_transfer_fails(
    }
    ```
 
+## Formatting
+
+This project uses Prettier for consistent markdown formatting. To format all markdown files:
+
+```bash
+# Format all markdown files
+npm run format
+
+# Check formatting without making changes
+npm run format:check
+```
+
 ## Configuration
 
 ### For AI Assistants
@@ -464,7 +500,8 @@ We welcome contributions! Areas to contribute:
 
 ### Inspired By
 
-This project is modeled after the [Algorand Agent Skills](https://github.com/algorand-devrel/algorand-agent-skills) repository structure.
+This project is modeled after the [Algorand Agent Skills](https://github.com/algorand-devrel/algorand-agent-skills)
+repository structure.
 
 ## License
 
@@ -489,6 +526,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## Version
 
 **v1.0** (2026-01-23)
+
 - Initial release
 - 8 core skills
 - 4 comprehensive pattern guides

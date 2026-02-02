@@ -1,6 +1,6 @@
 ---
 name: scaffold-project
-description: Scaffold new Aptos Move V2 project with proper structure and configuration. Use when "create move project", "new aptos project", "scaffold move app", "init move module".
+description: "Initializes new Aptos Move projects with proper directory structure and configuration. Triggers on: 'create project', 'scaffold project', 'new Move project', 'initialize project', 'setup Move project', 'start new contract', 'init aptos project'."
 ---
 
 # Scaffold Project Skill

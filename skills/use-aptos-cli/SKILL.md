@@ -1,6 +1,6 @@
 ---
 name: use-aptos-cli
-description: Reference for Aptos CLI commands for Move development. Use when "run aptos", "compile move", "test contract", "aptos command".
+description: "Provides Aptos CLI command reference for development workflow (init, compile, test, publish). Triggers on: 'CLI command', 'how to use aptos', 'aptos init', 'aptos compile', 'aptos test', 'aptos move publish', 'CLI help', 'run aptos command'."
 ---
 
 # Use Aptos CLI Skill

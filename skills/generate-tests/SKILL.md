@@ -1,6 +1,6 @@
 ---
 name: generate-tests
-description: Generate comprehensive unit tests for Aptos Move V2 contracts with 100% coverage. Use when "write tests", "test contract", "add test coverage", or AUTOMATICALLY after writing any contract.
+description: "Creates comprehensive test suites for Move contracts with 100% coverage requirement. Triggers on: 'generate tests', 'create tests', 'write test suite', 'test this contract', 'how to test', 'add test coverage', 'write unit tests'."
 ---
 
 # Generate Tests Skill

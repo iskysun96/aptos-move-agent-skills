@@ -8,10 +8,13 @@ This repository provides specialized skills for AI assistants to build secure, m
 
 - **[AI Assistant Guide](setups/AGENTS.md)** - Main orchestration file with workflows
 - **[Digital Assets](patterns/DIGITAL_ASSETS.md)** - ⭐ NFT standard (CRITICAL for NFTs)
+- **[Fungible Assets](patterns/FUNGIBLE_ASSETS.md)** - ⭐ Token standard (CRITICAL for tokens/coins)
 - **[Object Patterns](patterns/OBJECTS.md)** - Object model reference
 - **[Security Guide](patterns/SECURITY.md)** - Security checklist
 - **[Testing Guide](patterns/TESTING.md)** - Test generation patterns
 - **[Modern Syntax](patterns/MOVE_V2_SYNTAX.md)** - V2 syntax guide
+- **[Advanced Types](patterns/ADVANCED_TYPES.md)** - Advanced type patterns
+- **[Storage Optimization](patterns/STORAGE_OPTIMIZATION.md)** - Storage cost reduction
 
 ## Skills
 
@@ -23,6 +26,9 @@ This repository provides specialized skills for AI assistants to build secure, m
 - **[use-aptos-cli](skills/use-aptos-cli/SKILL.md)** - CLI command reference
 - **[deploy-contracts](skills/deploy-contracts/SKILL.md)** - Deploy to networks
 - **[troubleshoot-errors](skills/troubleshoot-errors/SKILL.md)** - Debug common errors
+- **[analyze-gas-optimization](skills/analyze-gas-optimization/SKILL.md)** - Optimize gas usage
+- **[generate-move-scripts](skills/generate-move-scripts/SKILL.md)** - Create atomic scripts
+- **[implement-upgradeable-contracts](skills/implement-upgradeable-contracts/SKILL.md)** - Contract upgrades
 
 ## Core Principles
 

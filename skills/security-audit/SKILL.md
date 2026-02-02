@@ -1,6 +1,6 @@
 ---
 name: security-audit
-description: Perform comprehensive security audit on Aptos Move V2 contracts before deployment. Use when "audit contract", "check security", "review move code", or AUTOMATICALLY before deployment.
+description: "Audits Move contracts for security vulnerabilities before deployment using 7-category checklist. Triggers on: 'audit contract', 'security check', 'review security', 'check for vulnerabilities', 'security audit', 'is this secure', 'find security issues'."
 ---
 
 # Security Audit Skill

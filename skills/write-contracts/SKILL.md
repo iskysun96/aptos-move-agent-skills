@@ -224,6 +224,13 @@ module my_addr::my_module {
 - `references/storage-patterns.md` - ⭐ Use-case patterns and smart defaults
 - `references/storage-types.md` - Detailed comparison of all 6 storage types
 - `references/storage-gas-optimization.md` - Gas optimization strategies for storage
+- `references/object-patterns.md` - Named objects, collections, nested objects
+- `references/access-control.md` - RBAC and permission systems
+- `references/safe-arithmetic.md` - Overflow/underflow prevention
+- `references/initialization.md` - init_module patterns and registry creation
+- `references/events.md` - Event emission patterns
+- `references/v2-syntax.md` - Modern Move V2 features (method calls, indexing, lambdas)
+- `references/complete-example.md` - Full annotated NFT collection contract
 
 **Pattern Documentation (patterns/ folder):**
 - `../../patterns/DIGITAL_ASSETS.md` - ⭐ Digital Asset (NFT) standard - CRITICAL for NFTs

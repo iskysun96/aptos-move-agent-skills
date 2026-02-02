@@ -170,6 +170,7 @@ Use Composer for multi-file operations:
 
 1. Open Composer (`Cmd/Ctrl + I`)
 2. Reference multiple files:
+
    ```
    @move-agent-skills/skills/write-contracts/SKILL.md
    @sources/nft.move
@@ -190,6 +191,7 @@ Add input validation to this function
 ### CMD+K Fix Mode
 
 When you see an error:
+
 1. Select the error
 2. Press `Cmd/Ctrl + K`
 3. Type: `@move-agent-skills/skills/troubleshoot-errors/SKILL.md fix this`
@@ -269,6 +271,7 @@ Cursor: [Generates comprehensive tests]
 ### Tip 4: Code Actions
 
 Right-click code and use Cursor's code actions:
+
 - "Ask Cursor" with `@move-agent-skills/` reference
 - "Edit with Cursor" for refactoring
 - "Fix with Cursor" for errors
@@ -335,6 +338,7 @@ Cursor: [Verifies all checks pass]
 **Issue:** `@move-agent-skills/...` not resolving
 
 **Solution:**
+
 1. Ensure repository is cloned in accessible location
 2. Try absolute path: `@/path/to/move-agent-skills/...`
 3. Restart Cursor
@@ -344,6 +348,7 @@ Cursor: [Verifies all checks pass]
 **Issue:** "Context too large" error with many references
 
 **Solution:**
+
 1. Reference specific skill files, not entire repository
 2. Use smaller, focused references
 3. Break into multiple conversations
@@ -353,6 +358,7 @@ Cursor: [Verifies all checks pass]
 **Issue:** Cursor doesn't follow skill patterns
 
 **Solution:**
+
 1. Be more explicit: "Follow the pattern in @move-agent-skills/patterns/OBJECTS.md exactly"
 2. Include relevant code context
 3. Reference `.cursorrules` to ensure it's configured

@@ -1,6 +1,6 @@
 ---
 name: search-aptos-examples
-description: Search aptos-core move-examples repository for similar contract patterns before writing code. Use when "find example", "search aptos examples", "similar contract", or AUTOMATICALLY before writing contracts.
+description: "Searches aptos-core and official examples for reference implementations before writing contracts. Triggers on: 'search examples', 'find example', 'check aptos-core', 'is there an example', 'reference implementation', 'how does aptos implement', 'similar contract'."
 ---
 
 # Search Aptos Examples Skill
