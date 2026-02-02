@@ -1,0 +1,17 @@
+{
+  "proseWrap": "always",
+  "printWidth": 120,
+  "tabWidth": 2,
+  "singleQuote": false,
+  "trailingComma": "none",
+  "bracketSpacing": true,
+  "overrides": [
+    {
+      "files": "*.md",
+      "options": {
+        "proseWrap": "always",
+        "embeddedLanguageFormatting": "auto"
+      }
+    }
+  ]
+}

@@ -8,9 +8,11 @@
 
 ## Overview
 
-The **Digital Asset (DA) standard** is the modern NFT framework for Aptos. It replaces the legacy TokenV1 standard (which has been migrated).
+The **Digital Asset (DA) standard** is the modern NFT framework for Aptos. It replaces the legacy TokenV1 standard
+(which has been migrated).
 
 **Key Benefits:**
+
 - 🚀 **50% gas reduction** compared to legacy tokens
 - ✅ **Direct transfers** - no recipient opt-in required
 - 🔗 **Composable NFTs** - NFTs can own other NFTs
@@ -25,6 +27,7 @@ The **Digital Asset (DA) standard** is the modern NFT framework for Aptos. It re
 ### Collections
 
 A **Collection** is a group of related NFTs with:
+
 - Name (unique identifier)
 - Description
 - URI (collection metadata)
@@ -34,6 +37,7 @@ A **Collection** is a group of related NFTs with:
 ### Tokens (Digital Assets)
 
 A **Token** (Digital Asset) represents a unique NFT with:
+
 - Name
 - Description
 - URI (links to asset metadata/image)
@@ -41,6 +45,7 @@ A **Token** (Digital Asset) represents a unique NFT with:
 - Optional properties (key-value pairs)
 
 **Token Types:**
+
 - **Named tokens**: Deterministic addresses (not deletable)
 - **Unnamed tokens**: Non-deterministic addresses (deletable)
 
@@ -303,6 +308,256 @@ public entry fun mint_simple(
 
 ---
 
+## ⭐ CRITICAL: Using AptosToken Module (High-Level API)
+
+### When to Use AptosToken vs Generic Token
+
+**IMPORTANT:** For most NFT use cases (especially marketplaces), use the **AptosToken** module's high-level functions
+instead of the generic `collection` and `token` modules.
+
+**Use `aptos_token` module when:**
+
+- ✅ Creating NFT marketplaces
+- ✅ Need ready-to-use NFT functionality
+- ✅ Want simplified collection and token creation
+- ✅ Need standardized property handling
+
+**Use generic `collection`/`token` modules when:**
+
+- ⚠️ Need very custom collection behavior
+- ⚠️ Building low-level NFT infrastructure
+
+### Required Imports for AptosToken
+
+In addition to the general Digital Asset imports listed above, you will need the following when using `aptos_token`:
+
+```move
+use aptos_token_objects::aptos_token::{Self, AptosToken};
+// Still need these for types
+use aptos_token_objects::collection;
+use aptos_token_objects::token;
+// Standard library helpers used in examples (e.g., string::utf8)
+use std::string;
+```
+
+### Creating AptosCollection ⭐ CRITICAL
+
+**CORRECT Pattern - Use `aptos_token::create_collection_object()`:**
+
+```move
+use aptos_token_objects::aptos_token;
+
+fun init_module(deployer: &signer) {
+    // Create AptosCollection (NOT generic collection)
+    aptos_token::create_collection_object(
+        deployer,
+        string::utf8(b"Collection description"),
+        18446744073709551615, // max_supply (MUST NOT BE 0! Use max u64 for unlimited)
+        string::utf8(b"Collection Name"),
+        string::utf8(b"https://collection.uri"),
+        true, // mutable_description
+        true, // mutable_royalty
+        true, // mutable_uri
+        true, // mutable_token_description
+        true, // mutable_token_name
+        true, // mutable_token_properties
+        true, // mutable_token_uri
+        true, // tokens_burnable_by_creator
+        true, // tokens_freezable_by_creator
+        5,   // royalty_numerator (5%)
+        100, // royalty_denominator
+    );
+}
+```
+
+**CRITICAL - max_supply Parameter:**
+
+```move
+// ❌ WRONG - Causes EMAX_SUPPLY_CANNOT_BE_ZERO error
+aptos_token::create_collection_object(..., 0, ...)
+
+// ✅ CORRECT - Use max u64 for unlimited supply
+aptos_token::create_collection_object(..., 18446744073709551615, ...)
+
+// ✅ CORRECT - Use specific number for limited supply
+aptos_token::create_collection_object(..., 10000, ...)
+```
+
+**Why AptosToken?** It automatically:
+
+- Creates proper `AptosCollection` resource
+- Sets up token minting infrastructure
+- Handles property maps correctly
+- Enables `Object<AptosToken>` type usage
+
+### Minting AptosToken ⭐ CRITICAL
+
+**CORRECT Pattern - Use `aptos_token::mint_token_object()`:**
+
+```move
+public entry fun mint_nft(
+    creator: &signer,
+    collection_name: String,
+    description: String,
+    name: String,
+    uri: String,
+) {
+    // Returns Object<AptosToken> directly (not ConstructorRef!)
+    let nft: Object<AptosToken> = aptos_token::mint_token_object(
+        creator,
+        collection_name,
+        description,
+        name,
+        uri,
+        vector[], // property_keys
+        vector[], // property_types
+        vector[], // property_values
+    );
+
+    // Can transfer immediately
+    let recipient = @0x123;
+    object::transfer(creator, nft, recipient);
+}
+```
+
+**Key Differences from Generic Token:**
+
+| Generic `token::create_named_token()` | AptosToken `mint_token_object()`   |
+| ------------------------------------- | ---------------------------------- |
+| Returns `ConstructorRef`              | Returns `Object<AptosToken>` ✅    |
+| Requires manual resource creation     | Automatically creates resources ✅ |
+| Generic `Object<T>` type              | Specific `Object<AptosToken>` ✅   |
+| Need to store refs yourself           | Handles refs internally ✅         |
+
+### Type Safety: Object<AptosToken> vs Object<Token>
+
+**CRITICAL TYPE RULE:**
+
+```move
+// ✅ CORRECT - Use AptosToken for marketplace NFTs
+use aptos_token_objects::aptos_token::AptosToken;
+
+struct Listing has key {
+    nft: Object<AptosToken>,  // ← Specific AptosToken type!
+    price: u64,
+}
+
+public entry fun list_nft(
+    seller: &signer,
+    nft: Object<AptosToken>,  // ← Type safety!
+    price: u64,
+) {
+    // ...
+}
+
+// ❌ WRONG - Generic Token type (less type safety)
+use aptos_token_objects::token::Token;
+
+struct Listing has key {
+    nft: Object<Token>,  // ← Too generic!
+    price: u64,
+}
+```
+
+### Complete AptosToken Marketplace Example
+
+```move
+module marketplace_addr::nft_marketplace {
+    use std::signer;
+    use std::string::String;
+    use aptos_framework::object::{Self, Object, ExtendRef};
+    use aptos_token_objects::aptos_token::{Self, AptosToken};
+
+    struct MarketplaceConfig has key {
+        extend_ref: ExtendRef,
+        collection_name: String,
+    }
+
+    // CRITICAL: Use init_module for setup
+    fun init_module(deployer: &signer) {
+        let marketplace_ref = object::create_named_object(deployer, b"MARKETPLACE");
+        let marketplace_signer = object::generate_signer(&marketplace_ref);
+        let extend_ref = object::generate_extend_ref(&marketplace_ref);
+
+        let collection_name = string::utf8(b"Marketplace NFTs");
+
+        // Create AptosCollection
+        aptos_token::create_collection_object(
+            &marketplace_signer,  // Marketplace owns collection
+            string::utf8(b"NFTs minted via marketplace"),
+            18446744073709551615, // unlimited
+            collection_name,
+            string::utf8(b"https://marketplace.io"),
+            true, true, true, true, true, true, true, true, true,
+            0, 100,
+        );
+
+        move_to(&marketplace_signer, MarketplaceConfig {
+            extend_ref,
+            collection_name,
+        });
+    }
+
+    // Mint AptosToken using marketplace signer
+    public entry fun mint_nft(
+        creator: &signer,
+        name: String,
+        description: String,
+        uri: String,
+    ) acquires MarketplaceConfig {
+        let config = borrow_global<MarketplaceConfig>(get_marketplace_addr());
+        let marketplace_signer = object::generate_signer_for_extending(&config.extend_ref);
+
+        // Returns Object<AptosToken>
+        let nft = aptos_token::mint_token_object(
+            &marketplace_signer,  // Collection owner mints
+            config.collection_name,
+            description,
+            name,
+            uri,
+            vector[], vector[], vector[],
+        );
+
+        // Transfer to creator
+        object::transfer(&marketplace_signer, nft, signer::address_of(creator));
+    }
+
+    // List NFT (parameter type is Object<AptosToken>)
+    public entry fun list_nft(
+        seller: &signer,
+        nft: Object<AptosToken>,  // ← Type safety!
+        price: u64,
+    ) {
+        assert!(object::owner(nft) == signer::address_of(seller), E_NOT_OWNER);
+        // ... listing logic
+    }
+
+    fun get_marketplace_addr(): address {
+        object::create_object_address(&@marketplace_addr, b"MARKETPLACE")
+    }
+}
+```
+
+### Summary: AptosToken Best Practices
+
+✅ **DO:**
+
+- Use `aptos_token::create_collection_object()` for collections
+- Use `aptos_token::mint_token_object()` for minting
+- Use `Object<AptosToken>` as parameter types
+- Set max_supply to `18446744073709551615` for unlimited
+- Let marketplace object own the collection (use extend_ref)
+
+❌ **DON'T:**
+
+- Use generic `collection::create_unlimited_collection()` for AptosToken
+- Use generic `token::create_named_token()` for AptosToken
+- Use `Object<token::Token>` when you need `Object<AptosToken>`
+- Set max_supply to `0` (causes EMAX_SUPPLY_CANNOT_BE_ZERO)
+- Mix AptosToken and generic Token in same contract
+
+---
+
 ## NFT Marketplace Pattern
 
 ### CRITICAL: Object Ownership Hierarchy
@@ -310,6 +565,7 @@ public entry fun mint_simple(
 When creating a marketplace that mints NFTs, you MUST understand the ownership hierarchy:
 
 **WRONG Pattern:**
+
 ```move
 // ❌ WRONG: Collection creates tokens in itself
 fun init_module(deployer: &signer) {
@@ -333,6 +589,7 @@ public entry fun mint_nft(creator: &signer) acquires Config {
 ```
 
 **CORRECT Pattern:**
+
 ```move
 // ✅ CORRECT: Marketplace object owns collection and creates tokens
 fun init_module(deployer: &signer) {
@@ -361,6 +618,7 @@ public entry fun mint_nft(creator: &signer) acquires MarketplaceConfig {
 **Why?** `token::create_named_token()` requires the signer to be the OWNER of the collection, not the collection itself.
 
 **Hierarchy:**
+
 ```
 Marketplace Object
   └── Owns Collection
@@ -587,6 +845,7 @@ module marketplace_addr::nft_marketplace {
 When working with NFTs on Aptos:
 
 ### Digital Asset Standard
+
 - ✅ **ALWAYS use Digital Asset (DA) standard** for ALL NFT contracts
 - ✅ **ALWAYS import** `aptos_token_objects::collection` and `aptos_token_objects::token`
 - ✅ **ALWAYS use** `Object<AptosToken>` for NFT references (not generic `Object<T>`)
@@ -594,18 +853,21 @@ When working with NFTs on Aptos:
 - ✅ **ALWAYS emit events** for minting, transfers, and sales
 
 ### Collection Creation
+
 - ✅ **ALWAYS use** `collection::create_fixed_collection()` for limited supply
 - ✅ **ALWAYS use** `collection::create_unlimited_collection()` for unlimited supply
 - ✅ **ALWAYS set royalties** when creating collections (use `royalty::create()`)
 - ✅ **ALWAYS provide** collection description, name, and URI
 
 ### Token Minting
+
 - ✅ **ALWAYS use** `token::create_named_token()` for standard NFTs
 - ✅ **ALWAYS use** `token::create()` for deletable NFTs
 - ✅ **ALWAYS verify** collection exists before minting
 - ✅ **ALWAYS provide** token description, name, and URI
 
 ### Marketplace Contracts
+
 - ✅ **ALWAYS verify** token ownership before listing
 - ✅ **ALWAYS use** escrow pattern (transfer to listing object)
 - ✅ **ALWAYS validate** prices (non-zero, within limits)
@@ -616,12 +878,14 @@ When working with NFTs on Aptos:
 ## NEVER Rules
 
 ### Legacy Token Standard
+
 - ❌ **NEVER use** the legacy TokenV1 standard (deprecated, all tokens migrated)
 - ❌ **NEVER import** `aptos_token::token` (legacy module)
 - ❌ **NEVER use** `token::create_token_script()` (legacy function)
 - ❌ **NEVER require** recipient opt-in for transfers (DA doesn't need it)
 
 ### Bad Patterns
+
 - ❌ **NEVER use** generic `Object<T>` for NFTs (use `Object<AptosToken>`)
 - ❌ **NEVER skip** royalty configuration for collections
 - ❌ **NEVER forget** to transfer NFTs to escrow in marketplaces
@@ -723,6 +987,7 @@ public fun get_token_description(token: Object<AptosToken>): String {
 **All legacy TokenV1 tokens have been migrated.** You should NOT support legacy tokens.
 
 If you encounter legacy code:
+
 - Replace `aptos_token::token` → `aptos_token_objects::token`
 - Replace `TokenId` → `Object<AptosToken>`
 - Remove opt-in logic (DA doesn't need it)
@@ -784,16 +1049,19 @@ module my_addr::nft_tests {
 ## References
 
 **Official Documentation:**
+
 - [Digital Asset Standard](https://aptos.dev/build/smart-contracts/digital-asset)
 - [Digital Asset Standard (Standards)](https://aptos.dev/standards/digital-asset/)
 - [Your First NFT Tutorial](https://aptos.dev/tutorials/your-first-nft/)
 - [Token Objects Framework](https://github.com/aptos-labs/aptos-core/tree/main/aptos-move/framework/aptos-token-objects)
 
 **Related Patterns:**
+
 - `OBJECTS.md` - Object model fundamentals
 - `SECURITY.md` - NFT security considerations
 - `TESTING.md` - Testing NFT contracts
 
 ---
 
-**Remember:** Always use the Digital Asset standard for NFTs. Legacy TokenV1 is deprecated and all tokens have been migrated.
+**Remember:** Always use the Digital Asset standard for NFTs. Legacy TokenV1 is deprecated and all tokens have been
+migrated.

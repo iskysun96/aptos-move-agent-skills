@@ -8,10 +8,13 @@ This repository provides specialized skills for AI assistants to build secure, m
 
 - **[AI Assistant Guide](setups/AGENTS.md)** - Main orchestration file with workflows
 - **[Digital Assets](patterns/DIGITAL_ASSETS.md)** - ⭐ NFT standard (CRITICAL for NFTs)
+- **[Fungible Assets](patterns/FUNGIBLE_ASSETS.md)** - ⭐ Token standard (CRITICAL for tokens/coins)
 - **[Object Patterns](patterns/OBJECTS.md)** - Object model reference
 - **[Security Guide](patterns/SECURITY.md)** - Security checklist
 - **[Testing Guide](patterns/TESTING.md)** - Test generation patterns
 - **[Modern Syntax](patterns/MOVE_V2_SYNTAX.md)** - V2 syntax guide
+- **[Advanced Types](patterns/ADVANCED_TYPES.md)** - Advanced type patterns
+- **[Storage Optimization](patterns/STORAGE_OPTIMIZATION.md)** - Storage cost reduction
 
 ## Skills
 
@@ -23,15 +26,43 @@ This repository provides specialized skills for AI assistants to build secure, m
 - **[use-aptos-cli](skills/use-aptos-cli/SKILL.md)** - CLI command reference
 - **[deploy-contracts](skills/deploy-contracts/SKILL.md)** - Deploy to networks
 - **[troubleshoot-errors](skills/troubleshoot-errors/SKILL.md)** - Debug common errors
+- **[analyze-gas-optimization](skills/analyze-gas-optimization/SKILL.md)** - Optimize gas usage
+- **[generate-move-scripts](skills/generate-move-scripts/SKILL.md)** - Create atomic scripts
+- **[implement-upgradeable-contracts](skills/implement-upgradeable-contracts/SKILL.md)** - Contract upgrades
 
 ## Core Principles
 
 1. **Search first** - Check aptos-core examples before writing
-2. **Use Digital Asset standard** - For ALL NFT contracts (collections, marketplaces, minting)
-3. **Use objects** - Always use `Object<T>` references (never addresses)
-4. **Security first** - Verify signers, validate inputs, protect references
-5. **Test everything** - 100% coverage required
-6. **Modern syntax** - Use inline functions, lambdas, V2 patterns
+2. **Use Digital Asset standard** - For ALL NFT contracts (use Object<AptosToken>)
+3. **Use Fungible Asset standard** - For ALL token/coin contracts (use Object<Metadata>)
+4. **Use objects** - Always use `Object<T>` references (never addresses)
+5. **Security first** - Verify signers, validate inputs, protect references
+6. **Test everything** - 100% coverage required
+7. **Modern syntax** - Use inline functions, lambdas, V2 patterns
+8. **Format with prettier** - Always run `npx prettier --write <files>` before committing
+
+## Code Formatting
+
+**ALWAYS format markdown files with prettier before committing:**
+
+```bash
+# Format specific files
+npx prettier --write CONTRIBUTING.md skills/*/SKILL.md patterns/*.md
+
+# Format all markdown files
+npx prettier --write "**/*.md"
+
+# Check formatting
+npx prettier --check "**/*.md"
+```
+
+**Prettier configuration** (`.prettierrc`):
+
+- `printWidth: 120` - Max line length
+- `proseWrap: always` - Wrap markdown prose
+- `tabWidth: 2` - 2 space indentation
+
+This ensures consistent formatting across all documentation files.
 
 ## Integration
 

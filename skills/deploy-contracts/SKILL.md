@@ -13,11 +13,15 @@ This skill guides safe deployment of Move contracts to Aptos networks. **Always 
 
 Before deploying, verify ALL items:
 
-### Security Audit
+### Security Audit ⭐ CRITICAL - See [SECURITY.md](../../patterns/SECURITY.md)
 - [ ] Security audit completed (use `security-audit` skill)
 - [ ] All critical vulnerabilities fixed
-- [ ] Access control verified
-- [ ] Input validation implemented
+- [ ] All security patterns verified (arithmetic safety, storage scoping, reference safety, business logic)
+- [ ] Access control verified (signer checks, object ownership)
+- [ ] Input validation implemented (minimum thresholds, fee validation)
+- [ ] No unbounded iterations (per-user storage, not global vectors)
+- [ ] Atomic operations (no front-running opportunities)
+- [ ] Randomness security (if applicable - entry functions, gas balanced)
 
 ### Testing
 - [ ] 100% test coverage achieved: `aptos move test --coverage`
@@ -483,24 +487,28 @@ aptos move publish \
 
 ## ALWAYS Rules
 
-- ✅ ALWAYS run security audit before deployment
-- ✅ ALWAYS verify 100% test coverage
+- ✅ ALWAYS run comprehensive security audit before deployment (use `security-audit` skill)
+- ✅ ALWAYS verify 100% test coverage with security tests
+- ✅ ALWAYS verify all SECURITY.md patterns (arithmetic, storage scoping, reference safety, business logic)
 - ✅ ALWAYS deploy to testnet before mainnet
-- ✅ ALWAYS test on testnet thoroughly
-- ✅ ALWAYS backup private keys
+- ✅ ALWAYS test on testnet thoroughly (happy paths, error cases, security scenarios)
+- ✅ ALWAYS backup private keys securely
 - ✅ ALWAYS document deployment addresses
 - ✅ ALWAYS verify deployment in explorer
 - ✅ ALWAYS test functions after deployment
+- ✅ ALWAYS use separate keys for testnet and mainnet (SECURITY.md - Operations)
 
 ## NEVER Rules
 
-- ❌ NEVER deploy without security audit
+- ❌ NEVER deploy without comprehensive security audit
 - ❌ NEVER deploy with < 100% test coverage
+- ❌ NEVER deploy without security test verification
 - ❌ NEVER deploy directly to mainnet without testnet testing
 - ❌ NEVER deploy without testing on testnet first
 - ❌ NEVER commit private keys to version control
 - ❌ NEVER skip post-deployment verification
 - ❌ NEVER rush mainnet deployment
+- ❌ NEVER reuse publishing keys between testnet and mainnet (security risk)
 
 ## References
 
