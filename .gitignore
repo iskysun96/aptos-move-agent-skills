@@ -69,3 +69,20 @@ Cargo.lock
 # Documentation build
 docs/_build/
 site/
+
+# Internal files (not for public repo)
+NEXT_ACTIONS.md
+TODO.md
+NOTES.md
+INTERNAL.md
+MIGRATION_INSTRUCTIONS.md
+MOVE_TO_TESTING_REPO.sh
+CREATE_PR.sh
+*.sh
+
+# Iteration and testing files
+iterations/
+testing/
+experiments/
+scratch/
+drafts/

@@ -1,6 +1,6 @@
 ---
 name: write-contracts
-description: "Generates secure Aptos Move V2 smart contracts with Object model, Digital Asset integration, and security patterns. Triggers on: 'write contract', 'create NFT collection', 'build marketplace', 'implement minting', 'generate Move module', 'create token contract', 'build DAO', 'implement staking'."
+description: "Generates secure Aptos Move V2 smart contracts with Object model, Digital Asset integration, security patterns, and storage type guidance. Includes comprehensive storage decision framework for optimal data structure selection. Triggers on: 'write contract', 'create NFT collection', 'build marketplace', 'implement minting', 'generate Move module', 'create token contract', 'build DAO', 'implement staking'. Ask storage questions when: 'store', 'track', 'registry', 'mapping', 'list', 'collection'."
 ---
 
 # Write Contracts Skill
@@ -53,6 +53,14 @@ struct MyObject has key {
     transfer_ref: object::TransferRef,
     delete_ref: object::DeleteRef,
 }
+
+// Error constants
+const E_NOT_OWNER: u64 = 1;
+const E_EMPTY_STRING: u64 = 2;
+const E_NAME_TOO_LONG: u64 = 3;
+
+// Configuration constants
+const MAX_NAME_LENGTH: u64 = 100;
 
 /// Create object with proper pattern
 public fun create_my_object(creator: &signer, name: String): Object<MyObject> {
@@ -136,6 +144,50 @@ module my_addr::my_module {
 }
 ```
 
+## Storage Type Selection
+
+⚠️ **When user mentions storage** ("store", "track", "registry", "mapping", "list", "collection"):
+
+### 1. Ask 2-3 Questions (see `references/storage-decision-tree.md`)
+
+- **Access pattern?** (sequential vs key-value vs both)
+- **Expected size?** (small vs large vs unknown)
+- **Need `.length()`?** (conditional)
+
+### 2. Recommend from Patterns (`references/storage-patterns.md`)
+
+| Pattern             | Recommended Storage                  |
+| ------------------- | ------------------------------------ |
+| User registry       | `Table<address, UserInfo>`           |
+| Staking records     | `Table<address, StakeInfo>`          |
+| Leaderboard         | `BigOrderedMap<u64, address>`        |
+| Transaction log     | `SmartVector<TxRecord>` or `Vector`  |
+| Whitelist (<100)    | `Vector<address>`                    |
+| Voting records      | `TableWithLength<address, bool>`     |
+| Config (<50)        | `OrderedMap<String, Value>`          |
+| DAO proposals       | `BigOrderedMap<u64, Proposal>`       |
+| Asset collection    | `Vector<Object<T>>` or `SmartVector` |
+
+### 3. Include Brief Gas Context
+
+**Example recommendations:**
+
+- "For staking, I recommend `Table<address, StakeInfo>` because you'll have unbounded users with concurrent operations (separate slots enable parallel access)"
+- "For leaderboard, I recommend `BigOrderedMap<u64, address>` because you need sorted iteration (O(log n), use `allocate_spare_slots` for production)"
+
+### Storage Types Available
+
+- **Vector** - Small sequential (<100 items)
+- **SmartVector** - Large sequential (100+ items)
+- **Table** - Unordered key-value lookups
+- **TableWithLength** - Table with count tracking
+- **OrderedMap** - Small sorted maps (<100 items)
+- **BigOrderedMap** - Large sorted maps (100+ items)
+
+⚠️ **NEVER use SmartTable** (deprecated, use BigOrderedMap)
+
+**Details:** See `references/` for decision tree, type comparisons, and gas optimization.
+
 ## Anti-patterns
 
 1. ❌ **Never use legacy TokenV1** standard or import `aptos_token::token`
@@ -168,6 +220,10 @@ module my_addr::my_module {
 ## References
 
 **Detailed Patterns (references/ folder):**
+- `references/storage-decision-tree.md` - ⭐ Storage type selection framework (ask when storage mentioned)
+- `references/storage-patterns.md` - ⭐ Use-case patterns and smart defaults
+- `references/storage-types.md` - Detailed comparison of all 6 storage types
+- `references/storage-gas-optimization.md` - Gas optimization strategies for storage
 - `references/object-patterns.md` - Named objects, collections, nested objects
 - `references/access-control.md` - RBAC and permission systems
 - `references/safe-arithmetic.md` - Overflow/underflow prevention

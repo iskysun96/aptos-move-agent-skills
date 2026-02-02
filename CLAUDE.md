@@ -41,6 +41,35 @@ This repository provides specialized skills for AI assistants to build secure, m
 7. **Modern syntax** - Use inline functions, lambdas, V2 patterns
 8. **Format with prettier** - Always run `npx prettier --write <files>` before committing
 
+## Git Workflow Best Practices
+
+**ALWAYS follow these steps when starting work:**
+
+```bash
+# 1. Pull latest changes from main BEFORE starting work
+git checkout main
+git pull origin main
+
+# 2. Create feature branch from updated main
+git checkout -b feature/your-feature-name
+
+# 3. If using worktrees, run npm install to get all dependencies
+npm install
+
+# 4. Do your work...
+
+# 5. Before committing, ensure you're up to date
+git fetch origin main
+git rebase origin/main  # Or merge if preferred
+```
+
+**Key principles:**
+
+1. **Always pull from main first** - Prevents merge conflicts and ensures you have latest changes
+2. **Run npm install in new worktrees** - Ensures all dependencies (prettier, etc.) are available
+3. **Keep feature branches up to date** - Regularly sync with main to avoid large merge conflicts
+4. **Use descriptive branch names** - `feature/`, `fix/`, `docs/` prefixes
+
 ## Code Formatting
 
 **ALWAYS format markdown files with prettier before committing:**
