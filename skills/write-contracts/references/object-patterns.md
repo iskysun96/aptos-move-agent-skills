@@ -42,6 +42,9 @@ public fun get_registry(creator_addr: address): Object<Registry> {
 Objects can own other objects by setting the parent object as the creator.
 
 ```move
+// Error constants
+const E_NOT_OWNER: u64 = 1;
+
 struct Collection has key {
     name: String,
     items: vector<Object<Item>>,
@@ -90,6 +93,10 @@ public entry fun add_item_to_collection(
 Use stored TransferRef to enable transfers.
 
 ```move
+// Error constants
+const E_NOT_OWNER: u64 = 1;
+const E_ZERO_ADDRESS: u64 = 2;
+
 struct MyObject has key {
     name: String,
     transfer_ref: object::TransferRef,
@@ -127,6 +134,9 @@ public entry fun transfer_object(
 Use stored DeleteRef to enable deletion.
 
 ```move
+// Error constants
+const E_NOT_OWNER: u64 = 1;
+
 /// Delete with ownership check
 public entry fun burn_object(owner: &signer, obj: Object<MyObject>) acquires MyObject {
     // Verify ownership
@@ -156,6 +166,9 @@ public entry fun burn_object(owner: &signer, obj: Object<MyObject>) acquires MyO
 ExtendRef allows you to get the object's signer after construction.
 
 ```move
+// Error constants
+const E_NOT_OWNER: u64 = 1;
+
 struct MyObject has key {
     name: String,
     extend_ref: object::ExtendRef,
@@ -175,10 +188,15 @@ public fun create_with_extend_ref(creator: &signer): Object<MyObject> {
 }
 
 /// Update object using extend_ref to get object signer
+/// Note: This function allows anyone to update. In production, add authorization checks.
 public entry fun update_with_extend_ref(
+    owner: &signer,
     obj: Object<MyObject>,
     new_name: String
 ) acquires MyObject {
+    // ✅ IMPORTANT: Verify owner authorization
+    assert!(object::owner(obj) == signer::address_of(owner), E_NOT_OWNER);
+
     let obj_data = borrow_global_mut<MyObject>(object::object_address(&obj));
 
     // Get object signer from extend_ref

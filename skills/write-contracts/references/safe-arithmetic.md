@@ -5,6 +5,8 @@ Patterns for preventing overflow, underflow, and other arithmetic vulnerabilitie
 ## Overflow Prevention
 
 ```move
+// Error constants
+const E_ZERO_AMOUNT: u64 = 1;
 const E_OVERFLOW: u64 = 10;
 const MAX_U64: u64 = 18446744073709551615;
 
@@ -32,6 +34,8 @@ let result = a + b;
 ## Underflow Prevention
 
 ```move
+// Error constants
+const E_ZERO_AMOUNT: u64 = 1;
 const E_UNDERFLOW: u64 = 11;
 const E_INSUFFICIENT_BALANCE: u64 = 12;
 
@@ -71,6 +75,8 @@ public fun safe_div(numerator: u64, denominator: u64): u64 {
 ## Percentage Calculations
 
 ```move
+// Error constants
+const E_INVALID_PERCENTAGE: u64 = 14;
 const BASIS_POINTS_DIVISOR: u64 = 10000; // 100% = 10000 basis points
 
 /// Calculate percentage of amount
