@@ -189,7 +189,7 @@ module my_addr::fixed_token {
     use aptos_framework::fungible_asset::{Self, Metadata, MintRef, BurnRef};
     use aptos_framework::primary_fungible_store;
 
-    const MAX_SUPPLY: u64 = 1_000_000; // 1 million tokens
+    const MAX_SUPPLY: u128 = 1_000_000; // 1 million tokens
     const DECIMALS: u8 = 8;
 
     /// Error codes
@@ -206,7 +206,7 @@ module my_addr::fixed_token {
         // Create with max supply
         primary_fungible_store::create_primary_store_enabled_fungible_asset(
             constructor_ref,
-            option::some(MAX_SUPPLY * pow(10, (DECIMALS as u64))), // max_supply with decimals
+            option::some(MAX_SUPPLY * pow(10, (DECIMALS as u128))), // max_supply with decimals
             string::utf8(b"Fixed Supply Token"),
             string::utf8(b"FST"),
             DECIMALS,
@@ -239,9 +239,9 @@ module my_addr::fixed_token {
         object::address_to_object<Metadata>(metadata_addr)
     }
 
-    fun pow(base: u64, exp: u64): u64 {
-        let result = 1;
-        let i = 0;
+    fun pow(base: u128, exp: u128): u128 {
+        let result = 1u128;
+        let i = 0u128;
         while (i < exp) {
             result = result * base;
             i = i + 1;
