@@ -550,7 +550,9 @@ public fun test_gas_balanced_across_outcomes(user: &signer) {
 #[test(deployer = @my_addr, user1 = @0x100, user2 = @0x200)]
 public fun test_mint_transfer_burn(deployer: &signer, user1: &signer, user2: &signer) {
     // Initialize token
-    my_token::init_module(deployer);
+    // Initialize token (use test-only wrapper since init_module is private)
+    // Inside my_token module, define: #[test_only] public fun init_for_test(deployer: &signer) { init_module(deployer); }
+    my_token::init_for_test(deployer);
 
     let user1_addr = signer::address_of(user1);
     let user2_addr = signer::address_of(user2);
@@ -573,7 +575,9 @@ public fun test_mint_transfer_burn(deployer: &signer, user1: &signer, user2: &si
 #[test(deployer = @my_addr, user = @0x100)]
 #[expected_failure(abort_code = E_ZERO_AMOUNT)]
 public fun test_zero_amount_transfer_rejected(deployer: &signer, user: &signer) {
-    my_token::init_module(deployer);
+    // Initialize token (use test-only wrapper since init_module is private)
+    // Inside my_token module, define: #[test_only] public fun init_for_test(deployer: &signer) { init_module(deployer); }
+    my_token::init_for_test(deployer);
     my_token::mint(deployer, signer::address_of(user), 1000);
     my_token::transfer(user, @0x200, 0); // Should abort
 }
@@ -581,7 +585,9 @@ public fun test_zero_amount_transfer_rejected(deployer: &signer, user: &signer) 
 #[test(deployer = @my_addr, user = @0x100)]
 #[expected_failure]
 public fun test_insufficient_balance_transfer_rejected(deployer: &signer, user: &signer) {
-    my_token::init_module(deployer);
+    // Initialize token (use test-only wrapper since init_module is private)
+    // Inside my_token module, define: #[test_only] public fun init_for_test(deployer: &signer) { init_module(deployer); }
+    my_token::init_for_test(deployer);
     my_token::mint(deployer, signer::address_of(user), 100);
     my_token::transfer(user, @0x200, 200); // Should abort - insufficient balance
 }
@@ -593,14 +599,18 @@ public fun test_insufficient_balance_transfer_rejected(deployer: &signer, user: 
 #[test(deployer = @my_addr, attacker = @0x999)]
 #[expected_failure(abort_code = E_NOT_ADMIN)]
 public fun test_unauthorized_mint_blocked(deployer: &signer, attacker: &signer) {
-    my_token::init_module(deployer);
+    // Initialize token (use test-only wrapper since init_module is private)
+    // Inside my_token module, define: #[test_only] public fun init_for_test(deployer: &signer) { init_module(deployer); }
+    my_token::init_for_test(deployer);
     my_token::mint(attacker, @0x100, 1000); // Should abort
 }
 
 #[test(deployer = @my_addr, attacker = @0x999)]
 #[expected_failure(abort_code = E_NOT_ADMIN)]
 public fun test_unauthorized_burn_blocked(deployer: &signer, attacker: &signer) {
-    my_token::init_module(deployer);
+    // Initialize token (use test-only wrapper since init_module is private)
+    // Inside my_token module, define: #[test_only] public fun init_for_test(deployer: &signer) { init_module(deployer); }
+    my_token::init_for_test(deployer);
     my_token::burn_from_account(attacker, @0x100, 100); // Should abort
 }
 ```
@@ -611,7 +621,9 @@ public fun test_unauthorized_burn_blocked(deployer: &signer, attacker: &signer) 
 #[test(deployer = @my_addr, user = @0x100)]
 #[expected_failure(abort_code = fungible_asset::EMAX_SUPPLY_EXCEEDED)]
 public fun test_cannot_exceed_max_supply(deployer: &signer, user: &signer) {
-    my_token::init_module(deployer); // Creates token with max supply
+    // Initialize token (use test-only wrapper since init_module is private)
+    // Inside my_token module, define: #[test_only] public fun init_for_test(deployer: &signer) { init_module(deployer); }
+    my_token::init_for_test(deployer); // Creates token with max supply
 
     // Attempt to mint more than max supply
     let max_plus_one = 1_000_001 * 100_000_000; // Assuming 1M max with 8 decimals
@@ -620,7 +632,9 @@ public fun test_cannot_exceed_max_supply(deployer: &signer, user: &signer) {
 
 #[test(deployer = @my_addr)]
 public fun test_can_mint_up_to_max_supply(deployer: &signer) {
-    my_token::init_module(deployer);
+    // Initialize token (use test-only wrapper since init_module is private)
+    // Inside my_token module, define: #[test_only] public fun init_for_test(deployer: &signer) { init_module(deployer); }
+    my_token::init_for_test(deployer);
 
     // Mint exactly max supply
     let max_supply = 1_000_000 * 100_000_000;
@@ -637,7 +651,9 @@ public fun test_can_mint_up_to_max_supply(deployer: &signer) {
 #[test(deployer = @my_addr, user = @0x100)]
 #[expected_failure(abort_code = E_PAUSED)]
 public fun test_paused_transfer_blocked(deployer: &signer, user: &signer) {
-    pausable_token::init_module(deployer);
+    // Initialize token (use test-only wrapper since init_module is private)
+    // Inside pausable_token module, define: #[test_only] public fun init_for_test(deployer: &signer) { init_module(deployer); }
+    pausable_token::init_for_test(deployer);
 
     // Mint some tokens
     pausable_token::mint(deployer, signer::address_of(user), 1000);
@@ -651,7 +667,9 @@ public fun test_paused_transfer_blocked(deployer: &signer, user: &signer) {
 
 #[test(deployer = @my_addr, user = @0x100)]
 public fun test_unpause_allows_transfers(deployer: &signer, user: &signer) {
-    pausable_token::init_module(deployer);
+    // Initialize token (use test-only wrapper since init_module is private)
+    // Inside pausable_token module, define: #[test_only] public fun init_for_test(deployer: &signer) { init_module(deployer); }
+    pausable_token::init_for_test(deployer);
     pausable_token::mint(deployer, signer::address_of(user), 1000);
 
     // Pause and unpause
@@ -671,7 +689,9 @@ public fun test_unpause_allows_transfers(deployer: &signer, user: &signer) {
 ```move
 #[test(deployer = @my_addr, user = @0x100)]
 public fun test_balance_queries_correct(deployer: &signer, user: &signer) {
-    my_token::init_module(deployer);
+    // Initialize token (use test-only wrapper since init_module is private)
+    // Inside my_token module, define: #[test_only] public fun init_for_test(deployer: &signer) { init_module(deployer); }
+    my_token::init_for_test(deployer);
 
     let user_addr = signer::address_of(user);
 

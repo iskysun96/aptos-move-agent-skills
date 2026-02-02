@@ -102,7 +102,8 @@ module my_addr::my_token {
     /// Initialize token on module deployment
     fun init_module(deployer: &signer) {
         // Create metadata object for the token
-        let constructor_ref = &object::create_named_object(deployer, b"MY_TOKEN");
+        let constructor = object::create_named_object(deployer, b"MY_TOKEN");
+        let constructor_ref = &constructor;
 
         // Create primary store enabled fungible asset
         primary_fungible_store::create_primary_store_enabled_fungible_asset(
@@ -201,7 +202,8 @@ module my_addr::fixed_token {
     }
 
     fun init_module(deployer: &signer) {
-        let constructor_ref = &object::create_named_object(deployer, b"FIXED_TOKEN");
+        let constructor = object::create_named_object(deployer, b"FIXED_TOKEN");
+        let constructor_ref = &constructor;
 
         // Create with max supply
         primary_fungible_store::create_primary_store_enabled_fungible_asset(
@@ -281,7 +283,8 @@ module my_addr::pausable_token {
     const E_NOT_ADMIN: u64 = 2;
 
     fun init_module(deployer: &signer) {
-        let constructor_ref = &object::create_named_object(deployer, b"PAUSABLE_TOKEN");
+        let constructor = object::create_named_object(deployer, b"PAUSABLE_TOKEN");
+        let constructor_ref = &constructor;
 
         // Create primary store enabled fungible asset
         primary_fungible_store::create_primary_store_enabled_fungible_asset(
@@ -534,7 +537,8 @@ module my_addr::admin_token {
     const E_NOT_ADMIN: u64 = 1;
 
     fun init_module(deployer: &signer) {
-        let constructor_ref = &object::create_named_object(deployer, b"ADMIN_TOKEN");
+        let constructor = object::create_named_object(deployer, b"ADMIN_TOKEN");
+        let constructor_ref = &constructor;
 
         primary_fungible_store::create_primary_store_enabled_fungible_asset(
             constructor_ref,
@@ -683,7 +687,8 @@ module my_addr::new_token {
     }
 
     fun init_module(deployer: &signer) {
-        let constructor_ref = &object::create_named_object(deployer, b"MY_TOKEN");
+        let constructor = object::create_named_object(deployer, b"MY_TOKEN");
+        let constructor_ref = &constructor;
 
         primary_fungible_store::create_primary_store_enabled_fungible_asset(
             constructor_ref,
@@ -734,7 +739,9 @@ module my_addr::token_tests {
         user2: &signer
     ) {
         // Initialize
-        my_token::init_module(deployer);
+        // Initialize token (use test-only wrapper since init_module is private)
+        // Inside my_token module, define: #[test_only] public fun init_for_test(deployer: &signer) { init_module(deployer); }
+        my_token::init_for_test(deployer);
 
         let user1_addr = signer::address_of(user1);
         let user2_addr = signer::address_of(user2);
@@ -755,16 +762,20 @@ module my_addr::token_tests {
     }
 
     #[test(deployer = @my_addr)]
-    #[expected_failure(abort_code = E_ZERO_AMOUNT)]
+    #[expected_failure]
     public fun test_zero_transfer_fails(deployer: &signer) {
-        my_token::init_module(deployer);
+        // Initialize token (use test-only wrapper since init_module is private)
+        // Inside my_token module, define: #[test_only] public fun init_for_test(deployer: &signer) { init_module(deployer); }
+        my_token::init_for_test(deployer);
         my_token::transfer(deployer, @0x100, 0); // Should fail
     }
 
     #[test(deployer = @my_addr, attacker = @0x999)]
-    #[expected_failure(abort_code = E_NOT_ADMIN)]
+    #[expected_failure(abort_code = my_token::E_NOT_ADMIN)]
     public fun test_unauthorized_mint_fails(deployer: &signer, attacker: &signer) {
-        my_token::init_module(deployer);
+        // Initialize token (use test-only wrapper since init_module is private)
+        // Inside my_token module, define: #[test_only] public fun init_for_test(deployer: &signer) { init_module(deployer); }
+        my_token::init_for_test(deployer);
         my_token::mint(attacker, @0x100, 1000); // Should fail
     }
 }
@@ -774,9 +785,11 @@ module my_addr::token_tests {
 
 ```move
 #[test(deployer = @my_addr)]
-#[expected_failure(abort_code = fungible_asset::EMAX_SUPPLY_EXCEEDED)]
+#[expected_failure(abort_code = aptos_framework::fungible_asset::EMAX_SUPPLY_EXCEEDED)]
 public fun test_cannot_exceed_max_supply(deployer: &signer) {
-    my_token::init_module(deployer);
+    // Initialize token (use test-only wrapper since init_module is private)
+    // Inside my_token module, define: #[test_only] public fun init_for_test(deployer: &signer) { init_module(deployer); }
+    my_token::init_for_test(deployer);
 
     // Assuming max supply is 1,000,000 with 8 decimals
     let max_plus_one = 1_000_001 * 100_000_000;
@@ -790,7 +803,9 @@ public fun test_cannot_exceed_max_supply(deployer: &signer) {
 #[test(deployer = @my_addr, user = @0x100)]
 #[expected_failure(abort_code = E_PAUSED)]
 public fun test_paused_transfer_fails(deployer: &signer, user: &signer) {
-    pausable_token::init_module(deployer);
+    // Initialize token (use test-only wrapper since init_module is private)
+    // Inside pausable_token module, define: #[test_only] public fun init_for_test(deployer: &signer) { init_module(deployer); }
+    pausable_token::init_for_test(deployer);
 
     // Mint some tokens
     pausable_token::mint(deployer, signer::address_of(user), 1000);

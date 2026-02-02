@@ -28,7 +28,7 @@ The testing workflow:
 
 ### How to Run an Iteration
 
-See the [Testing Repository README](../aptos-move-agent-skills-testing/README.md) for detailed instructions.
+See the Testing Repository README (in the `aptos-move-agent-skills-testing` repository) for detailed instructions.
 
 **Quick start:**
 

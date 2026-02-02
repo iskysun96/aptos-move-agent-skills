@@ -238,13 +238,16 @@ use aptos_framework::coin;  // ← Deprecated for new tokens
 use aptos_framework::fungible_asset::{Self, Metadata, FungibleAsset, MintRef, BurnRef};
 use aptos_framework::primary_fungible_store;
 use aptos_framework::object::{Self, Object};
+use std::option;
+use std::string;
 ```
 
 **Token Creation Pattern (in init_module):**
 
 ```move
 fun init_module(deployer: &signer) {
-    let constructor_ref = &object::create_named_object(deployer, b"MY_TOKEN");
+    let constructor = object::create_named_object(deployer, b"MY_TOKEN");
+    let constructor_ref = &constructor;
 
     primary_fungible_store::create_primary_store_enabled_fungible_asset(
         constructor_ref,
@@ -568,7 +571,7 @@ public entry fun update_marketplace_config(admin: &signer, new_fee: u64) {
 
 // ✅ CORRECT Option B: No global config needed, per-listing fees
 // If each listing can have its own fee, no init_module needed at all!
-public entry fun create_listing(seller: &signer, nft: Object<Token>, fee_bps: u64) {
+public entry fun create_listing(seller: &signer, nft: Object<AptosToken>, fee_bps: u64) {
     // Each listing has its own configuration
 }
 ```

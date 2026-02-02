@@ -483,7 +483,7 @@ local = "../my-other-module"
 - ✅ ALWAYS configure Move.toml with proper dependencies
 - ✅ **ALWAYS use `"_"` for addresses in [addresses] section** (never hardcode addresses)
 - ✅ **ALWAYS set up [dev-addresses] with concrete values** (e.g., "0xCAFE")
-- ✅ **ALWAYS use `--dev` flag** when compiling/testing with addresses = "\_" (`aptos move test --dev`)
+- ✅ **ALWAYS use `--dev` flag** when compiling/testing with addresses = `"_"` (`aptos move test --dev`)
 - ✅ ALWAYS create tests/ directory
 - ✅ ALWAYS include README.md with setup instructions
 - ✅ ALWAYS verify project compiles after scaffolding
@@ -491,9 +491,9 @@ local = "../my-other-module"
 ## NEVER Rules
 
 - ❌ NEVER skip Move.toml configuration
-- ❌ **NEVER hardcode addresses in [addresses] section** (always use "\_")
+- ❌ **NEVER hardcode addresses in [addresses] section** (always use `"_"`)
 - ❌ **NEVER omit [dev-addresses] section** (required for testing/compilation)
-- ❌ **NEVER forget `--dev` flag** when compiling/testing with addresses = "\_"
+- ❌ **NEVER forget `--dev` flag** when compiling/testing with addresses = `"_"`
 - ❌ NEVER skip creating test directory
 - ❌ NEVER forget to add AptosFramework dependency
 - ❌ NEVER use outdated dependency revisions
