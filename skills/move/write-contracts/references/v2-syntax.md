@@ -103,4 +103,4 @@ public fun get_expensive_items(
 
 ## See Also
 
-- `../../patterns/MOVE_V2_SYNTAX.md` - Complete V2 syntax guide
+- `../../../../patterns/move/MOVE_V2_SYNTAX.md` - Complete V2 syntax guide

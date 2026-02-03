@@ -1,34 +1,56 @@
-# Aptos Move V2 Agent Skills
+# Aptos Agent Skills
 
-This repository provides specialized skills for AI assistants to build secure, modern Aptos Move V2 smart contracts.
+This repository provides specialized skills for AI assistants to build secure, modern Aptos dApps - both Move smart contracts and fullstack applications.
 
 **Main AI Instructions:** See [`setups/AGENTS.md`](setups/AGENTS.md) for complete guidance.
 
 ## Quick Links
 
+### Move Development
 - **[AI Assistant Guide](setups/AGENTS.md)** - Main orchestration file with workflows
-- **[Digital Assets](patterns/DIGITAL_ASSETS.md)** - ⭐ NFT standard (CRITICAL for NFTs)
-- **[Fungible Assets](patterns/FUNGIBLE_ASSETS.md)** - ⭐ Token standard (CRITICAL for tokens/coins)
-- **[Object Patterns](patterns/OBJECTS.md)** - Object model reference
-- **[Security Guide](patterns/SECURITY.md)** - Security checklist
-- **[Testing Guide](patterns/TESTING.md)** - Test generation patterns
-- **[Modern Syntax](patterns/MOVE_V2_SYNTAX.md)** - V2 syntax guide
-- **[Advanced Types](patterns/ADVANCED_TYPES.md)** - Advanced type patterns
-- **[Storage Optimization](patterns/STORAGE_OPTIMIZATION.md)** - Storage cost reduction
+- **[Digital Assets](patterns/move/DIGITAL_ASSETS.md)** - NFT standard (CRITICAL for NFTs)
+- **[Fungible Assets](patterns/move/FUNGIBLE_ASSETS.md)** - Token standard (CRITICAL for tokens/coins)
+- **[Object Patterns](patterns/move/OBJECTS.md)** - Object model reference
+- **[Security Guide](patterns/move/SECURITY.md)** - Security checklist
+- **[Modern Syntax](patterns/move/MOVE_V2_SYNTAX.md)** - V2 syntax guide
+- **[Advanced Types](patterns/move/ADVANCED_TYPES.md)** - Advanced type patterns
+- **[Storage Optimization](patterns/move/STORAGE_OPTIMIZATION.md)** - Storage cost reduction
+
+### Fullstack Development
+- **[TypeScript SDK](patterns/fullstack/TYPESCRIPT_SDK.md)** - SDK client & operations
+- **[Wallet Adapter](patterns/fullstack/WALLET_ADAPTER.md)** - Wallet integration patterns
+- **[Frontend Patterns](patterns/fullstack/FRONTEND_PATTERNS.md)** - React + Aptos patterns
 
 ## Skills
 
-- **[write-contracts](skills/write-contracts/SKILL.md)** - Generate secure Move contracts
-- **[generate-tests](skills/generate-tests/SKILL.md)** - Create comprehensive test suites
-- **[security-audit](skills/security-audit/SKILL.md)** - Audit contracts before deployment
-- **[scaffold-project](skills/scaffold-project/SKILL.md)** - Initialize new projects
-- **[search-aptos-examples](skills/search-aptos-examples/SKILL.md)** - Find example patterns
-- **[use-aptos-cli](skills/use-aptos-cli/SKILL.md)** - CLI command reference
-- **[deploy-contracts](skills/deploy-contracts/SKILL.md)** - Deploy to networks
-- **[troubleshoot-errors](skills/troubleshoot-errors/SKILL.md)** - Debug common errors
-- **[analyze-gas-optimization](skills/analyze-gas-optimization/SKILL.md)** - Optimize gas usage
-- **[generate-move-scripts](skills/generate-move-scripts/SKILL.md)** - Create atomic scripts
-- **[implement-upgradeable-contracts](skills/implement-upgradeable-contracts/SKILL.md)** - Contract upgrades
+### Project Scaffolding
+- **[scaffold-project](skills/project/scaffold-project/SKILL.md)** - Bootstrap from templates (degit)
+
+### Move Smart Contracts
+- **[write-contracts](skills/move/write-contracts/SKILL.md)** - Generate secure Move contracts
+- **[generate-tests](skills/move/generate-tests/SKILL.md)** - Create comprehensive test suites
+- **[security-audit](skills/move/security-audit/SKILL.md)** - Audit contracts before deployment
+- **[deploy-contracts](skills/move/deploy-contracts/SKILL.md)** - Deploy to networks
+- **[search-aptos-examples](skills/move/search-aptos-examples/SKILL.md)** - Find example patterns
+- **[use-aptos-cli](skills/move/use-aptos-cli/SKILL.md)** - CLI command reference
+- **[troubleshoot-errors](skills/move/troubleshoot-errors/SKILL.md)** - Debug common errors
+- **[analyze-gas-optimization](skills/move/analyze-gas-optimization/SKILL.md)** - Optimize gas usage
+- **[generate-move-scripts](skills/move/generate-move-scripts/SKILL.md)** - Create atomic scripts
+- **[implement-upgradeable-contracts](skills/move/implement-upgradeable-contracts/SKILL.md)** - Contract upgrades
+
+### TypeScript SDK
+- **[use-typescript-sdk](skills/sdk/use-typescript-sdk/SKILL.md)** - SDK client & operations
+- **[query-onchain-data](skills/sdk/query-onchain-data/SKILL.md)** - Reading blockchain state
+
+### Wallet Integration
+- **[integrate-wallet-adapter](skills/wallet/integrate-wallet-adapter/SKILL.md)** - Wallet connection & management
+
+### Frontend Development
+- **[connect-contract-to-frontend](skills/frontend/connect-contract-to-frontend/SKILL.md)** - Entry & view functions
+- **[handle-transactions](skills/frontend/handle-transactions/SKILL.md)** - Transaction UX
+
+### Testing
+- **[test-fullstack-dapp](skills/testing/test-fullstack-dapp/SKILL.md)** - E2E testing patterns
 
 ## Core Principles
 
@@ -76,7 +98,7 @@ git rebase origin/main  # Or merge if preferred
 
 ```bash
 # Format specific files
-npx prettier --write CONTRIBUTING.md skills/*/SKILL.md patterns/*.md
+npx prettier --write CONTRIBUTING.md skills/**/*.md patterns/**/*.md
 
 # Format all markdown files
 npx prettier --write "**/*.md"

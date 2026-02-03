@@ -49,4 +49,4 @@ public entry fun pause(operator: &signer) acquires Marketplace {
 ## See Also
 
 - `object-patterns.md` - Object ownership patterns
-- `../../patterns/SECURITY.md` - Complete security checklist
+- `../../../../patterns/move/SECURITY.md` - Complete security checklist

@@ -214,6 +214,6 @@ public entry fun update_with_extend_ref(
 
 ## See Also
 
-- `../../patterns/OBJECTS.md` - Comprehensive object model guide
+- `../../../../patterns/move/OBJECTS.md` - Comprehensive object model guide
 - `access-control.md` - RBAC and permission patterns
 - `complete-example.md` - Full NFT collection example

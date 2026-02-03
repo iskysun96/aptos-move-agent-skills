@@ -190,4 +190,4 @@ public fun test_create_and_mint(creator: &signer, user: &signer) {
 
 - `object-patterns.md` - Object creation and management patterns
 - `access-control.md` - RBAC patterns
-- `../../patterns/DIGITAL_ASSETS.md` - For production NFTs, use Digital Asset standard
+- `../../../../patterns/move/DIGITAL_ASSETS.md` - For production NFTs, use Digital Asset standard
