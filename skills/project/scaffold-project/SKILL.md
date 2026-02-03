@@ -1,135 +1,60 @@
 ---
 name: scaffold-project
-description: "Initializes new Aptos Move projects with proper directory structure and configuration. Triggers on: 'create project', 'scaffold project', 'new Move project', 'initialize project', 'setup Move project', 'start new contract', 'init aptos project'."
+description: "Initializes new Aptos dApp projects using degit to bootstrap from official templates. Triggers on: 'create project', 'scaffold project', 'new dApp', 'new Move project', 'initialize project', 'setup project', 'start new contract', 'init aptos project', 'create fullstack dapp'."
 ---
 
 # Scaffold Project Skill
 
 ## Overview
 
-This skill creates a new Aptos Move project with proper directory structure, Move.toml configuration, and initial setup.
+This skill creates new Aptos dApp projects by bootstrapping directly from official templates using `degit`. This approach provides clean copies of production-ready templates without git history.
 
 ## Project Types
 
-Choose the appropriate scaffolding method based on your project type:
-
-1. **Move-only projects** (Smart contracts only): Use `aptos move init`
-2. **Full-stack dApps** (Smart contracts + Frontend): Use `create-aptos-dapp`
-
----
-
-## Full-Stack dApp Scaffolding (Recommended for Web Apps)
-
-### Using create-aptos-dapp
-
-For full-stack applications with frontend, use the official `create-aptos-dapp` tool:
-
-```bash
-# Using npx (recommended)
-npx create-aptos-dapp@latest
-
-# Or using pnpm
-pnpm create aptos-dapp@latest
-
-# Or using yarn
-yarn create aptos-dapp
-```
-
-### Available Templates
-
-The CLI will prompt you to select a template:
-
-1. **Boilerplate Template** ⭐ **Use this for basic projects**
-   - Basic starter dApp with wallet integration
-   - Simple UI implementation
-   - All necessary infrastructure
-   - Best for custom projects
-
-2. **NFT Minting dApp Template**
-   - End-to-end NFT minting functionality
-   - Pre-made UI for NFT creation
-
-3. **Token Minting dApp Template**
-   - Fungible asset minting
-   - Token management UI
-
-4. **Token Staking dApp Template**
-   - Staking mechanisms
-   - Rewards management
-
-5. **Custom Indexer Template**
-   - Custom indexer support
-   - Advanced data querying
-
-**Recommendation:** Use the **Boilerplate Template** for general-purpose projects, not the specific feature templates.
-
-### What create-aptos-dapp Provides
-
-- ✅ Complete Move project structure (Move.toml, sources/, tests/)
-- ✅ Frontend scaffolding (React + Vite + TypeScript)
-- ✅ Wallet integration (Aptos Wallet Adapter)
-- ✅ Styled with Tailwind CSS + shadcn/ui
-- ✅ Package management (npm/pnpm) with compatible libraries
-- ✅ Development server setup
-
-### Project Structure (create-aptos-dapp)
-
-```
-my-dapp/
-├── move/                   # Move smart contracts
-│   ├── Move.toml
-│   ├── sources/
-│   └── tests/
-├── frontend/              # React frontend
-│   ├── src/
-│   ├── public/
-│   ├── package.json
-│   └── vite.config.ts
-├── .gitignore
-└── README.md
-```
+| Type | Template | Use Case |
+|------|----------|----------|
+| **Fullstack dApp** | `boilerplate-template` | Frontend + smart contracts |
+| **Contract-only** | `contract-boilerplate-template` | Smart contracts without frontend |
 
 ---
 
-## Move-Only Project Scaffolding
+## Fullstack dApp Scaffolding
 
-For smart contracts without frontend, use `aptos move init`:
-
-### Step 1: Initialize Project
+### Step 1: Bootstrap with degit
 
 ```bash
-aptos move init --name <project_name>
+# Bootstrap fullstack template (no git history)
+npx degit aptos-labs/create-aptos-dapp/templates/boilerplate-template my-dapp
+
+cd my-dapp
 ```
 
-**Example:**
+### Step 2: Configure Environment
+
 ```bash
-aptos move init --name my_nft_marketplace
+# Copy environment template
+cp .env.example .env
+
+# Edit .env with your configuration:
+# - VITE_APP_NETWORK=testnet (or devnet, mainnet)
+# - VITE_MODULE_ADDRESS=0x... (after deployment)
 ```
 
-This creates:
-```
-my_nft_marketplace/
-├── Move.toml
-├── sources/
-├── tests/
-└── scripts/
-```
+### Step 3: Update Move.toml
 
-### Step 2: Configure Move.toml
-
-**Edit Move.toml with proper dependencies:**
+Edit `contract/Move.toml` with your project name:
 
 ```toml
 [package]
-name = "my_nft_marketplace"
+name = "my_dapp"  # Your project name
 version = "1.0.0"
 authors = []
 
 [addresses]
-my_addr = "_"  # Will be replaced during deployment
+my_dapp_addr = "_"  # Will be set during deployment
 
 [dev-addresses]
-my_addr = "0xCAFE"  # Address for testing
+my_dapp_addr = "0xCAFE"  # For testing
 
 [dependencies.AptosFramework]
 git = "https://github.com/aptos-labs/aptos-core.git"
@@ -140,214 +65,211 @@ subdir = "aptos-move/framework/aptos-framework"
 git = "https://github.com/aptos-labs/aptos-core.git"
 rev = "mainnet"
 subdir = "aptos-move/framework/aptos-stdlib"
-
-[dependencies.AptosToken]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
-subdir = "aptos-move/framework/aptos-token-objects"
-
-[dev-dependencies]
 ```
 
-**For specific features, add:**
-
-```toml
-# For fungible assets
-[dependencies.AptosFungibleAsset]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
-subdir = "aptos-move/framework/aptos-token-objects"
-```
-
-### Step 3: Create Directory Structure
+### Step 4: Install Dependencies
 
 ```bash
-# Create additional directories
-mkdir -p sources tests scripts docs
-
-# Optional: Create subdirectories
-mkdir -p sources/core sources/utils
-mkdir -p tests/unit tests/integration
+npm install
 ```
 
-**Recommended structure:**
-```
-project/
-├── Move.toml
-├── sources/
-│   ├── core/           # Core contract logic
-│   ├── utils/          # Helper modules
-│   └── interfaces/     # Interface definitions
-├── tests/
-│   ├── unit/           # Unit tests
-│   └── integration/    # Integration tests
-├── scripts/
-│   └── deploy.sh       # Deployment scripts
-├── docs/
-│   ├── README.md       # Module documentation
-│   └── ARCHITECTURE.md # Architecture overview
-└── README.md           # Project README
-```
-
-### Step 4: Create Initial Module
-
-**Create `sources/core/main.move`:**
-
-```move
-module my_addr::main {
-    use std::signer;
-    use std::string::String;
-    use aptos_framework::object::{Self, Object};
-
-    // ============ Structs ============
-
-    // Define your structs here
-
-    // ============ Constants ============
-
-    // Error codes
-    const E_NOT_INITIALIZED: u64 = 1;
-
-    // ============ Init Function ============
-
-    fun init_module(admin: &signer) {
-        // Initialize module if needed
-    }
-
-    // ============ Public Entry Functions ============
-
-    // User-facing functions
-
-    // ============ Public Functions ============
-
-    // Composable functions
-
-    // ============ Private Functions ============
-
-    // Internal helpers
-}
-```
-
-### Step 5: Create Test Module
-
-**Create `tests/unit/main_tests.move`:**
-
-```move
-#[test_only]
-module my_addr::main_tests {
-    use my_addr::main;
-    use std::signer;
-
-    #[test(account = @0x1)]
-    public fun test_basic_functionality(account: &signer) {
-        // Test basic operations
-    }
-
-    #[test]
-    #[expected_failure]
-    public fun test_failure_case() {
-        // Test error conditions
-    }
-}
-```
-
-### Step 6: Create README
-
-**Create `README.md`:**
-
-```markdown
-# Project Name
-
-Brief description of your Move module.
-
-## Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
-## Structure
-
-- `sources/core/` - Core contract logic
-- `sources/utils/` - Helper modules
-- `tests/` - Comprehensive test suite
-
-## Setup
-
-1. Install Aptos CLI: https://aptos.dev/build/cli
-2. Initialize: Already initialized
-3. Test: `aptos move test`
-4. Build: `aptos move compile`
-
-## Testing
-
-```bash
-# Run all tests
-aptos move test
-
-# Run with coverage
-aptos move test --coverage
-
-# View coverage report
-aptos move coverage source --module <module_name>
-```
-
-## Deployment
-
-```bash
-# Deploy to devnet as object (modern pattern)
-aptos move deploy-object --address-name my_addr
-
-# Deploy to testnet as object
-aptos move deploy-object --address-name my_addr --network testnet
-
-# Deploy to mainnet as object
-aptos move deploy-object --address-name my_addr --network mainnet
-
-# Use --assume-yes to skip prompts
-aptos move deploy-object --address-name my_addr --assume-yes
-```
-
-## Security
-
-- [x] 100% test coverage
-- [x] Security audit completed
-- [x] Access control verified
-- [x] Input validation implemented
-
-## License
-
-MIT
-```
-
-### Step 7: Initialize Git (Optional)
+### Step 5: Initialize Git
 
 ```bash
 git init
-echo "build/" > .gitignore
-echo ".aptos/" >> .gitignore
-echo "node_modules/" >> .gitignore
-
 git add .
-git commit -m "Initial commit: Scaffold Aptos Move project"
+git commit -m "Initial commit: Bootstrap Aptos dApp from boilerplate template"
 ```
 
-### Step 8: Verify Setup
+### Step 6: Verify Setup
 
 ```bash
-# Verify project compiles
-aptos move compile
+# Compile Move contracts
+npm run move:compile
 
-# Run initial tests (should pass even if empty)
-aptos move test
+# Run Move tests
+npm run move:test
 
-# Check dependencies
-aptos move compile --skip-fetch-latest-git-deps
+# Start frontend development server
+npm run dev
 ```
 
-## Project Templates
+### Fullstack Project Structure
 
-### NFT Collection Template
+```
+my-dapp/
+├── frontend/
+│   ├── components/           # React UI components
+│   ├── entry-functions/      # Write operations (transactions)
+│   ├── view-functions/       # Read operations (queries)
+│   ├── lib/                  # Shared libraries (wallet, aptos client)
+│   ├── utils/                # Helpers
+│   ├── App.tsx
+│   ├── constants.ts
+│   └── main.tsx
+├── contract/
+│   ├── sources/              # Move modules
+│   ├── tests/                # Move tests
+│   └── Move.toml
+├── scripts/move/             # Deployment scripts
+├── package.json              # npm scripts for move:compile, move:test, etc.
+├── .env.example              # Environment template
+└── [config files]            # vite, tailwind, typescript, etc.
+```
+
+### Key Directories Explained
+
+| Directory | Purpose |
+|-----------|---------|
+| `frontend/entry-functions/` | Transaction payloads for write operations |
+| `frontend/view-functions/` | Queries for read operations |
+| `frontend/lib/` | Aptos client and wallet provider setup |
+| `contract/sources/` | Move smart contract modules |
+| `scripts/move/` | Deployment and utility scripts |
+
+---
+
+## Contract-Only Scaffolding
+
+### Step 1: Bootstrap with degit
+
+```bash
+# Bootstrap contract-only template
+npx degit aptos-labs/create-aptos-dapp/templates/contract-boilerplate-template my-contract
+
+cd my-contract
+```
+
+### Step 2: Configure Environment
+
+```bash
+# Copy environment template
+cp .env.example .env
+```
+
+### Step 3: Update Move.toml
+
+Edit `contract/Move.toml`:
+
+```toml
+[package]
+name = "my_contract"
+version = "1.0.0"
+
+[addresses]
+my_contract_addr = "_"
+
+[dev-addresses]
+my_contract_addr = "0xCAFE"
+
+[dependencies.AptosFramework]
+git = "https://github.com/aptos-labs/aptos-core.git"
+rev = "mainnet"
+subdir = "aptos-move/framework/aptos-framework"
+```
+
+### Step 4: Install & Verify
+
+```bash
+npm install
+
+# Compile
+npm run move:compile
+
+# Test
+npm run move:test
+```
+
+### Step 5: Initialize Git
+
+```bash
+git init
+git add .
+git commit -m "Initial commit: Bootstrap Aptos contract from template"
+```
+
+### Contract-Only Project Structure
+
+```
+my-contract/
+├── contract/
+│   ├── sources/              # Move modules
+│   ├── tests/                # Move tests
+│   └── Move.toml
+├── scripts/move/             # Deployment scripts
+├── package.json              # npm scripts
+└── .env.example
+```
+
+---
+
+## Available npm Scripts
+
+Both templates include these npm scripts:
+
+```bash
+# Move development
+npm run move:compile    # Compile Move contracts
+npm run move:test       # Run Move tests
+npm run move:publish    # Publish to network (uses .env)
+
+# Fullstack only
+npm run dev             # Start frontend dev server
+npm run build           # Build for production
+```
+
+---
+
+## Alternative: Manual Move-Only Setup
+
+For pure Move development without the npm wrapper, use `aptos move init`:
+
+```bash
+# Initialize Move project
+aptos move init --name my_module
+
+# Configure Move.toml manually
+# Create sources/ and tests/ directories
+```
+
+See the "Move-Only Reference" section below for detailed manual setup.
+
+---
+
+## Quick Reference Commands
+
+### Fullstack dApp (Recommended)
+
+```bash
+# One-liner bootstrap
+npx degit aptos-labs/create-aptos-dapp/templates/boilerplate-template my-dapp && cd my-dapp && cp .env.example .env && npm install && git init
+```
+
+### Contract-Only
+
+```bash
+# One-liner bootstrap
+npx degit aptos-labs/create-aptos-dapp/templates/contract-boilerplate-template my-contract && cd my-contract && cp .env.example .env && npm install && git init
+```
+
+---
+
+## Post-Scaffolding Checklist
+
+After bootstrapping, complete these steps:
+
+- [ ] Update `Move.toml` with project name and address alias
+- [ ] Update `.env` with network configuration
+- [ ] Verify compilation: `npm run move:compile`
+- [ ] Verify tests pass: `npm run move:test`
+- [ ] Initialize git repository
+- [ ] (Fullstack) Verify frontend runs: `npm run dev`
+
+---
+
+## Move.toml Templates
+
+### For NFT Projects
 
 ```toml
 [package]
@@ -371,7 +293,7 @@ rev = "mainnet"
 subdir = "aptos-move/framework/aptos-token-objects"
 ```
 
-### DeFi/Token Template
+### For DeFi/Token Projects
 
 ```toml
 [package]
@@ -381,26 +303,44 @@ version = "1.0.0"
 [addresses]
 defi_addr = "_"
 
+[dev-addresses]
+defi_addr = "0xCAFE"
+
 [dependencies.AptosFramework]
 git = "https://github.com/aptos-labs/aptos-core.git"
 rev = "mainnet"
 subdir = "aptos-move/framework/aptos-framework"
 
-[dependencies.AptosFungibleAsset]
+[dependencies.AptosToken]
 git = "https://github.com/aptos-labs/aptos-core.git"
 rev = "mainnet"
 subdir = "aptos-move/framework/aptos-token-objects"
 ```
 
-### Minimal Template
+---
+
+## Move-Only Reference (Manual Setup)
+
+For cases where you need manual Move setup without templates:
+
+### Initialize
+
+```bash
+aptos move init --name my_module
+```
+
+### Configure Move.toml
 
 ```toml
 [package]
-name = "simple_module"
+name = "my_module"
 version = "1.0.0"
 
 [addresses]
-simple = "_"
+my_addr = "_"
+
+[dev-addresses]
+my_addr = "0xCAFE"
 
 [dependencies.AptosFramework]
 git = "https://github.com/aptos-labs/aptos-core.git"
@@ -413,71 +353,10 @@ rev = "mainnet"
 subdir = "aptos-move/framework/aptos-stdlib"
 ```
 
-## Common Move.toml Configurations
+### Create Module
 
-### Using Specific Aptos Version
-
-```toml
-[dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "aptos-release-v1.8"  # Specific version
-subdir = "aptos-move/framework/aptos-framework"
-```
-
-### Multiple Named Addresses
-
-```toml
-[addresses]
-marketplace = "_"
-nft_contract = "_"
-token_contract = "_"
-
-[dev-addresses]
-marketplace = "0x1"
-nft_contract = "0x2"
-token_contract = "0x3"
-```
-
-### Local Dependencies (for multi-module projects)
-
-```toml
-[dependencies.MyOtherModule]
-local = "../my-other-module"
-```
-
-## ALWAYS Rules
-
-- ✅ ALWAYS use `create-aptos-dapp` for full-stack dApps (frontend + contracts)
-- ✅ ALWAYS choose **Boilerplate Template** for general-purpose dApps (not specific feature templates)
-- ✅ ALWAYS run `aptos move init` for Move-only projects
-- ✅ ALWAYS configure Move.toml with proper dependencies
-- ✅ ALWAYS create tests/ directory
-- ✅ ALWAYS include README.md with setup instructions
-- ✅ ALWAYS verify project compiles after scaffolding
-- ✅ ALWAYS use named addresses (my_addr = "_")
-- ✅ ALWAYS set up dev-addresses for testing
-
-## NEVER Rules
-
-- ❌ NEVER skip Move.toml configuration
-- ❌ NEVER use hardcoded addresses in code
-- ❌ NEVER skip creating test directory
-- ❌ NEVER forget to add AptosFramework dependency
-- ❌ NEVER use outdated dependency revisions
-
-## Quick Start Commands
-
-```bash
-# Full project setup
-aptos move init --name my_project
-cd my_project
-
-# Verify setup
-aptos move compile
-aptos move test
-
-# Create first module
-cat > sources/main.move << 'EOF'
+```move
+// sources/main.move
 module my_addr::main {
     use std::signer;
 
@@ -494,25 +373,60 @@ module my_addr::main {
         counter.value = counter.value + 1;
     }
 }
-EOF
+```
 
-# Compile and test
+### Verify
+
+```bash
 aptos move compile
 aptos move test
 ```
+
+---
+
+## ALWAYS Rules
+
+- ✅ ALWAYS use `degit` for bootstrapping (clean copy, no git history)
+- ✅ ALWAYS use the **boilerplate-template** for fullstack dApps
+- ✅ ALWAYS update Move.toml with your project name and address alias
+- ✅ ALWAYS copy `.env.example` to `.env` and configure
+- ✅ ALWAYS run `npm install` after bootstrapping
+- ✅ ALWAYS verify compilation and tests pass
+- ✅ ALWAYS initialize git after setup
+- ✅ ALWAYS use named addresses (my_addr = "_")
+
+## NEVER Rules
+
+- ❌ NEVER use `npx create-aptos-dapp` (interactive CLI) - use degit instead
+- ❌ NEVER skip Move.toml configuration
+- ❌ NEVER use hardcoded addresses in code
+- ❌ NEVER skip verifying compilation after scaffolding
+- ❌ NEVER commit `.env` to git (contains secrets)
+
+---
+
+## Template Sources
+
+| Template | GitHub URL |
+|----------|-----------|
+| Fullstack | https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates/boilerplate-template |
+| Contract-only | https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates/contract-boilerplate-template |
+
+---
 
 ## References
 
 **Official Documentation:**
 - CLI Reference: https://aptos.dev/build/cli
 - Move.toml: https://aptos.dev/build/cli/working-with-move-contracts
-- Project Structure: https://aptos.dev/build/smart-contracts
+- TypeScript SDK: https://aptos.dev/sdks/ts-sdk
 
 **Related Skills:**
-- `write-contracts` - Write modules after scaffolding
+- `write-contracts` - Write Move modules after scaffolding
 - `generate-tests` - Create test suite
-- `use-aptos-cli` - CLI commands reference
+- `connect-contract-to-frontend` - Wire up frontend to contracts
+- `integrate-wallet-adapter` - Add wallet connection
 
 ---
 
-**Remember:** Proper scaffolding sets up your project for success. Don't skip Move.toml configuration.
+**Remember:** Use `degit` for clean bootstrapping. The boilerplate template provides the best starting point for custom dApps.
