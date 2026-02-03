@@ -349,8 +349,7 @@ For each contract, verify you have tests for:
 ## References
 
 **Pattern Documentation:**
-- `../../patterns/TESTING.md` - Comprehensive testing guide
-- `../../patterns/SECURITY.md` - Security testing requirements
+- `../../../patterns/move/SECURITY.md` - Security testing requirements
 
 **Official Documentation:**
 - https://aptos.dev/build/smart-contracts/book/unit-testing

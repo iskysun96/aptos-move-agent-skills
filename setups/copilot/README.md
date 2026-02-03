@@ -18,7 +18,7 @@ git clone https://github.com/your-org/move-agent-skills.git
 GitHub Copilot uses comments and context to generate code. Reference patterns in your comments:
 
 ```move
-// Following pattern from move-agent-skills/patterns/OBJECTS.md
+// Following pattern from move-agent-skills/patterns/move/OBJECTS.md
 // Create NFT using Object<T> with proper constructor pattern
 module my_addr::nft {
     // Copilot will suggest code based on the pattern
@@ -32,7 +32,7 @@ module my_addr::nft {
 Use specific comments to guide Copilot:
 
 ```move
-// Pattern: move-agent-skills/patterns/OBJECTS.md - Object Creation
+// Pattern: move-agent-skills/patterns/move/OBJECTS.md - Object Creation
 // Create NFT object with TransferRef and DeleteRef
 public fun create_nft(creator: &signer, name: String): Object<NFT> {
     // Copilot suggests: proper object creation pattern
@@ -46,7 +46,7 @@ Document what you want at the function level:
 ```move
 /// Create NFT collection using modern Object<T> pattern
 /// Security: Verify signer authority, validate inputs
-/// Pattern: move-agent-skills/skills/write-contracts/SKILL.md
+/// Pattern: move-agent-skills/skills/move/write-contracts/SKILL.md
 public entry fun create_collection(
     creator: &signer,
     name: String,
@@ -63,8 +63,8 @@ Add instructions at the top of files:
 ```move
 /// Module: NFT Marketplace
 /// Patterns:
-/// - move-agent-skills/patterns/OBJECTS.md for object handling
-/// - move-agent-skills/patterns/SECURITY.md for security checks
+/// - move-agent-skills/patterns/move/OBJECTS.md for object handling
+/// - move-agent-skills/patterns/move/SECURITY.md for security checks
 /// - Always use Object<T>, never addresses
 /// - Verify signer authority in all entry functions
 /// - Validate all inputs
@@ -81,7 +81,7 @@ module my_addr::marketplace {
 Open Copilot Chat and reference patterns:
 
 ```
-Reference: move-agent-skills/skills/write-contracts/SKILL.md
+Reference: move-agent-skills/skills/move/write-contracts/SKILL.md
 
 Generate an NFT marketplace contract with:
 - Fixed price listings
@@ -95,17 +95,17 @@ Generate an NFT marketplace contract with:
 Have iterative conversations:
 
 ```
-You: Based on move-agent-skills/patterns/OBJECTS.md,
+You: Based on move-agent-skills/patterns/move/OBJECTS.md,
      create an NFT contract
 
 Copilot: [Generates contract]
 
 You: Add transfer functionality following security patterns
-     from move-agent-skills/patterns/SECURITY.md
+     from move-agent-skills/patterns/move/SECURITY.md
 
 Copilot: [Adds secure transfer function]
 
-You: Generate tests per move-agent-skills/patterns/TESTING.md
+You: Generate tests per move-agent-skills/patterns/move/SECURITY.md
 
 Copilot: [Generates comprehensive tests]
 ```
@@ -117,8 +117,8 @@ Copilot: [Generates comprehensive tests]
 Always reference relevant patterns:
 
 ```move
-// PATTERN: move-agent-skills/patterns/OBJECTS.md
-// SECURITY: move-agent-skills/patterns/SECURITY.md
+// PATTERN: move-agent-skills/patterns/move/OBJECTS.md
+// SECURITY: move-agent-skills/patterns/move/SECURITY.md
 // Generate all refs in constructor before ConstructorRef destroyed
 ```
 
@@ -127,9 +127,9 @@ Always reference relevant patterns:
 Create structured TODOs:
 
 ```move
-// TODO: Implement following move-agent-skills/patterns/OBJECTS.md
-// TODO: Add security checks from move-agent-skills/patterns/SECURITY.md
-// TODO: Generate tests per move-agent-skills/patterns/TESTING.md
+// TODO: Implement following move-agent-skills/patterns/move/OBJECTS.md
+// TODO: Add security checks from move-agent-skills/patterns/move/SECURITY.md
+// TODO: Generate tests per move-agent-skills/patterns/move/SECURITY.md
 ```
 
 ### 3. Document Expected Behavior
@@ -141,13 +141,13 @@ Be specific about what you want:
 // MUST: Use Object<NFT> return type (not address)
 // MUST: Generate TransferRef and DeleteRef in constructor
 // MUST: Verify signer::address_of(creator) == expected
-// PATTERN: move-agent-skills/patterns/OBJECTS.md
+// PATTERN: move-agent-skills/patterns/move/OBJECTS.md
 ```
 
 ### 4. Reference Skills for Complete Functions
 
 ```move
-// SKILL: move-agent-skills/skills/write-contracts/SKILL.md
+// SKILL: move-agent-skills/skills/move/write-contracts/SKILL.md
 // Generate secure transfer function with:
 // - Ownership verification
 // - Input validation
@@ -159,7 +159,7 @@ Be specific about what you want:
 ### Example 1: Object Creation
 
 ```move
-// Pattern: move-agent-skills/patterns/OBJECTS.md - Standard Object Creation
+// Pattern: move-agent-skills/patterns/move/OBJECTS.md - Standard Object Creation
 // Create item object with proper refs
 public fun create_item(creator: &signer, name: String): Object<Item> {
     // Copilot suggests:
@@ -181,7 +181,7 @@ public fun create_item(creator: &signer, name: String): Object<Item> {
 ### Example 2: Security Checks
 
 ```move
-// Security: move-agent-skills/patterns/SECURITY.md - Access Control
+// Security: move-agent-skills/patterns/move/SECURITY.md - Access Control
 // Verify ownership before transfer
 public entry fun transfer_item(
     owner: &signer,
@@ -199,7 +199,7 @@ public entry fun transfer_item(
 ### Example 3: Test Generation
 
 ```move
-// Testing: move-agent-skills/patterns/TESTING.md
+// Testing: move-agent-skills/patterns/move/SECURITY.md
 // Test unauthorized access (should fail)
 #[test(owner = @0x1, attacker = @0x2)]
 #[expected_failure(abort_code = E_NOT_OWNER)]
@@ -218,20 +218,20 @@ public fun test_unauthorized_transfer_fails(
 1. Select code
 2. Open Copilot Labs
 3. Click "Explain"
-4. Add context: "Explain based on move-agent-skills/patterns/OBJECTS.md"
+4. Add context: "Explain based on move-agent-skills/patterns/move/OBJECTS.md"
 
 ### Translate to Tests
 
 1. Select function
 2. Open Copilot Labs
 3. Click "Test"
-4. Add: "Follow move-agent-skills/patterns/TESTING.md patterns"
+4. Add: "Follow move-agent-skills/patterns/move/SECURITY.md patterns"
 
 ### Fix Bug
 
 1. Select problematic code
 2. Copilot Labs → "Fix"
-3. Reference: "Fix per move-agent-skills/skills/troubleshoot-errors/SKILL.md"
+3. Reference: "Fix per move-agent-skills/skills/move/troubleshoot-errors/SKILL.md"
 
 ## VS Code Integration
 
@@ -264,7 +264,7 @@ Create `.vscode/move.code-snippets`:
   "Aptos Object Creation": {
     "prefix": "aptos-object",
     "body": [
-      "// Pattern: move-agent-skills/patterns/OBJECTS.md",
+      "// Pattern: move-agent-skills/patterns/move/OBJECTS.md",
       "public fun create_${1:object}(creator: &signer) : Object<${2:Type}> {",
       "    let constructor_ref = object::create_object(signer::address_of(creator));",
       "    let transfer_ref = object::generate_transfer_ref(&constructor_ref);",
@@ -292,13 +292,13 @@ Create `.vscode/move.code-snippets`:
 ```move
 // EXPLICIT: Use Object<NFT>, not address
 // EXPLICIT: Generate refs in constructor
-// PATTERN: move-agent-skills/patterns/OBJECTS.md
+// PATTERN: move-agent-skills/patterns/move/OBJECTS.md
 ```
 
 ### Tip 2: List Requirements
 
 ```move
-// Requirements from move-agent-skills/patterns/SECURITY.md:
+// Requirements from move-agent-skills/patterns/move/SECURITY.md:
 // 1. Verify signer authority
 // 2. Validate all inputs (amount > 0, amount <= MAX)
 // 3. Check ownership: object::owner(obj) == user
@@ -308,7 +308,7 @@ Create `.vscode/move.code-snippets`:
 ### Tip 3: Reference Examples
 
 ```move
-// Example: move-agent-skills/patterns/OBJECTS.md - Pattern 2
+// Example: move-agent-skills/patterns/move/OBJECTS.md - Pattern 2
 // Similar to: aptos-core/move-examples/token_objects/sources/token.move
 ```
 
@@ -318,7 +318,7 @@ Create `.vscode/move.code-snippets`:
 // NEVER: Return ConstructorRef from this function
 // NEVER: Use raw address for item (use Object<Item>)
 // NEVER: Skip signer verification
-// REF: move-agent-skills/skills/write-contracts/SKILL.md - NEVER Rules
+// REF: move-agent-skills/skills/move/write-contracts/SKILL.md - NEVER Rules
 ```
 
 ## Keyboard Shortcuts
@@ -378,7 +378,7 @@ Move is relatively new, so:
 
 ```move
 // CRITICAL: Return Object<T>, NOT ConstructorRef
-// REF: move-agent-skills/patterns/OBJECTS.md - Anti-Patterns
+// REF: move-agent-skills/patterns/move/OBJECTS.md - Anti-Patterns
 // WRONG: return constructor_ref;
 // RIGHT: return object::object_from_constructor_ref(&constructor_ref);
 ```
@@ -388,7 +388,7 @@ Move is relatively new, so:
 **Solution:**
 
 ```move
-// REQUIRED SECURITY CHECKS (move-agent-skills/patterns/SECURITY.md):
+// REQUIRED SECURITY CHECKS (move-agent-skills/patterns/move/SECURITY.md):
 // 1. assert!(signer::address_of(user) == expected, E_UNAUTHORIZED);
 // 2. assert!(object::owner(obj) == user_addr, E_NOT_OWNER);
 // 3. assert!(amount > 0, E_ZERO_AMOUNT);
@@ -399,16 +399,16 @@ Move is relatively new, so:
 ```move
 // FILE: sources/marketplace.move
 // Pattern References:
-// - move-agent-skills/patterns/OBJECTS.md (object handling)
-// - move-agent-skills/patterns/SECURITY.md (security checks)
-// - move-agent-skills/skills/write-contracts/SKILL.md (complete examples)
+// - move-agent-skills/patterns/move/OBJECTS.md (object handling)
+// - move-agent-skills/patterns/move/SECURITY.md (security checks)
+// - move-agent-skills/skills/move/write-contracts/SKILL.md (complete examples)
 
 module my_addr::marketplace {
     use std::signer;
     use std::string::String;
     use aptos_framework::object::{Self, Object};
 
-    // Error codes from move-agent-skills/patterns/SECURITY.md
+    // Error codes from move-agent-skills/patterns/move/SECURITY.md
     const E_NOT_OWNER: u64 = 1;
     const E_ZERO_AMOUNT: u64 = 10;
 
@@ -418,14 +418,14 @@ module my_addr::marketplace {
         seller: address,
     }
 
-    // Pattern: move-agent-skills/patterns/OBJECTS.md - Object Creation
+    // Pattern: move-agent-skills/patterns/move/OBJECTS.md - Object Creation
     // Create listing with proper object pattern
     public entry fun create_listing(
         seller: &signer,
         item: Object<Item>,
         price: u64
     ) {
-        // Security: move-agent-skills/patterns/SECURITY.md
+        // Security: move-agent-skills/patterns/move/SECURITY.md
         // Copilot suggests ownership and validation checks
         assert!(object::owner(item) == signer::address_of(seller), E_NOT_OWNER);
         assert!(price > 0, E_ZERO_AMOUNT);
@@ -435,11 +435,11 @@ module my_addr::marketplace {
 }
 
 // FILE: tests/marketplace_tests.move
-// Testing: move-agent-skills/patterns/TESTING.md
+// Testing: move-agent-skills/patterns/move/SECURITY.md
 
 #[test_only]
 module my_addr::marketplace_tests {
-    // Pattern: move-agent-skills/patterns/TESTING.md - Access Control Tests
+    // Pattern: move-agent-skills/patterns/move/SECURITY.md - Access Control Tests
     // Test unauthorized access (should fail)
     #[test(owner = @0x1, attacker = @0x2)]
     #[expected_failure(abort_code = E_NOT_OWNER)]

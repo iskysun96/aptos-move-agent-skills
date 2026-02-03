@@ -13,7 +13,7 @@ This skill guides safe deployment of Move contracts to Aptos networks. **Always 
 
 Before deploying, verify ALL items:
 
-### Security Audit ⭐ CRITICAL - See [SECURITY.md](../../patterns/SECURITY.md)
+### Security Audit ⭐ CRITICAL - See [SECURITY.md](../../../patterns/move/SECURITY.md)
 - [ ] Security audit completed (use `security-audit` skill)
 - [ ] All critical vulnerabilities fixed
 - [ ] All security patterns verified (arithmetic safety, storage scoping, reference safety, business logic)
