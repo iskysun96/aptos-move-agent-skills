@@ -98,4 +98,4 @@ public fun percentage_of(amount: u64, percentage_bp: u64): u64 {
 
 ## See Also
 
-- `../../patterns/SECURITY.md` - Complete security checklist
+- `../../../../patterns/move/SECURITY.md` - Complete security checklist

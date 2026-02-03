@@ -47,10 +47,10 @@
 **Priority:** HIGH - Reference material quality
 **Estimated effort:** 2-3 days
 **Files to modify:**
-- `patterns/DIGITAL_ASSETS.md`
-- `patterns/OBJECTS.md`
-- `patterns/SECURITY.md`
-- `patterns/TESTING.md`
+- `patterns/move/DIGITAL_ASSETS.md`
+- `patterns/move/OBJECTS.md`
+- `patterns/move/SECURITY.md`
+- `patterns/move/TESTING.md`
 - `patterns/MOVE_V2_SYNTAX.md`
 
 **Success criteria:**
@@ -103,8 +103,8 @@
 **Files to modify:**
 - `skills/troubleshoot-errors/SKILL.md`
 **Files to create:**
-- `patterns/ERROR_REFERENCE.md` (comprehensive error guide)
-- `patterns/DEBUGGING.md` (debugging techniques)
+- `patterns/move/ERROR_REFERENCE.md` (comprehensive error guide)
+- `patterns/move/DEBUGGING.md` (debugging techniques)
 
 **Success criteria:**
 - [ ] 20+ errors documented with solutions
@@ -127,9 +127,9 @@
 **Priority:** MEDIUM - Learning experience
 **Estimated effort:** 2-3 days
 **Files to modify:**
-- `patterns/OBJECTS.md` (add diagrams)
-- `patterns/DIGITAL_ASSETS.md` (add lifecycle diagram)
-- `patterns/SECURITY.md` (add checklist flowchart)
+- `patterns/move/OBJECTS.md` (add diagrams)
+- `patterns/move/DIGITAL_ASSETS.md` (add lifecycle diagram)
+- `patterns/move/SECURITY.md` (add checklist flowchart)
 - `README.md` (add workflow diagram)
 
 **Tools:**

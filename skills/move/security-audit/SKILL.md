@@ -386,9 +386,8 @@ Review code for:
 ## References
 
 **Pattern Documentation:**
-- `../../patterns/SECURITY.md` - Comprehensive security guide
-- `../../patterns/OBJECTS.md` - Object safety patterns
-- `../../patterns/TESTING.md` - Testing requirements
+- `../../../patterns/move/SECURITY.md` - Comprehensive security guide
+- `../../../patterns/move/OBJECTS.md` - Object safety patterns
 
 **Official Documentation:**
 - https://aptos.dev/build/smart-contracts/move-security-guidelines

@@ -47,9 +47,9 @@ When helping developers with Aptos Move V2:
    - Add signer verification for all entry functions
    - Validate all inputs (amounts, lengths, types)
    - Use inline functions and lambdas for modern code
-4. Reference `patterns/OBJECTS.md` for object patterns
-5. Reference `patterns/SECURITY.md` for security checklist
-6. Reference `patterns/MOVE_V2_SYNTAX.md` for syntax
+4. Reference `patterns/move/OBJECTS.md` for object patterns
+5. Reference `patterns/move/SECURITY.md` for security checklist
+6. Reference `patterns/move/MOVE_V2_SYNTAX.md` for syntax
 
 **Output:** Secure, well-structured Move module
 
@@ -69,7 +69,7 @@ contract
    - Edge cases (empty vectors, max limits, boundary conditions)
 4. Use `#[expected_failure(abort_code = E_CODE)]` for error paths
 5. Run `aptos move test --coverage` to verify 100% coverage
-6. Reference `patterns/TESTING.md` for patterns
+6. Reference `patterns/move/SECURITY.md` for patterns
 
 **Output:** Comprehensive test suite with 100% line coverage
 
@@ -80,7 +80,7 @@ contract
 **Steps:**
 
 1. Activate `security-audit` skill
-2. Reference `patterns/SECURITY.md` checklist
+2. Reference `patterns/move/SECURITY.md` checklist
 3. **Verify each category:**
    - **Access Control:** All entry functions verify signer authority
    - **Input Validation:** All inputs checked (non-zero, no overflow, within limits)
@@ -406,10 +406,9 @@ public fun test_unauthorized_transfer(owner: &signer, attacker: &signer) {
 
 **Pattern Documentation (Local):**
 
-- `patterns/OBJECTS.md` - Comprehensive object model guide
-- `patterns/SECURITY.md` - Security checklist and patterns
-- `patterns/TESTING.md` - Test generation patterns
-- `patterns/MOVE_V2_SYNTAX.md` - Modern syntax examples
+- `patterns/move/OBJECTS.md` - Comprehensive object model guide
+- `patterns/move/SECURITY.md` - Security checklist and patterns
+- `patterns/move/MOVE_V2_SYNTAX.md` - Modern syntax examples
 
 ## Troubleshooting Guide
 

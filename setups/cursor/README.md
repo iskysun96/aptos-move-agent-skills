@@ -38,20 +38,20 @@ When working with Aptos Move contracts:
 
 ## Reference Documentation
 - Main guide: @move-agent-skills/setups/AGENTS.md
-- Object patterns: @move-agent-skills/patterns/OBJECTS.md
-- Security checklist: @move-agent-skills/patterns/SECURITY.md
-- Testing guide: @move-agent-skills/patterns/TESTING.md
-- Modern syntax: @move-agent-skills/patterns/MOVE_V2_SYNTAX.md
+- Object patterns: @move-agent-skills/patterns/move/OBJECTS.md
+- Security checklist: @move-agent-skills/patterns/move/SECURITY.md
+- Testing guide: @move-agent-skills/patterns/move/SECURITY.md
+- Modern syntax: @move-agent-skills/patterns/move/MOVE_V2_SYNTAX.md
 
 ## Skills
 Use these skills explicitly when needed:
-- @move-agent-skills/skills/write-contracts/SKILL.md - Generate contracts
-- @move-agent-skills/skills/generate-tests/SKILL.md - Create tests
-- @move-agent-skills/skills/security-audit/SKILL.md - Audit security
-- @move-agent-skills/skills/scaffold-project/SKILL.md - Init projects
-- @move-agent-skills/skills/search-aptos-examples/SKILL.md - Find examples
-- @move-agent-skills/skills/deploy-contracts/SKILL.md - Deploy guide
-- @move-agent-skills/skills/troubleshoot-errors/SKILL.md - Debug errors
+- @move-agent-skills/skills/move/write-contracts/SKILL.md - Generate contracts
+- @move-agent-skills/skills/move/generate-tests/SKILL.md - Create tests
+- @move-agent-skills/skills/move/security-audit/SKILL.md - Audit security
+- @move-agent-skills/skills/project/scaffold-project/SKILL.md - Init projects
+- @move-agent-skills/skills/move/search-aptos-examples/SKILL.md - Find examples
+- @move-agent-skills/skills/move/deploy-contracts/SKILL.md - Deploy guide
+- @move-agent-skills/skills/move/troubleshoot-errors/SKILL.md - Debug errors
 
 ## ALWAYS Rules
 - Use Object<T> for all object references
@@ -75,7 +75,7 @@ Use these skills explicitly when needed:
 In Cursor, you can reference files using `@` syntax:
 
 ```
-@move-agent-skills/patterns/OBJECTS.md Show me how to create objects correctly
+@move-agent-skills/patterns/move/OBJECTS.md Show me how to create objects correctly
 ```
 
 ## Usage
@@ -85,7 +85,7 @@ In Cursor, you can reference files using `@` syntax:
 Reference skills explicitly in your prompts:
 
 ```
-@move-agent-skills/skills/write-contracts/SKILL.md
+@move-agent-skills/skills/move/write-contracts/SKILL.md
 Help me build an NFT marketplace with these features:
 - Fixed price listings
 - Offer system
@@ -97,7 +97,7 @@ Help me build an NFT marketplace with these features:
 Reference patterns for specific guidance:
 
 ```
-@move-agent-skills/patterns/SECURITY.md
+@move-agent-skills/patterns/move/SECURITY.md
 Review this contract for security issues
 ```
 
@@ -106,8 +106,8 @@ Review this contract for security issues
 Combine multiple references:
 
 ```
-@move-agent-skills/patterns/OBJECTS.md
-@move-agent-skills/patterns/SECURITY.md
+@move-agent-skills/patterns/move/OBJECTS.md
+@move-agent-skills/patterns/move/SECURITY.md
 Write a secure NFT contract using proper object patterns
 ```
 
@@ -117,19 +117,19 @@ Write a secure NFT contract using proper object patterns
 
 ```
 1. Search examples:
-   @move-agent-skills/skills/search-aptos-examples/SKILL.md
+   @move-agent-skills/skills/move/search-aptos-examples/SKILL.md
    Find examples of token swap contracts
 
 2. Write contract:
-   @move-agent-skills/skills/write-contracts/SKILL.md
+   @move-agent-skills/skills/move/write-contracts/SKILL.md
    Generate a token swap contract with constant product formula
 
 3. Generate tests:
-   @move-agent-skills/skills/generate-tests/SKILL.md
+   @move-agent-skills/skills/move/generate-tests/SKILL.md
    Create comprehensive tests for the swap contract
 
 4. Security audit:
-   @move-agent-skills/skills/security-audit/SKILL.md
+   @move-agent-skills/skills/move/security-audit/SKILL.md
    Audit the swap contract for security issues
 ```
 
@@ -137,7 +137,7 @@ Write a secure NFT contract using proper object patterns
 
 ```
 1. Diagnose:
-   @move-agent-skills/skills/troubleshoot-errors/SKILL.md
+   @move-agent-skills/skills/move/troubleshoot-errors/SKILL.md
    What's wrong with this compilation error? [paste error]
 
 2. Fix:
@@ -151,11 +151,11 @@ Write a secure NFT contract using proper object patterns
 
 ```
 1. Pre-deployment check:
-   @move-agent-skills/skills/security-audit/SKILL.md
+   @move-agent-skills/skills/move/security-audit/SKILL.md
    Run full security checklist before deployment
 
 2. Deploy:
-   @move-agent-skills/skills/deploy-contracts/SKILL.md
+   @move-agent-skills/skills/move/deploy-contracts/SKILL.md
    Guide me through testnet deployment
 
 3. Verify:
@@ -172,7 +172,7 @@ Use Composer for multi-file operations:
 2. Reference multiple files:
 
    ```
-   @move-agent-skills/skills/write-contracts/SKILL.md
+   @move-agent-skills/skills/move/write-contracts/SKILL.md
    @sources/nft.move
    @tests/nft_tests.move
 
@@ -184,7 +184,7 @@ Use Composer for multi-file operations:
 Use inline chat (`Cmd/Ctrl + K`) for quick edits:
 
 ```
-@move-agent-skills/patterns/SECURITY.md
+@move-agent-skills/patterns/move/SECURITY.md
 Add input validation to this function
 ```
 
@@ -194,7 +194,7 @@ When you see an error:
 
 1. Select the error
 2. Press `Cmd/Ctrl + K`
-3. Type: `@move-agent-skills/skills/troubleshoot-errors/SKILL.md fix this`
+3. Type: `@move-agent-skills/skills/move/troubleshoot-errors/SKILL.md fix this`
 
 ## Best Practices
 
@@ -212,7 +212,7 @@ I'm building [describe project]. What's the recommended workflow?
 For implementation details, reference pattern files:
 
 ```
-@move-agent-skills/patterns/OBJECTS.md
+@move-agent-skills/patterns/move/OBJECTS.md
 How should I implement object creation for my NFT?
 ```
 
@@ -221,7 +221,7 @@ How should I implement object creation for my NFT?
 For complete tasks, reference skill files:
 
 ```
-@move-agent-skills/skills/generate-tests/SKILL.md
+@move-agent-skills/skills/move/generate-tests/SKILL.md
 Generate comprehensive tests for sources/marketplace.move
 ```
 
@@ -230,7 +230,7 @@ Generate comprehensive tests for sources/marketplace.move
 Combine skill references with your code:
 
 ```
-@move-agent-skills/skills/write-contracts/SKILL.md
+@move-agent-skills/skills/move/write-contracts/SKILL.md
 @sources/token.move
 
 Refactor this contract to use modern Object<T> patterns
@@ -244,9 +244,9 @@ Create shortcuts for common patterns in your `.cursorrules`:
 
 ```
 # Quick references
-@objects = @move-agent-skills/patterns/OBJECTS.md
-@security = @move-agent-skills/patterns/SECURITY.md
-@testing = @move-agent-skills/patterns/TESTING.md
+@objects = @move-agent-skills/patterns/move/OBJECTS.md
+@security = @move-agent-skills/patterns/move/SECURITY.md
+@testing = @move-agent-skills/patterns/move/SECURITY.md
 ```
 
 ### Tip 2: Use Tab Autocomplete
@@ -294,17 +294,17 @@ You: @move-agent-skills/setups/AGENTS.md
 
 Cursor: [Explains workflow]
 
-You: @move-agent-skills/skills/scaffold-project/SKILL.md
+You: @move-agent-skills/skills/project/scaffold-project/SKILL.md
      Create project structure
 
 Cursor: [Creates project]
 
-You: @move-agent-skills/skills/write-contracts/SKILL.md
+You: @move-agent-skills/skills/move/write-contracts/SKILL.md
      Generate NFT collection contract with 10k max supply
 
 Cursor: [Generates contract]
 
-You: @move-agent-skills/skills/generate-tests/SKILL.md
+You: @move-agent-skills/skills/move/generate-tests/SKILL.md
      Create tests
 
 Cursor: [Creates tests, verifies 100% coverage]
@@ -313,7 +313,7 @@ Cursor: [Creates tests, verifies 100% coverage]
 ### Session 2: Security Review
 
 ```
-You: @move-agent-skills/skills/security-audit/SKILL.md
+You: @move-agent-skills/skills/move/security-audit/SKILL.md
      @sources/marketplace.move
      Review this contract
 
@@ -359,7 +359,7 @@ Cursor: [Verifies all checks pass]
 
 **Solution:**
 
-1. Be more explicit: "Follow the pattern in @move-agent-skills/patterns/OBJECTS.md exactly"
+1. Be more explicit: "Follow the pattern in @move-agent-skills/patterns/move/OBJECTS.md exactly"
 2. Include relevant code context
 3. Reference `.cursorrules` to ensure it's configured
 

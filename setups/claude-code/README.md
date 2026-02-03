@@ -120,10 +120,10 @@ Security audit complete. Ready for deployment.
 
 Claude Code has access to comprehensive pattern documentation:
 
-- **Object Patterns** (`patterns/OBJECTS.md`) - How to use Object<T> correctly
-- **Security Patterns** (`patterns/SECURITY.md`) - Security checklist and examples
-- **Testing Patterns** (`patterns/TESTING.md`) - Test generation with 100% coverage
-- **Modern Syntax** (`patterns/MOVE_V2_SYNTAX.md`) - Inline functions, lambdas, V2 features
+- **Object Patterns** (`patterns/move/OBJECTS.md`) - How to use Object<T> correctly
+- **Security Patterns** (`patterns/move/SECURITY.md`) - Security checklist and examples
+- **Testing Patterns** (`patterns/move/SECURITY.md`) - Test generation with 100% coverage
+- **Modern Syntax** (`patterns/move/MOVE_V2_SYNTAX.md`) - Inline functions, lambdas, V2 features
 
 ## Best Practices
 

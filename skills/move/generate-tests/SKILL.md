@@ -425,8 +425,8 @@ public entry fun stake(...) acquires VaultConfig, Stakes {
 ## References
 
 **Pattern Documentation:**
-- `../../patterns/TESTING.md` - Comprehensive testing guide (see Pattern 8 for cross-module issues)
-- `../../patterns/SECURITY.md` - Security testing requirements
+- `../../../patterns/move/TESTING.md` - Comprehensive testing guide (see Pattern 8 for cross-module issues)
+- `../../../patterns/move/SECURITY.md` - Security testing requirements
 
 **Official Documentation:**
 - https://aptos.dev/build/smart-contracts/book/unit-testing

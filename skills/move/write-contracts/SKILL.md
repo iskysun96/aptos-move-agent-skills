@@ -12,7 +12,7 @@ description: "Generates secure Aptos Move V2 smart contracts with Object model, 
 2. **ALWAYS import** `aptos_token_objects::collection` and `aptos_token_objects::token` modules
 3. **ALWAYS use** `Object<AptosToken>` for NFT references (NOT generic `Object<T>`)
 4. **NEVER use legacy TokenV1** standard or `aptos_token::token` module (deprecated)
-5. See `../../patterns/DIGITAL_ASSETS.md` for complete NFT patterns
+5. See `../../../patterns/move/DIGITAL_ASSETS.md` for complete NFT patterns
 
 ### Object Model
 6. **ALWAYS use** `Object<T>` for all object references (NEVER raw addresses)
@@ -269,10 +269,10 @@ module my_addr::my_module {
 - `references/complete-example.md` - Full annotated NFT collection contract
 
 **Pattern Documentation (patterns/ folder):**
-- `../../patterns/DIGITAL_ASSETS.md` - ⭐ Digital Asset (NFT) standard - CRITICAL for NFTs
-- `../../patterns/OBJECTS.md` - Comprehensive object model guide
-- `../../patterns/SECURITY.md` - Security checklist and patterns
-- `../../patterns/MOVE_V2_SYNTAX.md` - Modern syntax examples
+- `../../../patterns/move/DIGITAL_ASSETS.md` - Digital Asset (NFT) standard - CRITICAL for NFTs
+- `../../../patterns/move/OBJECTS.md` - Comprehensive object model guide
+- `../../../patterns/move/SECURITY.md` - Security checklist and patterns
+- `../../../patterns/move/MOVE_V2_SYNTAX.md` - Modern syntax examples
 
 **Official Documentation:**
 - Digital Asset Standard: https://aptos.dev/build/smart-contracts/digital-asset

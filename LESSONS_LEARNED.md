@@ -213,7 +213,7 @@ Marketplace Object (created with create_named_object)
 
 ### Updated Documentation
 
-- ✅ `patterns/DIGITAL_ASSETS.md` - Added "CRITICAL: Object Ownership Hierarchy" section
+- ✅ `patterns/move/DIGITAL_ASSETS.md` - Added "CRITICAL: Object Ownership Hierarchy" section
 - ✅ `skills/troubleshoot-errors/SKILL.md` - Added "An object does not exist at this address" error
 
 ---
@@ -303,7 +303,7 @@ Did you call object::disable_ungated_transfer()?
 
 ### Updated Documentation
 
-- ✅ `patterns/OBJECTS.md` - Added "CRITICAL: Understanding Transfer Functions" section
+- ✅ `patterns/move/OBJECTS.md` - Added "CRITICAL: Understanding Transfer Functions" section
 - ✅ `skills/troubleshoot-errors/SKILL.md` - Added "The object does not have ungated transfers enabled" error
 
 ---
@@ -398,8 +398,8 @@ The updated skill files now contain all these learnings to prevent future mistak
 
 **Files Updated:**
 
-- ✅ `patterns/DIGITAL_ASSETS.md` - Object ownership hierarchy
-- ✅ `patterns/OBJECTS.md` - Transfer function decision tree
+- ✅ `patterns/move/DIGITAL_ASSETS.md` - Object ownership hierarchy
+- ✅ `patterns/move/OBJECTS.md` - Transfer function decision tree
 - ✅ `skills/deploy-contracts/SKILL.md` - Correct deployment commands
 - ✅ `skills/troubleshoot-errors/SKILL.md` - Common object/transfer errors
 - ✅ `LESSONS_LEARNED.md` - This document
