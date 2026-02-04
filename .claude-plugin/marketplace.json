@@ -5,13 +5,13 @@
     "email": "iskysun96@gmail.com"
   },
   "metadata": {
-    "description": "AI skills for building Aptos Move smart contracts",
+    "description": "AI skills for building fullstack Aptos dApps - from Move smart contracts to wallet connection and frontend integration",
     "version": "1.0.0"
   },
   "plugins": [
     {
-      "name": "aptos-move-skills",
-      "description": "Skills for writing, testing, auditing, and deploying Aptos Move V2 smart contracts with security-first patterns",
+      "name": "aptos-agent-skills",
+      "description": "A collection of skills to build fullstack Aptos dApps including Move smart contract development, wallet integration, and frontend patterns",
       "source": "./",
       "strict": false,
       "skills": [
