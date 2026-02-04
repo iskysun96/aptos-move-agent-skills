@@ -40,7 +40,7 @@ When working with Aptos Move contracts:
 - Main guide: @move-agent-skills/setups/AGENTS.md
 - Object patterns: @move-agent-skills/patterns/move/OBJECTS.md
 - Security checklist: @move-agent-skills/patterns/move/SECURITY.md
-- Testing guide: @move-agent-skills/patterns/move/SECURITY.md
+- Testing guide: @move-agent-skills/patterns/move/TESTING.md
 - Modern syntax: @move-agent-skills/patterns/move/MOVE_V2_SYNTAX.md
 
 ## Skills
@@ -246,7 +246,7 @@ Create shortcuts for common patterns in your `.cursorrules`:
 # Quick references
 @objects = @move-agent-skills/patterns/move/OBJECTS.md
 @security = @move-agent-skills/patterns/move/SECURITY.md
-@testing = @move-agent-skills/patterns/move/SECURITY.md
+@testing = @move-agent-skills/patterns/move/TESTING.md
 ```
 
 ### Tip 2: Use Tab Autocomplete
