@@ -153,8 +153,19 @@ echo $?
 # Initialize devnet account (if not already)
 aptos init --network devnet --profile devnet
 
-# Fund account
-aptos account fund-with-faucet --account default --profile devnet
+# Get your account address
+aptos account list --profile devnet
+```
+
+**Fund your account via web faucet:**
+
+1. Go to: `https://aptos.dev/network/faucet?address=<your_devnet_address>`
+2. Login and request devnet APT
+3. Return here and confirm you've funded the account
+
+```bash
+# Verify balance
+aptos account balance --profile devnet
 
 # Deploy as object (modern pattern)
 aptos move deploy-object \
@@ -166,7 +177,7 @@ aptos move deploy-object \
 # Output: "Code was successfully deployed to object address 0x..."
 
 # Verify deployment
-aptos account list --account <devnet_address> --profile devnet
+aptos account list --account <object_address> --profile devnet
 ```
 
 ### Step 4: Deploy to Testnet (REQUIRED)
@@ -177,8 +188,19 @@ aptos account list --account <devnet_address> --profile devnet
 # Initialize testnet account
 aptos init --network testnet --profile testnet
 
-# Fund account
-aptos account fund-with-faucet --account default --profile testnet
+# Get your account address
+aptos account list --profile testnet
+```
+
+**Fund your account via web faucet:**
+
+1. Go to: `https://aptos.dev/network/faucet?address=<your_testnet_address>`
+2. Login and request testnet APT
+3. Return here and confirm you've funded the account
+
+```bash
+# Verify balance
+aptos account balance --profile testnet
 
 # Deploy to testnet as object (modern pattern)
 aptos move deploy-object \
@@ -189,16 +211,6 @@ aptos move deploy-object \
 # IMPORTANT: Save the object address from output
 # You'll need it for upgrades and function calls
 # Output: "Code was successfully deployed to object address 0x..."
-
-# Expected output:
-# {
-#   "Result": {
-#     "transaction_hash": "0x...",
-#     "gas_used": 1234,
-#     "success": true,
-#     "vm_status": "Executed successfully"
-#   }
-# }
 ```
 
 ### Step 5: Test on Testnet
@@ -301,20 +313,29 @@ Create deployment record:
 
 ## Module Upgrades
 
-### Upgrading Existing Module
+### Upgrading Existing Object Deployment
 
-**Aptos Move modules are upgradeable by default for the account owner.**
+**Object-deployed modules are upgradeable by default for the deployer.**
 
 ```bash
-# Deploy upgrade
-aptos move publish \
+# Upgrade existing object deployment
+aptos move upgrade-object \
+    --address-name my_addr \
+    --object-address <object_address_from_initial_deploy> \
+    --profile mainnet
+
+# Upgrade with auto-confirm
+aptos move upgrade-object \
+    --address-name my_addr \
+    --object-address <object_address> \
     --profile mainnet \
-    --named-addresses my_addr=<mainnet_address> \
-    --upgrade
+    --assume-yes
 
 # Verify upgrade
-aptos account list --account <mainnet_address> --profile mainnet
+aptos account list --account <object_address> --profile mainnet
 ```
+
+**IMPORTANT:** Save the object address from your initial `deploy-object` output - you need it for upgrades.
 
 **Upgrade Compatibility Rules:**
 
@@ -342,15 +363,13 @@ fun init_module(account: &signer) {
 ### Gas Costs
 
 ```bash
-# Simulate deployment to estimate gas
-aptos move publish \
-    --named-addresses my_addr=<address> \
-    --simulate
-
-# Typical costs:
+# Typical deployment costs:
 # - Small module: ~500-1000 gas units
 # - Medium module: ~1000-5000 gas units
 # - Large module: ~5000-20000 gas units
+
+# When you run deploy-object, the CLI shows gas estimate before confirming
+# Use --assume-yes only after you've verified costs on testnet first
 ```
 
 ### Mainnet Costs
@@ -364,7 +383,7 @@ aptos move publish \
 
 ### Deploying Multiple Modules
 
-**Option 1: Single package**
+**Option 1: Single package (Recommended)**
 
 ```
 project/
@@ -376,62 +395,63 @@ project/
 ```
 
 ```bash
-# Deploys all modules at once
-aptos move publish --named-addresses my_addr=<address>
+# Deploys all modules at once as a single object
+aptos move deploy-object --address-name my_addr --profile testnet
 ```
 
-**Option 2: Separate packages**
+**Option 2: Separate packages with dependencies**
 
 ```bash
-# Deploy dependency first
+# Deploy dependency package first
 cd dependency-package
-aptos move publish --named-addresses dep_addr=<address>
+aptos move deploy-object --address-name dep_addr --profile testnet
+# Note the object address from output
 
+# Update main package Move.toml to reference dependency address
 # Then deploy main package
 cd ../main-package
-aptos move publish --named-addresses main_addr=<address>,dep_addr=<dep_address>
+aptos move deploy-object --address-name main_addr --profile testnet
 ```
 
 ## Troubleshooting Deployment
 
 ### "Insufficient APT balance"
 
-```bash
-# Testnet/Devnet: Use faucet
-aptos account fund-with-faucet --profile testnet
+**Testnet/Devnet:** Use the web faucet (requires login):
 
-# Mainnet: Transfer APT to your account
-```
+1. Get your account address: `aptos account list --profile testnet`
+2. Go to: `https://aptos.dev/network/faucet?address=<your_address>`
+3. Login and request testnet APT
+4. Verify balance: `aptos account balance --profile testnet`
 
-### "Module already exists"
+**Mainnet:** Transfer real APT to your account from an exchange or wallet.
 
-```bash
-# Use --upgrade flag
-aptos move publish --named-addresses my_addr=<address> --upgrade
-```
-
-### "Address verification failed"
+### "Module already exists" (for object deployments)
 
 ```bash
-# Ensure named address matches your account
-aptos move publish --named-addresses my_addr=$(aptos account list --profile mainnet --account default | grep "account" | cut -d'"' -f4)
+# Use upgrade-object with the original object address
+aptos move upgrade-object \
+    --address-name my_addr \
+    --object-address <object_address_from_initial_deploy> \
+    --profile testnet
 ```
 
 ### "Compilation failed"
 
 ```bash
 # Fix compilation errors first
-aptos move compile --named-addresses my_addr=<address>
-# Fix all errors, then retry deployment
+aptos move compile
+# Fix all errors shown, then retry deployment
 ```
 
 ### "Gas limit exceeded"
 
 ```bash
 # Increase max gas
-aptos move publish \
-    --named-addresses my_addr=<address> \
-    --max-gas 30000
+aptos move deploy-object \
+    --address-name my_addr \
+    --profile testnet \
+    --max-gas 50000
 ```
 
 ## Deployment Checklist

@@ -146,18 +146,23 @@ aptos init --network testnet
 # Create new account with profile
 aptos init --profile my_profile
 
-# Fund account (devnet/testnet only)
-aptos account fund-with-faucet --account <address>
-
-# Fund default account
-aptos account fund-with-faucet --account default
-
 # List account resources
 aptos account list --account <address>
 
 # Get account balance
 aptos account balance --account <address>
 ```
+
+### Funding Accounts (Devnet/Testnet)
+
+**Use the web faucet** (requires login):
+
+1. Get your account address: `aptos account list --profile testnet`
+2. Go to: `https://aptos.dev/network/faucet?address=<your_address>`
+3. Login and request testnet/devnet APT
+4. Verify balance: `aptos account balance --profile testnet`
+
+**Note:** The CLI command `aptos account fund-with-faucet` is deprecated. Use the web faucet instead.
 
 ### Running Functions
 
@@ -394,32 +399,36 @@ aptos move compile --named-addresses my_addr=0xCAFE
 
 ### "Insufficient funds"
 
-```bash
-# Solution: Fund account (testnet/devnet only)
-aptos account fund-with-faucet --account default
-```
+**Solution:** Fund via web faucet (testnet/devnet):
+
+1. Get address: `aptos account list --profile testnet`
+2. Go to: `https://aptos.dev/network/faucet?address=<your_address>`
+3. Login and request APT
 
 ### "Module already published"
 
 ```bash
-# Solution: Use upgrade flag
-aptos move publish --named-addresses my_addr=0x123 --upgrade
+# Solution: Use upgrade-object with original object address
+aptos move upgrade-object \
+    --address-name my_addr \
+    --object-address <object_address_from_initial_deploy>
 ```
 
 ## Quick Reference
 
-| Command                          | Purpose                |
-| -------------------------------- | ---------------------- |
-| `aptos move init`                | Create new project     |
-| `aptos move compile`             | Compile Move code      |
-| `aptos move test`                | Run tests              |
-| `aptos move test --coverage`     | Test with coverage     |
-| `aptos move publish`             | Deploy module          |
-| `aptos move run`                 | Execute entry function |
-| `aptos move view`                | Call view function     |
-| `aptos account fund-with-faucet` | Get test tokens        |
-| `aptos account list`             | View account resources |
-| `aptos init`                     | Initialize CLI config  |
+| Command                      | Purpose                 |
+| ---------------------------- | ----------------------- |
+| `aptos move init`            | Create new project      |
+| `aptos move compile`         | Compile Move code       |
+| `aptos move test`            | Run tests               |
+| `aptos move test --coverage` | Test with coverage      |
+| `aptos move deploy-object`   | Deploy module (modern)  |
+| `aptos move upgrade-object`  | Upgrade deployed module |
+| `aptos move run`             | Execute entry function  |
+| `aptos move view`            | Call view function      |
+| `aptos account list`         | View account resources  |
+| `aptos account balance`      | Check account balance   |
+| `aptos init`                 | Initialize CLI config   |
 
 ## ALWAYS Rules
 
