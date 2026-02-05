@@ -1,6 +1,9 @@
 ---
 name: deploy-contracts
-description: "Safely deploys Move contracts to Aptos networks (devnet, testnet, mainnet) with pre-deployment verification. Triggers on: 'deploy contract', 'publish to testnet', 'deploy to mainnet', 'how to deploy', 'publish module', 'deployment checklist', 'deploy to devnet'."
+description:
+  "Safely deploys Move contracts to Aptos networks (devnet, testnet, mainnet) with pre-deployment verification. Triggers
+  on: 'deploy contract', 'publish to testnet', 'deploy to mainnet', 'how to deploy', 'publish module', 'deployment
+  checklist', 'deploy to devnet'."
 metadata:
   category: move
   tags: ["deployment", "devnet", "testnet", "mainnet", "publishing"]
@@ -18,6 +21,7 @@ This skill guides safe deployment of Move contracts to Aptos networks. **Always 
 Before deploying, verify ALL items:
 
 ### Security Audit ⭐ CRITICAL - See [SECURITY.md](../../../patterns/move/SECURITY.md)
+
 - [ ] Security audit completed (use `security-audit` skill)
 - [ ] All critical vulnerabilities fixed
 - [ ] All security patterns verified (arithmetic safety, storage scoping, reference safety, business logic)
@@ -28,18 +32,21 @@ Before deploying, verify ALL items:
 - [ ] Randomness security (if applicable - entry functions, gas balanced)
 
 ### Testing
+
 - [ ] 100% test coverage achieved: `aptos move test --coverage`
 - [ ] All tests passing: `aptos move test`
 - [ ] Coverage report shows 100.0%
 - [ ] Edge cases tested
 
 ### Code Quality
+
 - [ ] Code compiles without errors: `aptos move compile`
 - [ ] No hardcoded addresses (use named addresses)
 - [ ] Error codes clearly defined
 - [ ] Functions properly documented
 
 ### Configuration
+
 - [ ] Move.toml configured correctly
 - [ ] Named addresses set up: `my_addr = "_"`
 - [ ] Dependencies specified with correct versions
@@ -52,6 +59,7 @@ Before deploying, verify ALL items:
 There are TWO ways to deploy contracts. For modern object-based contracts, use `deploy-object`:
 
 **✅ CORRECT: Object Deployment (Modern Pattern)**
+
 ```bash
 aptos move deploy-object \
     --address-name my_addr \
@@ -60,12 +68,14 @@ aptos move deploy-object \
 ```
 
 **What this does:**
+
 1. Creates an object to host your contract code
 2. Deploys the package to that object's address
 3. Returns the object address (deterministic, based on deployer + package name)
 4. Object address becomes your contract address
 
 **❌ WRONG: Using Regular Publish for Object Contracts**
+
 ```bash
 # ❌ Don't use this for object-based contracts
 aptos move publish \
@@ -73,10 +83,12 @@ aptos move publish \
 ```
 
 **When to use each:**
+
 - `deploy-object`: Modern contracts using objects (RECOMMENDED)
 - `publish`: Legacy account-based deployment (older pattern)
 
 **How to tell if you need object deployment:**
+
 - Your contract creates named objects in `init_module`
 - Your contract uses `object::create_named_object()`
 - You want a deterministic contract address
@@ -85,19 +97,23 @@ aptos move publish \
 ### Alternative Object Deployment Commands
 
 **Option 1: `deploy-object` (Recommended - Simplest)**
+
 ```bash
 aptos move deploy-object --address-name my_addr --profile devnet
 ```
+
 - Automatically creates object and deploys code
 - Object address is deterministic
 - Best for most use cases
 
 **Option 2: `create-object-and-publish-package` (Advanced)**
+
 ```bash
 aptos move create-object-and-publish-package \
     --address-name my_addr \
     --named-addresses my_addr=default
 ```
+
 - More complex command with more options
 - Use only if you need specific object configuration
 - Generally not needed
@@ -137,8 +153,19 @@ echo $?
 # Initialize devnet account (if not already)
 aptos init --network devnet --profile devnet
 
-# Fund account
-aptos account fund-with-faucet --account default --profile devnet
+# Get your account address
+aptos account list --profile devnet
+```
+
+**Fund your account via web faucet:**
+
+1. Go to: `https://aptos.dev/network/faucet?address=<your_devnet_address>`
+2. Login and request devnet APT
+3. Return here and confirm you've funded the account
+
+```bash
+# Verify balance
+aptos account balance --profile devnet
 
 # Deploy as object (modern pattern)
 aptos move deploy-object \
@@ -150,7 +177,7 @@ aptos move deploy-object \
 # Output: "Code was successfully deployed to object address 0x..."
 
 # Verify deployment
-aptos account list --account <devnet_address> --profile devnet
+aptos account list --account <object_address> --profile devnet
 ```
 
 ### Step 4: Deploy to Testnet (REQUIRED)
@@ -161,8 +188,19 @@ aptos account list --account <devnet_address> --profile devnet
 # Initialize testnet account
 aptos init --network testnet --profile testnet
 
-# Fund account
-aptos account fund-with-faucet --account default --profile testnet
+# Get your account address
+aptos account list --profile testnet
+```
+
+**Fund your account via web faucet:**
+
+1. Go to: `https://aptos.dev/network/faucet?address=<your_testnet_address>`
+2. Login and request testnet APT
+3. Return here and confirm you've funded the account
+
+```bash
+# Verify balance
+aptos account balance --profile testnet
 
 # Deploy to testnet as object (modern pattern)
 aptos move deploy-object \
@@ -173,16 +211,6 @@ aptos move deploy-object \
 # IMPORTANT: Save the object address from output
 # You'll need it for upgrades and function calls
 # Output: "Code was successfully deployed to object address 0x..."
-
-# Expected output:
-# {
-#   "Result": {
-#     "transaction_hash": "0x...",
-#     "gas_used": 1234,
-#     "success": true,
-#     "vm_status": "Executed successfully"
-#   }
-# }
 ```
 
 ### Step 5: Test on Testnet
@@ -262,11 +290,7 @@ Create deployment record:
 ```markdown
 # Deployment Record
 
-**Date:** 2026-01-23
-**Network:** Mainnet
-**Module:** my_module
-**Address:** 0x123abc...
-**Transaction:** 0x456def...
+**Date:** 2026-01-23 **Network:** Mainnet **Module:** my_module **Address:** 0x123abc... **Transaction:** 0x456def...
 
 ## Verification
 
@@ -287,67 +311,31 @@ Create deployment record:
 - Tested on testnet for 1 week before mainnet
 ```
 
-## Network-Specific Commands
-
-### Devnet Deployment
-
-```bash
-aptos move publish \
-    --network devnet \
-    --named-addresses my_addr=<devnet_address>
-```
-
-**Devnet Details:**
-- **Purpose:** Quick testing, experimentation
-- **Stability:** May be reset
-- **Faucet:** Available
-- **URL:** https://fullnode.devnet.aptoslabs.com/v1
-
-### Testnet Deployment
-
-```bash
-aptos move publish \
-    --network testnet \
-    --named-addresses my_addr=<testnet_address>
-```
-
-**Testnet Details:**
-- **Purpose:** Pre-production testing
-- **Stability:** More stable than devnet
-- **Faucet:** Available
-- **URL:** https://fullnode.testnet.aptoslabs.com/v1
-
-### Mainnet Deployment
-
-```bash
-aptos move publish \
-    --network mainnet \
-    --named-addresses my_addr=<mainnet_address> \
-    --max-gas 20000
-```
-
-**Mainnet Details:**
-- **Purpose:** Production
-- **Stability:** Permanent
-- **Faucet:** Not available (real APT required)
-- **URL:** https://fullnode.mainnet.aptoslabs.com/v1
-
 ## Module Upgrades
 
-### Upgrading Existing Module
+### Upgrading Existing Object Deployment
 
-**Aptos Move modules are upgradeable by default for the account owner.**
+**Object-deployed modules are upgradeable by default for the deployer.**
 
 ```bash
-# Deploy upgrade
-aptos move publish \
+# Upgrade existing object deployment
+aptos move upgrade-object \
+    --address-name my_addr \
+    --object-address <object_address_from_initial_deploy> \
+    --profile mainnet
+
+# Upgrade with auto-confirm
+aptos move upgrade-object \
+    --address-name my_addr \
+    --object-address <object_address> \
     --profile mainnet \
-    --named-addresses my_addr=<mainnet_address> \
-    --upgrade
+    --assume-yes
 
 # Verify upgrade
-aptos account list --account <mainnet_address> --profile mainnet
+aptos account list --account <object_address> --profile mainnet
 ```
+
+**IMPORTANT:** Save the object address from your initial `deploy-object` output - you need it for upgrades.
 
 **Upgrade Compatibility Rules:**
 
@@ -375,20 +363,19 @@ fun init_module(account: &signer) {
 ### Gas Costs
 
 ```bash
-# Simulate deployment to estimate gas
-aptos move publish \
-    --named-addresses my_addr=<address> \
-    --simulate
-
-# Typical costs:
+# Typical deployment costs:
 # - Small module: ~500-1000 gas units
 # - Medium module: ~1000-5000 gas units
 # - Large module: ~5000-20000 gas units
+
+# When you run deploy-object, the CLI shows gas estimate before confirming
+# Use --assume-yes only after you've verified costs on testnet first
 ```
 
 ### Mainnet Costs
 
 **Gas costs are paid in APT:**
+
 - Gas units × Gas price = Total cost
 - Example: 5000 gas units × 100 Octas/gas = 500,000 Octas = 0.005 APT
 
@@ -396,7 +383,7 @@ aptos move publish \
 
 ### Deploying Multiple Modules
 
-**Option 1: Single package**
+**Option 1: Single package (Recommended)**
 
 ```
 project/
@@ -408,67 +395,69 @@ project/
 ```
 
 ```bash
-# Deploys all modules at once
-aptos move publish --named-addresses my_addr=<address>
+# Deploys all modules at once as a single object
+aptos move deploy-object --address-name my_addr --profile testnet
 ```
 
-**Option 2: Separate packages**
+**Option 2: Separate packages with dependencies**
 
 ```bash
-# Deploy dependency first
+# Deploy dependency package first
 cd dependency-package
-aptos move publish --named-addresses dep_addr=<address>
+aptos move deploy-object --address-name dep_addr --profile testnet
+# Note the object address from output
 
+# Update main package Move.toml to reference dependency address
 # Then deploy main package
 cd ../main-package
-aptos move publish --named-addresses main_addr=<address>,dep_addr=<dep_address>
+aptos move deploy-object --address-name main_addr --profile testnet
 ```
 
 ## Troubleshooting Deployment
 
 ### "Insufficient APT balance"
 
-```bash
-# Testnet/Devnet: Use faucet
-aptos account fund-with-faucet --profile testnet
+**Testnet/Devnet:** Use the web faucet (requires login):
 
-# Mainnet: Transfer APT to your account
-```
+1. Get your account address: `aptos account list --profile testnet`
+2. Go to: `https://aptos.dev/network/faucet?address=<your_address>`
+3. Login and request testnet APT
+4. Verify balance: `aptos account balance --profile testnet`
 
-### "Module already exists"
+**Mainnet:** Transfer real APT to your account from an exchange or wallet.
 
-```bash
-# Use --upgrade flag
-aptos move publish --named-addresses my_addr=<address> --upgrade
-```
-
-### "Address verification failed"
+### "Module already exists" (for object deployments)
 
 ```bash
-# Ensure named address matches your account
-aptos move publish --named-addresses my_addr=$(aptos account list --profile mainnet --account default | grep "account" | cut -d'"' -f4)
+# Use upgrade-object with the original object address
+aptos move upgrade-object \
+    --address-name my_addr \
+    --object-address <object_address_from_initial_deploy> \
+    --profile testnet
 ```
 
 ### "Compilation failed"
 
 ```bash
 # Fix compilation errors first
-aptos move compile --named-addresses my_addr=<address>
-# Fix all errors, then retry deployment
+aptos move compile
+# Fix all errors shown, then retry deployment
 ```
 
 ### "Gas limit exceeded"
 
 ```bash
 # Increase max gas
-aptos move publish \
-    --named-addresses my_addr=<address> \
-    --max-gas 30000
+aptos move deploy-object \
+    --address-name my_addr \
+    --profile testnet \
+    --max-gas 50000
 ```
 
 ## Deployment Checklist
 
 **Before Deployment:**
+
 - [ ] Security audit passed
 - [ ] 100% test coverage
 - [ ] All tests passing
@@ -477,12 +466,14 @@ aptos move publish \
 - [ ] Target network selected (testnet first!)
 
 **During Deployment:**
+
 - [ ] Correct network selected
 - [ ] Correct address specified
 - [ ] Transaction submitted
 - [ ] Transaction hash recorded
 
 **After Deployment:**
+
 - [ ] Module visible in explorer
 - [ ] View functions work
 - [ ] Entry functions tested
@@ -517,16 +508,19 @@ aptos move publish \
 ## References
 
 **Official Documentation:**
+
 - CLI Publishing: https://aptos.dev/build/cli/working-with-move-contracts
 - Network Endpoints: https://aptos.dev/nodes/networks
 - Gas and Fees: https://aptos.dev/concepts/gas-txn-fee
 
 **Explorers:**
+
 - Mainnet: https://explorer.aptoslabs.com/?network=mainnet
 - Testnet: https://explorer.aptoslabs.com/?network=testnet
 - Devnet: https://explorer.aptoslabs.com/?network=devnet
 
 **Related Skills:**
+
 - `security-audit` - Audit before deployment
 - `generate-tests` - Ensure tests exist
 - `use-aptos-cli` - CLI command reference

@@ -23,9 +23,8 @@
 
 ### Table / TableWithLength
 
-**Cost:** Per-slot gas for each entry
-**Benefit:** Enables concurrent access (parallel transactions)
-**Trade-off:** Higher cost per entry, but worth it for concurrency
+**Cost:** Per-slot gas for each entry **Benefit:** Enables concurrent access (parallel transactions) **Trade-off:**
+Higher cost per entry, but worth it for concurrency
 
 **Why separate slots matter:**
 
@@ -50,8 +49,7 @@ public entry fun batch_register(users: vector<address>) {
 
 ### BigOrderedMap
 
-**Default:** Dynamic slot allocation
-**Optimization:** Use configuration for predictable gas
+**Default:** Dynamic slot allocation **Optimization:** Use configuration for predictable gas
 
 **Production Configuration:**
 
@@ -97,8 +95,8 @@ fun init_module(deployer: &signer) {
 
 ### Vector vs SmartVector
 
-**Vector:** Contiguous storage, efficient for small data
-**SmartVector:** Bucket-based, 1.5-2x overhead for small data, but scales better
+**Vector:** Contiguous storage, efficient for small data **SmartVector:** Bucket-based, 1.5-2x overhead for small data,
+but scales better
 
 **Cutoff:** ~100 items
 

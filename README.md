@@ -2,11 +2,12 @@
 
 **AI-powered skills for building fullstack Aptos dApps - smart contracts and frontend integration**
 
-This repository provides specialized skills and patterns for AI assistants (Claude Code, Cursor, GitHub Copilot, future Aptos Vibe tool) to help developers build secure, well-tested Aptos dApps following best practices.
+This repository provides specialized skills and patterns for AI assistants (Claude Code, Cursor, GitHub Copilot, future
+Aptos Vibe tool) to help developers build secure, well-tested Aptos dApps following best practices.
 
 ## Features
 
-- **11 Specialized Skills** - Context-aware skills for Move smart contract development
+- **9 Specialized Skills** - Context-aware skills for Move smart contract development
 - **Move Smart Contracts** - Modern Move V2 object model patterns
 - **Security-First** - Comprehensive security checklist and audit patterns
 - **100% Test Coverage** - Automated test generation with coverage requirements
@@ -93,9 +94,7 @@ aptos-agent-skills/
 │       ├── search-aptos-examples/
 │       ├── use-aptos-cli/
 │       ├── troubleshoot-errors/
-│       ├── analyze-gas-optimization/
-│       ├── generate-move-scripts/
-│       └── implement-upgradeable-contracts/
+│       └── analyze-gas-optimization/
 │
 ├── patterns/
 │   └── move/
@@ -156,7 +155,7 @@ public entry fun transfer_item(
 // Entry function (write)
 const payload = {
   function: `${MODULE_ADDRESS}::counter::increment`,
-  functionArguments: [],
+  functionArguments: []
 };
 await signAndSubmitTransaction({ data: payload });
 
@@ -164,17 +163,19 @@ await signAndSubmitTransaction({ data: payload });
 const [count] = await aptos.view({
   payload: {
     function: `${MODULE_ADDRESS}::counter::get_count`,
-    functionArguments: [accountAddress],
-  },
+    functionArguments: [accountAddress]
+  }
 });
 ```
 
 ## Skills Overview
 
 ### Project Scaffolding
+
 - **scaffold-project** - Bootstrap from templates using degit (fullstack or contract-only)
 
 ### Move Smart Contracts
+
 - **write-contracts** - Generate secure Move V2 contracts
 - **generate-tests** - Create comprehensive test suites (100% coverage required)
 - **security-audit** - Security auditing before deployment
@@ -183,8 +184,6 @@ const [count] = await aptos.view({
 - **use-aptos-cli** - CLI command reference
 - **troubleshoot-errors** - Debug common errors
 - **analyze-gas-optimization** - Optimize gas usage
-- **generate-move-scripts** - Create atomic scripts
-- **implement-upgradeable-contracts** - Contract upgrade patterns
 
 ## Example Workflows
 
@@ -222,7 +221,8 @@ npm run format:check
 ### Template Sources
 
 - **Fullstack Template:** https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates/boilerplate-template
-- **Contract-only Template:** https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates/contract-boilerplate-template
+- **Contract-only Template:**
+  https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates/contract-boilerplate-template
 
 ## Contributing
 
@@ -239,7 +239,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Roadmap
 
-- [x] Core Move skills (11 skills)
+- [x] Core Move skills (9 skills)
 - [x] Agent Skills Open Standard compliance
 - [ ] TypeScript SDK skills (Coming Soon)
 - [ ] Wallet integration skills (Coming Soon)

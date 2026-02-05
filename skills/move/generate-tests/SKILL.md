@@ -1,6 +1,8 @@
 ---
 name: generate-tests
-description: "Creates comprehensive test suites for Move contracts with 100% coverage requirement. Triggers on: 'generate tests', 'create tests', 'write test suite', 'test this contract', 'how to test', 'add test coverage', 'write unit tests'."
+description:
+  "Creates comprehensive test suites for Move contracts with 100% coverage requirement. Triggers on: 'generate tests',
+  'create tests', 'write test suite', 'test this contract', 'how to test', 'add test coverage', 'write unit tests'."
 metadata:
   category: move
   tags: ["testing", "unit-tests", "coverage", "quality"]
@@ -241,12 +243,14 @@ aptos move coverage summary
 ```
 
 **Coverage report example:**
+
 ```
 module: my_module
 coverage: 100.0% (150/150 lines covered)
 ```
 
 **If coverage < 100%:**
+
 1. Check uncovered lines in report
 2. Write tests for missing paths
 3. Repeat until 100%
@@ -304,17 +308,20 @@ module my_addr::module_tests {
 For each contract, verify you have tests for:
 
 **Happy Paths:**
+
 - [ ] Object creation works
 - [ ] State updates work
 - [ ] Transfers work
 - [ ] All main features work
 
 **Access Control:**
+
 - [ ] Non-owners cannot modify objects
 - [ ] Non-admins cannot call admin functions
 - [ ] Unauthorized users blocked
 
 **Input Validation:**
+
 - [ ] Zero amounts rejected
 - [ ] Excessive amounts rejected
 - [ ] Empty strings rejected
@@ -322,11 +329,13 @@ For each contract, verify you have tests for:
 - [ ] Zero addresses rejected
 
 **Edge Cases:**
+
 - [ ] Maximum values work
 - [ ] Minimum values work
 - [ ] Empty states handled
 
 **Coverage:**
+
 - [ ] 100% line coverage achieved
 - [ ] All error codes tested
 - [ ] All functions tested
@@ -429,13 +438,16 @@ public entry fun stake(...) acquires VaultConfig, Stakes {
 ## References
 
 **Pattern Documentation:**
+
 - `../../../patterns/move/TESTING.md` - Comprehensive testing guide (see Pattern 8 for cross-module issues)
 - `../../../patterns/move/SECURITY.md` - Security testing requirements
 
 **Official Documentation:**
+
 - https://aptos.dev/build/smart-contracts/book/unit-testing
 
 **Related Skills:**
+
 - `write-contracts` - Generate code to test
 - `security-audit` - Verify security after testing
 

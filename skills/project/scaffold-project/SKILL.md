@@ -1,6 +1,9 @@
 ---
 name: scaffold-project
-description: "Initializes new Aptos dApp projects using degit to bootstrap from official templates. Triggers on: 'create project', 'scaffold project', 'new dApp', 'new Move project', 'initialize project', 'setup project', 'start new contract', 'init aptos project', 'create fullstack dapp'."
+description:
+  "Initializes new Aptos dApp projects using degit to bootstrap from official templates. Triggers on: 'create project',
+  'scaffold project', 'new dApp', 'new Move project', 'initialize project', 'setup project', 'start new contract', 'init
+  aptos project', 'create fullstack dapp'."
 metadata:
   category: project
   tags: ["scaffolding", "templates", "project-setup", "dapp"]
@@ -11,14 +14,15 @@ metadata:
 
 ## Overview
 
-This skill creates new Aptos dApp projects by bootstrapping directly from official templates using `degit`. This approach provides clean copies of production-ready templates without git history.
+This skill creates new Aptos dApp projects by bootstrapping directly from official templates using `degit`. This
+approach provides clean copies of production-ready templates without git history.
 
 ## Project Types
 
-| Type | Template | Use Case |
-|------|----------|----------|
-| **Fullstack dApp** | `boilerplate-template` | Frontend + smart contracts |
-| **Contract-only** | `contract-boilerplate-template` | Smart contracts without frontend |
+| Type               | Template                        | Use Case                         |
+| ------------------ | ------------------------------- | -------------------------------- |
+| **Fullstack dApp** | `boilerplate-template`          | Frontend + smart contracts       |
+| **Contract-only**  | `contract-boilerplate-template` | Smart contracts without frontend |
 
 ---
 
@@ -33,17 +37,40 @@ npx degit aptos-labs/create-aptos-dapp/templates/boilerplate-template my-dapp
 cd my-dapp
 ```
 
-> **Note:** The degit command references a specific template path in the aptos-labs/create-aptos-dapp repository. If you encounter errors, verify the template path exists at https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates
+> **Note:** The degit command references a specific template path in the aptos-labs/create-aptos-dapp repository. If you
+> encounter errors, verify the template path exists at
+> https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates
 
 ### Step 2: Configure Environment
 
-```bash
-# Copy environment template
-cp .env.example .env
+**Create `.env` file** with the following variables:
 
-# Edit .env with your configuration:
-# - VITE_APP_NETWORK=testnet (or devnet, mainnet)
-# - VITE_MODULE_ADDRESS=0x... (after deployment)
+```bash
+# Create .env file
+cat > .env << 'EOF'
+PROJECT_NAME=my-dapp
+VITE_APP_NETWORK=devnet
+VITE_APTOS_API_KEY=""
+VITE_MODULE_PUBLISHER_ACCOUNT_ADDRESS=
+# This is the module publisher account's private key.
+# Be cautious about who you share it with, and ensure it is not exposed when deploying your dApp.
+VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY=
+EOF
+```
+
+**Configure the values:**
+
+- `PROJECT_NAME` - Your project name
+- `VITE_APP_NETWORK` - Network to use (`devnet`, `testnet`, or `mainnet`)
+- `VITE_APTOS_API_KEY` - Optional API key from Aptos Labs
+- `VITE_MODULE_PUBLISHER_ACCOUNT_ADDRESS` - Your deployer account address (set after `aptos init`)
+- `VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY` - Your deployer private key (from `~/.aptos/config.yaml`)
+
+**⚠️ CRITICAL: Ensure `.env` is in `.gitignore`:**
+
+```bash
+# Verify .env is gitignored (should already be there)
+grep -q "^\.env$" .gitignore || echo ".env" >> .gitignore
 ```
 
 ### Step 3: Update Move.toml
@@ -62,15 +89,8 @@ my_dapp_addr = "_"  # Will be set during deployment
 [dev-addresses]
 my_dapp_addr = "0xCAFE"  # For testing
 
-[dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
-subdir = "aptos-move/framework/aptos-framework"
-
-[dependencies.AptosStdlib]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
-subdir = "aptos-move/framework/aptos-stdlib"
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-framework.git", rev = "mainnet", subdir = "aptos-framework" }
 ```
 
 ### Step 4: Install Dependencies
@@ -119,19 +139,20 @@ my-dapp/
 │   └── Move.toml
 ├── scripts/move/             # Deployment scripts
 ├── package.json              # npm scripts for move:compile, move:test, etc.
-├── .env.example              # Environment template
+├── .env                      # Environment variables (NEVER commit!)
+├── .gitignore                # Must include .env
 └── [config files]            # vite, tailwind, typescript, etc.
 ```
 
 ### Key Directories Explained
 
-| Directory | Purpose |
-|-----------|---------|
+| Directory                   | Purpose                                   |
+| --------------------------- | ----------------------------------------- |
 | `frontend/entry-functions/` | Transaction payloads for write operations |
-| `frontend/view-functions/` | Queries for read operations |
-| `frontend/lib/` | Aptos client and wallet provider setup |
-| `contract/sources/` | Move smart contract modules |
-| `scripts/move/` | Deployment and utility scripts |
+| `frontend/view-functions/`  | Queries for read operations               |
+| `frontend/lib/`             | Aptos client and wallet provider setup    |
+| `contract/sources/`         | Move smart contract modules               |
+| `scripts/move/`             | Deployment and utility scripts            |
 
 ---
 
@@ -148,9 +169,22 @@ cd my-contract
 
 ### Step 2: Configure Environment
 
+**Create `.env` file** with the following variables:
+
 ```bash
-# Copy environment template
-cp .env.example .env
+# Create .env file
+cat > .env << 'EOF'
+PROJECT_NAME=my-contract
+VITE_APP_NETWORK=devnet
+VITE_APTOS_API_KEY=""
+VITE_MODULE_PUBLISHER_ACCOUNT_ADDRESS=
+# This is the module publisher account's private key.
+# Be cautious about who you share it with, and ensure it is not exposed when deploying your dApp.
+VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY=
+EOF
+
+# Ensure .env is gitignored
+grep -q "^\.env$" .gitignore || echo ".env" >> .gitignore
 ```
 
 ### Step 3: Update Move.toml
@@ -168,10 +202,8 @@ my_contract_addr = "_"
 [dev-addresses]
 my_contract_addr = "0xCAFE"
 
-[dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
-subdir = "aptos-move/framework/aptos-framework"
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-framework.git", rev = "mainnet", subdir = "aptos-framework" }
 ```
 
 ### Step 4: Install & Verify
@@ -204,7 +236,8 @@ my-contract/
 │   └── Move.toml
 ├── scripts/move/             # Deployment scripts
 ├── package.json              # npm scripts
-└── .env.example
+├── .env                      # Environment variables (NEVER commit!)
+└── .gitignore                # Must include .env
 ```
 
 ---
@@ -247,15 +280,25 @@ See the "Move-Only Reference" section below for detailed manual setup.
 ### Fullstack dApp (Recommended)
 
 ```bash
-# One-liner bootstrap
-npx degit aptos-labs/create-aptos-dapp/templates/boilerplate-template my-dapp && cd my-dapp && cp .env.example .env && npm install && git init
+# Bootstrap and setup
+npx degit aptos-labs/create-aptos-dapp/templates/boilerplate-template my-dapp
+cd my-dapp
+npm install
+git init
+
+# Then create .env manually (see Step 2 above) - NEVER commit .env!
 ```
 
 ### Contract-Only
 
 ```bash
-# One-liner bootstrap
-npx degit aptos-labs/create-aptos-dapp/templates/contract-boilerplate-template my-contract && cd my-contract && cp .env.example .env && npm install && git init
+# Bootstrap and setup
+npx degit aptos-labs/create-aptos-dapp/templates/contract-boilerplate-template my-contract
+cd my-contract
+npm install
+git init
+
+# Then create .env manually (see Step 2 above) - NEVER commit .env!
 ```
 
 ---
@@ -264,64 +307,17 @@ npx degit aptos-labs/create-aptos-dapp/templates/contract-boilerplate-template m
 
 After bootstrapping, complete these steps:
 
+- [ ] Create `.env` file with required variables (see Step 2)
+- [ ] Verify `.env` is in `.gitignore`
 - [ ] Update `Move.toml` with project name and address alias
-- [ ] Update `.env` with network configuration
+- [ ] Run `aptos init` to create deployer account
+- [ ] Add account address and private key to `.env`
 - [ ] Verify compilation: `npm run move:compile`
 - [ ] Verify tests pass: `npm run move:test`
 - [ ] Initialize git repository
 - [ ] (Fullstack) Verify frontend runs: `npm run dev`
 
----
-
-## Move.toml Templates
-
-### For NFT Projects
-
-```toml
-[package]
-name = "nft_collection"
-version = "1.0.0"
-
-[addresses]
-nft_addr = "_"
-
-[dev-addresses]
-nft_addr = "0xCAFE"
-
-[dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
-subdir = "aptos-move/framework/aptos-framework"
-
-[dependencies.AptosToken]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
-subdir = "aptos-move/framework/aptos-token-objects"
-```
-
-### For DeFi/Token Projects
-
-```toml
-[package]
-name = "defi_protocol"
-version = "1.0.0"
-
-[addresses]
-defi_addr = "_"
-
-[dev-addresses]
-defi_addr = "0xCAFE"
-
-[dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
-subdir = "aptos-move/framework/aptos-framework"
-
-[dependencies.AptosToken]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
-subdir = "aptos-move/framework/aptos-token-objects"
-```
+**⚠️ Before committing:** Double-check that `.env` is NOT staged (`git status`)
 
 ---
 
@@ -348,15 +344,8 @@ my_addr = "_"
 [dev-addresses]
 my_addr = "0xCAFE"
 
-[dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
-subdir = "aptos-move/framework/aptos-framework"
-
-[dependencies.AptosStdlib]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
-subdir = "aptos-move/framework/aptos-stdlib"
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-framework.git", rev = "mainnet", subdir = "aptos-framework" }
 ```
 
 ### Create Module
@@ -395,26 +384,29 @@ aptos move test
 - ✅ ALWAYS use `degit` for bootstrapping (clean copy, no git history)
 - ✅ ALWAYS use the **boilerplate-template** for fullstack dApps
 - ✅ ALWAYS update Move.toml with your project name and address alias
-- ✅ ALWAYS copy `.env.example` to `.env` and configure
+- ✅ ALWAYS create `.env` file with required environment variables
+- ✅ ALWAYS ensure `.env` is listed in `.gitignore`
 - ✅ ALWAYS run `npm install` after bootstrapping
 - ✅ ALWAYS verify compilation and tests pass
 - ✅ ALWAYS initialize git after setup
-- ✅ ALWAYS use named addresses (my_addr = "_")
+- ✅ ALWAYS use named addresses (my_addr = "\_")
 
 ## NEVER Rules
 
+- ❌ NEVER commit `.env` to git (contains private keys!)
+- ❌ NEVER push `.env` to GitHub or any remote repository
+- ❌ NEVER share your `VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY`
 - ❌ NEVER skip Move.toml configuration
 - ❌ NEVER use hardcoded addresses in code
 - ❌ NEVER skip verifying compilation after scaffolding
-- ❌ NEVER commit `.env` to git (contains secrets)
 
 ---
 
 ## Template Sources
 
-| Template | GitHub URL |
-|----------|-----------|
-| Fullstack | https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates/boilerplate-template |
+| Template      | GitHub URL                                                                                        |
+| ------------- | ------------------------------------------------------------------------------------------------- |
+| Fullstack     | https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates/boilerplate-template          |
 | Contract-only | https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates/contract-boilerplate-template |
 
 ---
@@ -422,11 +414,13 @@ aptos move test
 ## References
 
 **Official Documentation:**
+
 - CLI Reference: https://aptos.dev/build/cli
 - Move.toml: https://aptos.dev/build/cli/working-with-move-contracts
 - TypeScript SDK: https://aptos.dev/sdks/ts-sdk
 
 **Related Skills:**
+
 - `write-contracts` - Write Move modules after scaffolding
 - `generate-tests` - Create test suite
 - `connect-contract-to-frontend` - Wire up frontend to contracts
@@ -434,4 +428,5 @@ aptos move test
 
 ---
 
-**Remember:** Use `degit` for clean bootstrapping. The boilerplate template provides the best starting point for custom dApps.
+**Remember:** Use `degit` for clean bootstrapping. The boilerplate template provides the best starting point for custom
+dApps.

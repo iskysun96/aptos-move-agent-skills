@@ -4,15 +4,15 @@
 
 Common framework error codes:
 
-| Code | Error | Meaning |
-|------|-------|---------|
-| `0x1` | INVALID_ARGUMENT | Invalid function argument |
-| `0x2` | OUT_OF_RANGE | Value out of valid range |
-| `0x3` | INVALID_STATE | Invalid state for operation |
-| `0x5` | NOT_FOUND | Resource not found |
-| `0x6` | ALREADY_EXISTS | Resource already exists |
-| `0x7` | PERMISSION_DENIED | Caller not authorized |
-| `0x8` | ABORTED | Operation aborted |
+| Code  | Error             | Meaning                     |
+| ----- | ----------------- | --------------------------- |
+| `0x1` | INVALID_ARGUMENT  | Invalid function argument   |
+| `0x2` | OUT_OF_RANGE      | Value out of valid range    |
+| `0x3` | INVALID_STATE     | Invalid state for operation |
+| `0x5` | NOT_FOUND         | Resource not found          |
+| `0x6` | ALREADY_EXISTS    | Resource already exists     |
+| `0x7` | PERMISSION_DENIED | Caller not authorized       |
+| `0x8` | ABORTED           | Operation aborted           |
 
 ## Custom Error Code Best Practices
 

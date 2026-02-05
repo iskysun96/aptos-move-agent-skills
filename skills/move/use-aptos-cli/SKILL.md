@@ -1,6 +1,9 @@
 ---
 name: use-aptos-cli
-description: "Provides Aptos CLI command reference for development workflow (init, compile, test, publish). Triggers on: 'CLI command', 'how to use aptos', 'aptos init', 'aptos compile', 'aptos test', 'aptos move publish', 'CLI help', 'run aptos command'."
+description:
+  "Provides Aptos CLI command reference for development workflow (init, compile, test, publish). Triggers on: 'CLI
+  command', 'how to use aptos', 'aptos init', 'aptos compile', 'aptos test', 'aptos move publish', 'CLI help', 'run
+  aptos command'."
 metadata:
   category: move
   tags: ["cli", "tooling", "commands", "development"]
@@ -102,7 +105,8 @@ aptos move upgrade-object \
 
 When deploying, the CLI will ask two questions:
 
-1. **Gas confirmation**: "Do you want to submit a transaction for a range of [X - Y] Octas at a gas unit price of Z Octas? [yes/no]"
+1. **Gas confirmation**: "Do you want to submit a transaction for a range of [X - Y] Octas at a gas unit price of Z
+   Octas? [yes/no]"
 2. **Object address confirmation**: "Do you want to publish this package at object address 0x... [yes/no]"
 
 To skip prompts, use `--assume-yes` flag (automatically answers "yes").
@@ -142,18 +146,23 @@ aptos init --network testnet
 # Create new account with profile
 aptos init --profile my_profile
 
-# Fund account (devnet/testnet only)
-aptos account fund-with-faucet --account <address>
-
-# Fund default account
-aptos account fund-with-faucet --account default
-
 # List account resources
 aptos account list --account <address>
 
 # Get account balance
 aptos account balance --account <address>
 ```
+
+### Funding Accounts (Devnet/Testnet)
+
+**Use the web faucet** (requires login):
+
+1. Get your account address: `aptos account list --profile testnet`
+2. Go to: `https://aptos.dev/network/faucet?address=<your_address>`
+3. Login and request testnet/devnet APT
+4. Verify balance: `aptos account balance --profile testnet`
+
+**Note:** The CLI command `aptos account fund-with-faucet` is deprecated. Use the web faucet instead.
 
 ### Running Functions
 
@@ -273,75 +282,6 @@ aptos --profile testnet move publish --named-addresses my_addr=0x123
 export APTOS_PROFILE=testnet
 ```
 
-## Common Workflows
-
-### Development Workflow
-
-```bash
-# 1. Initialize project
-aptos move init --name my_project
-
-# 2. Write code in sources/
-
-# 3. Compile
-aptos move compile
-
-# 4. Run tests
-aptos move test
-
-# 5. Check coverage
-aptos move test --coverage
-aptos move coverage summary
-
-# 6. Fix any issues and repeat 3-5
-```
-
-### Deployment Workflow
-
-```bash
-# 1. Ensure tests pass
-aptos move test --coverage
-
-# 2. Compile
-aptos move compile
-
-# 3. Deploy to testnet first
-aptos move publish \
-    --network testnet \
-    --named-addresses my_addr=<testnet_address>
-
-# 4. Test on testnet
-aptos move run \
-    --network testnet \
-    --function-id <testnet_address>::<module>::<function> \
-    --args ...
-
-# 5. If successful, deploy to mainnet
-aptos move publish \
-    --network mainnet \
-    --named-addresses my_addr=<mainnet_address>
-```
-
-### Testing Workflow
-
-```bash
-# Run all tests
-aptos move test
-
-# Run specific test
-aptos move test --filter test_create_nft
-
-# Run with coverage
-aptos move test --coverage
-
-# Check coverage summary
-aptos move coverage summary
-# Expected: 100.0% coverage
-
-# View uncovered lines
-aptos move coverage source --module my_module
-```
-
 ## Argument Types
 
 ### Primitive Types
@@ -383,6 +323,7 @@ aptos move coverage source --module my_module
 ## Network URLs
 
 ### Devnet
+
 ```
 REST: https://fullnode.devnet.aptoslabs.com/v1
 Faucet: https://faucet.devnet.aptoslabs.com
@@ -390,6 +331,7 @@ Explorer: https://explorer.aptoslabs.com/?network=devnet
 ```
 
 ### Testnet
+
 ```
 REST: https://fullnode.testnet.aptoslabs.com/v1
 Faucet: https://faucet.testnet.aptoslabs.com
@@ -397,6 +339,7 @@ Explorer: https://explorer.aptoslabs.com/?network=testnet
 ```
 
 ### Mainnet
+
 ```
 REST: https://fullnode.mainnet.aptoslabs.com/v1
 Explorer: https://explorer.aptoslabs.com/?network=mainnet
@@ -456,32 +399,36 @@ aptos move compile --named-addresses my_addr=0xCAFE
 
 ### "Insufficient funds"
 
-```bash
-# Solution: Fund account (testnet/devnet only)
-aptos account fund-with-faucet --account default
-```
+**Solution:** Fund via web faucet (testnet/devnet):
+
+1. Get address: `aptos account list --profile testnet`
+2. Go to: `https://aptos.dev/network/faucet?address=<your_address>`
+3. Login and request APT
 
 ### "Module already published"
 
 ```bash
-# Solution: Use upgrade flag
-aptos move publish --named-addresses my_addr=0x123 --upgrade
+# Solution: Use upgrade-object with original object address
+aptos move upgrade-object \
+    --address-name my_addr \
+    --object-address <object_address_from_initial_deploy>
 ```
 
 ## Quick Reference
 
-| Command | Purpose |
-|---------|---------|
-| `aptos move init` | Create new project |
-| `aptos move compile` | Compile Move code |
-| `aptos move test` | Run tests |
-| `aptos move test --coverage` | Test with coverage |
-| `aptos move publish` | Deploy module |
-| `aptos move run` | Execute entry function |
-| `aptos move view` | Call view function |
-| `aptos account fund-with-faucet` | Get test tokens |
-| `aptos account list` | View account resources |
-| `aptos init` | Initialize CLI config |
+| Command                      | Purpose                 |
+| ---------------------------- | ----------------------- |
+| `aptos move init`            | Create new project      |
+| `aptos move compile`         | Compile Move code       |
+| `aptos move test`            | Run tests               |
+| `aptos move test --coverage` | Test with coverage      |
+| `aptos move deploy-object`   | Deploy module (modern)  |
+| `aptos move upgrade-object`  | Upgrade deployed module |
+| `aptos move run`             | Execute entry function  |
+| `aptos move view`            | Call view function      |
+| `aptos account list`         | View account resources  |
+| `aptos account balance`      | Check account balance   |
+| `aptos init`                 | Initialize CLI config   |
 
 ## ALWAYS Rules
 
@@ -503,11 +450,13 @@ aptos move publish --named-addresses my_addr=0x123 --upgrade
 ## References
 
 **Official Documentation:**
+
 - CLI Guide: https://aptos.dev/build/cli
 - Working with Move Contracts: https://aptos.dev/build/cli/working-with-move-contracts
 - CLI Reference: https://aptos.dev/build/cli/cli-reference
 
 **Related Skills:**
+
 - `scaffold-project` - Initialize projects
 - `write-contracts` - Write modules to compile
 - `generate-tests` - Create tests to run

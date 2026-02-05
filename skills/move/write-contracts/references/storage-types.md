@@ -2,12 +2,9 @@
 
 ## Vector
 
-**What:** Ordered array, dynamic sizing
-**Performance:** O(1) append/access, O(n) middle insertion
-**Size limit:** Unbounded but best for <100 items
-**Gas:** Efficient for small data, direct storage access
-**When:** Sequential access, small collections, simple iteration
-**Example:** `Vector<address>` for admin whitelist
+**What:** Ordered array, dynamic sizing **Performance:** O(1) append/access, O(n) middle insertion **Size limit:**
+Unbounded but best for <100 items **Gas:** Efficient for small data, direct storage access **When:** Sequential access,
+small collections, simple iteration **Example:** `Vector<address>` for admin whitelist
 
 **Code Example:**
 
@@ -34,13 +31,10 @@ public fun is_admin(user: address): bool acquires Whitelist {
 
 ## SmartVector
 
-**What:** Scalable vector with bucket-based storage
-**Performance:** O(1) append/pop, O(n) middle operations
-**Size limit:** Unbounded, scales to 1000s
-**Gas:** 1.5-2x overhead vs Vector for small data, better for large
-**When:** Sequential access, 100+ items, append-heavy workloads
-**Example:** `SmartVector<TransactionRecord>` for logs
-**Note:** Use Vector for <100, SmartVector for 100+
+**What:** Scalable vector with bucket-based storage **Performance:** O(1) append/pop, O(n) middle operations **Size
+limit:** Unbounded, scales to 1000s **Gas:** 1.5-2x overhead vs Vector for small data, better for large **When:**
+Sequential access, 100+ items, append-heavy workloads **Example:** `SmartVector<TransactionRecord>` for logs **Note:**
+Use Vector for <100, SmartVector for 100+
 
 **Code Example:**
 
@@ -78,13 +72,10 @@ public entry fun log_transaction(
 
 ## Table
 
-**What:** Unordered key-value map, separate slots per entry
-**Performance:** O(1) lookup, insert, remove
-**Size limit:** Unbounded
-**Gas:** Per-slot storage cost, enables concurrent access
-**When:** Unbounded key-value data, high concurrency, no ordering
-**Example:** `Table<address, UserInfo>` for user registry
-**Note:** No `.length()` - use TableWithLength if needed
+**What:** Unordered key-value map, separate slots per entry **Performance:** O(1) lookup, insert, remove **Size limit:**
+Unbounded **Gas:** Per-slot storage cost, enables concurrent access **When:** Unbounded key-value data, high
+concurrency, no ordering **Example:** `Table<address, UserInfo>` for user registry **Note:** No `.length()` - use
+TableWithLength if needed
 
 **Code Example:**
 
@@ -117,12 +108,9 @@ public entry fun register_user(user: &signer, name: String) acquires UserRegistr
 
 ## TableWithLength
 
-**What:** Table with length tracking
-**Performance:** Same as Table
-**Size limit:** Unbounded
-**Gas:** Small overhead for tracking count
-**When:** Need `.length()` for Table use case
-**Example:** `TableWithLength<address, Ballot>` for vote counting
+**What:** Table with length tracking **Performance:** Same as Table **Size limit:** Unbounded **Gas:** Small overhead
+for tracking count **When:** Need `.length()` for Table use case **Example:** `TableWithLength<address, Ballot>` for
+vote counting
 
 **Code Example:**
 
@@ -153,12 +141,9 @@ public fun get_vote_count(proposal_id: u64): u64 acquires ProposalRegistry {
 
 ## OrderedMap
 
-**What:** Small sorted map, single slot storage
-**Performance:** O(log n) operations, sorted iteration
-**Size limit:** <100 items recommended
-**Gas:** 65μs for 10 items, single-slot efficiency
-**When:** Small bounded data needing sorted access
-**Example:** `OrderedMap<String, ConfigValue>` for feature flags
+**What:** Small sorted map, single slot storage **Performance:** O(log n) operations, sorted iteration **Size limit:**
+<100 items recommended **Gas:** 65μs for 10 items, single-slot efficiency **When:** Small bounded data needing sorted
+access **Example:** `OrderedMap<String, ConfigValue>` for feature flags
 
 **Code Example:**
 
@@ -199,13 +184,10 @@ public fun list_features(): vector<String> acquires Config {
 
 ## BigOrderedMap
 
-**What:** Large sorted map, B+ tree implementation
-**Performance:** O(log n) operations, scales unbounded
-**Size limit:** Unbounded, grows dynamically
-**Gas:** Predictable with allocate_spare_slots configuration
-**When:** Unbounded sorted data, ordered iteration
-**Example:** `BigOrderedMap<u64, PlayerData>` for leaderboards
-**Production:** Use `allocate_spare_slots` + `reuse_slots` for predictable gas
+**What:** Large sorted map, B+ tree implementation **Performance:** O(log n) operations, scales unbounded **Size
+limit:** Unbounded, grows dynamically **Gas:** Predictable with allocate_spare_slots configuration **When:** Unbounded
+sorted data, ordered iteration **Example:** `BigOrderedMap<u64, PlayerData>` for leaderboards **Production:** Use
+`allocate_spare_slots` + `reuse_slots` for predictable gas
 
 **Code Example:**
 
@@ -270,9 +252,7 @@ public fun get_top_players(n: u64): vector<address> acquires Leaderboard {
 
 ## ~~SmartTable~~ (DEPRECATED)
 
-**Status:** Replaced by BigOrderedMap
-**Migration:** Use BigOrderedMap instead
-**Never use SmartTable in new contracts**
+**Status:** Replaced by BigOrderedMap **Migration:** Use BigOrderedMap instead **Never use SmartTable in new contracts**
 
 If you see SmartTable in existing code, migrate to BigOrderedMap:
 
@@ -290,14 +270,14 @@ let map = big_ordered_map::new<K, V>();
 
 ## Quick Comparison Table
 
-| Type             | Ordered | Size      | Concurrency | .length() | Best For            |
-| ---------------- | ------- | --------- | ----------- | --------- | ------------------- |
-| Vector           | ✓       | <100      | Low         | ✓         | Small sequential    |
-| SmartVector      | ✓       | 100+      | Low         | ✓         | Large sequential    |
-| Table            | ✗       | Unbounded | High        | ✗         | Unordered lookups   |
-| TableWithLength  | ✗       | Unbounded | High        | ✓         | Lookups + count     |
-| OrderedMap       | ✓       | <100      | Low         | ✓         | Small sorted        |
-| BigOrderedMap    | ✓       | Unbounded | Medium      | ✗         | Large sorted        |
+| Type            | Ordered | Size      | Concurrency | .length() | Best For          |
+| --------------- | ------- | --------- | ----------- | --------- | ----------------- |
+| Vector          | ✓       | <100      | Low         | ✓         | Small sequential  |
+| SmartVector     | ✓       | 100+      | Low         | ✓         | Large sequential  |
+| Table           | ✗       | Unbounded | High        | ✗         | Unordered lookups |
+| TableWithLength | ✗       | Unbounded | High        | ✓         | Lookups + count   |
+| OrderedMap      | ✓       | <100      | Low         | ✓         | Small sorted      |
+| BigOrderedMap   | ✓       | Unbounded | Medium      | ✗         | Large sorted      |
 
 ## Import Statements
 

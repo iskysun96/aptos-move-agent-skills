@@ -1,6 +1,9 @@
 ---
 name: security-audit
-description: "Audits Move contracts for security vulnerabilities before deployment using 7-category checklist. Triggers on: 'audit contract', 'security check', 'review security', 'check for vulnerabilities', 'security audit', 'is this secure', 'find security issues'."
+description:
+  "Audits Move contracts for security vulnerabilities before deployment using 7-category checklist. Triggers on: 'audit
+  contract', 'security check', 'review security', 'check for vulnerabilities', 'security audit', 'is this secure', 'find
+  security issues'."
 metadata:
   category: move
   tags: ["security", "audit", "vulnerabilities", "best-practices"]
@@ -11,7 +14,8 @@ metadata:
 
 ## Overview
 
-This skill performs systematic security audits of Move contracts using a comprehensive checklist. Every item must pass before deployment.
+This skill performs systematic security audits of Move contracts using a comprehensive checklist. Every item must pass
+before deployment.
 
 **Critical:** Security is non-negotiable. User funds depend on correct implementation.
 
@@ -266,69 +270,77 @@ Generate report in this format:
 ```markdown
 # Security Audit Report
 
-**Module:** my_module
-**Date:** 2026-01-23
-**Auditor:** AI Assistant
+**Module:** my_module **Date:** 2026-01-23 **Auditor:** AI Assistant
 
 ## Summary
+
 - ✅ PASS: All security checks passed
 - ⚠️ WARNINGS: 2 minor issues found
 - ❌ CRITICAL: 0 critical vulnerabilities
 
 ## Access Control
+
 - ✅ All entry functions verify signer authority
 - ✅ Object ownership checked in all operations
 - ✅ Admin functions properly restricted
 
 ## Input Validation
+
 - ✅ All numeric inputs validated
 - ⚠️ WARNING: String length validation missing in function X
 - ✅ Address validation present
 
 ## Object Safety
+
 - ✅ No ConstructorRef returned
 - ✅ All refs generated in constructor
 - ✅ Object signer used correctly
 
 ## Reference Safety
+
 - ✅ No public &mut references
 - ✅ Critical fields protected
 
 ## Arithmetic Safety
+
 - ✅ Overflow checks present
 - ✅ Underflow checks present
 - ✅ Division by zero prevented
 
 ## Generic Type Safety
+
 - ✅ Phantom types used correctly
 - ✅ Constraints appropriate
 
 ## Testing
+
 - ✅ 100% line coverage achieved
 - ✅ All error paths tested
 - ✅ Access control tested
 - ✅ Edge cases covered
 
 ## Recommendations
+
 1. Add string length validation to function X (line 42)
 2. Consider adding event emissions for important state changes
 
 ## Conclusion
+
 ✅ Safe to deploy after addressing warnings.
 ```
 
 ## Common Vulnerabilities
 
-| Vulnerability | Detection | Impact | Fix |
-|---------------|-----------|--------|-----|
-| Missing access control | No `assert!(signer...)` in entry functions | Critical - anyone can call | Add signer verification |
-| Missing ownership check | No `assert!(object::owner...)` | Critical - anyone can modify any object | Add ownership check |
-| Integer overflow | No check before addition | Critical - balance wraps to 0 | Check `assert!(a <= MAX - b, E_OVERFLOW)` |
-| Integer underflow | No check before subtraction | Critical - balance wraps to MAX | Check `assert!(a >= b, E_UNDERFLOW)` |
-| Returning ConstructorRef | Function returns ConstructorRef | Critical - caller can destroy object | Return `Object<T>` instead |
-| Exposing &mut | Public function returns `&mut T` | High - mem::swap attacks | Expose specific operations only |
-| No input validation | Accept any value | Medium - zero amounts, overflow | Validate all inputs |
-| Low test coverage | Coverage < 100% | Medium - bugs in production | Write more tests |
+| Vulnerability            | Detection                                  | Impact                                  | Fix                                       |
+| ------------------------ | ------------------------------------------ | --------------------------------------- | ----------------------------------------- |
+| Missing access control   | No `assert!(signer...)` in entry functions | Critical - anyone can call              | Add signer verification                   |
+| Missing ownership check  | No `assert!(object::owner...)`             | Critical - anyone can modify any object | Add ownership check                       |
+| Integer overflow         | No check before addition                   | Critical - balance wraps to 0           | Check `assert!(a <= MAX - b, E_OVERFLOW)` |
+| Integer underflow        | No check before subtraction                | Critical - balance wraps to MAX         | Check `assert!(a >= b, E_UNDERFLOW)`      |
+| Returning ConstructorRef | Function returns ConstructorRef            | Critical - caller can destroy object    | Return `Object<T>` instead                |
+| Exposing &mut            | Public function returns `&mut T`           | High - mem::swap attacks                | Expose specific operations only           |
+| No input validation      | Accept any value                           | Medium - zero amounts, overflow         | Validate all inputs                       |
+| Low test coverage        | Coverage < 100%                            | Medium - bugs in production             | Write more tests                          |
 
 ## Automated Checks
 
@@ -390,13 +402,16 @@ Review code for:
 ## References
 
 **Pattern Documentation:**
+
 - `../../../patterns/move/SECURITY.md` - Comprehensive security guide
 - `../../../patterns/move/OBJECTS.md` - Object safety patterns
 
 **Official Documentation:**
+
 - https://aptos.dev/build/smart-contracts/move-security-guidelines
 
 **Related Skills:**
+
 - `generate-tests` - Ensure tests exist
 - `write-contracts` - Apply security patterns
 - `deploy-contracts` - Final check before deployment

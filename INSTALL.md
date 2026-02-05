@@ -69,19 +69,19 @@ npx skills add iskysun96/aptos-agent-skills -a copilot
 
 ## Available Skills
 
-| Skill                           | Category | Description                              |
-| ------------------------------- | -------- | ---------------------------------------- |
-| `scaffold-project`              | project  | Bootstrap Aptos dApp from templates      |
-| `write-contracts`               | move     | Generate secure Move V2 smart contracts  |
-| `generate-tests`                | move     | Create comprehensive test suites         |
-| `security-audit`                | move     | Audit contracts before deployment        |
-| `deploy-contracts`              | move     | Deploy to devnet/testnet/mainnet         |
-| `search-aptos-examples`         | move     | Find patterns from aptos-core            |
-| `use-aptos-cli`                 | move     | CLI command reference                    |
-| `troubleshoot-errors`           | move     | Debug common errors                      |
-| `analyze-gas-optimization`      | move     | Optimize gas usage                       |
-| `generate-move-scripts`         | move     | Create atomic transaction scripts        |
-| `implement-upgradeable-contracts` | move   | Contract upgrade patterns                |
+| Skill                             | Category | Description                             |
+| --------------------------------- | -------- | --------------------------------------- |
+| `scaffold-project`                | project  | Bootstrap Aptos dApp from templates     |
+| `write-contracts`                 | move     | Generate secure Move V2 smart contracts |
+| `generate-tests`                  | move     | Create comprehensive test suites        |
+| `security-audit`                  | move     | Audit contracts before deployment       |
+| `deploy-contracts`                | move     | Deploy to devnet/testnet/mainnet        |
+| `search-aptos-examples`           | move     | Find patterns from aptos-core           |
+| `use-aptos-cli`                   | move     | CLI command reference                   |
+| `troubleshoot-errors`             | move     | Debug common errors                     |
+| `analyze-gas-optimization`        | move     | Optimize gas usage                      |
+| `generate-move-scripts`           | move     | Create atomic transaction scripts       |
+| `implement-upgradeable-contracts` | move     | Contract upgrade patterns               |
 
 ## Verifying Installation
 
@@ -106,11 +106,13 @@ npx skills remove iskysun96/aptos-agent-skills
 If you prefer manual installation:
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/iskysun96/aptos-agent-skills.git
    ```
 
 2. Copy to your agent's skills directory:
+
    ```bash
    # For Claude Code
    cp -r aptos-agent-skills/skills/* ~/.claude/skills/

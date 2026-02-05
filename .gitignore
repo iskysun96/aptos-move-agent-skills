@@ -72,6 +72,10 @@ site/
 
 # Internal files (not for public repo)
 NEXT_ACTIONS.md
+LESSONS_LEARNED.md
+ROADMAP.md
+WORKFLOW_IMPLEMENTATION_SUMMARY.md
+aptos-move-book-analysis.md
 TODO.md
 NOTES.md
 INTERNAL.md

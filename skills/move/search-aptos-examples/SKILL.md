@@ -1,6 +1,9 @@
 ---
 name: search-aptos-examples
-description: "Searches aptos-core and official examples for reference implementations before writing contracts. Triggers on: 'search examples', 'find example', 'check aptos-core', 'is there an example', 'reference implementation', 'how does aptos implement', 'similar contract'."
+description:
+  "Searches aptos-core and official examples for reference implementations before writing contracts. Triggers on:
+  'search examples', 'find example', 'check aptos-core', 'is there an example', 'reference implementation', 'how does
+  aptos implement', 'similar contract'."
 metadata:
   category: move
   tags: ["examples", "reference", "patterns", "aptos-core"]
@@ -11,7 +14,8 @@ metadata:
 
 ## Overview
 
-This skill helps you find relevant examples in the official Aptos repository before writing new contracts. **Always search examples first** to follow established patterns.
+This skill helps you find relevant examples in the official Aptos repository before writing new contracts. **Always
+search examples first** to follow established patterns.
 
 **Repository:** `aptos-labs/aptos-core/aptos-move/move-examples/`
 
@@ -36,6 +40,7 @@ Categorize your contract:
 **Priority Examples by Category:**
 
 #### NFTs & Token Objects
+
 1. **`token_objects/`** - Modern object-based tokens (V2 pattern)
 2. **`mint_nft/`** - NFT minting patterns
 3. **`nft_dao/`** - NFT-gated governance
@@ -44,6 +49,7 @@ Categorize your contract:
 **When to use:** Building NFT collections, digital collectibles, tokenized assets
 
 #### Fungible Assets
+
 1. **`fungible_asset/`** - Modern fungible token standard
 2. **`coin/`** - Basic coin implementation
 3. **`managed_fungible_asset/`** - Controlled fungible assets
@@ -51,6 +57,7 @@ Categorize your contract:
 **When to use:** Creating tokens, currencies, reward points
 
 #### DeFi & Trading
+
 1. **`marketplace/`** - NFT marketplace patterns
 2. **`swap/`** - Simple token swap
 3. **`liquidity_pool/`** - AMM pool implementation
@@ -59,6 +66,7 @@ Categorize your contract:
 **When to use:** Building DEXs, marketplaces, trading platforms
 
 #### Governance & DAOs
+
 1. **`dao/`** - DAO governance patterns
 2. **`voting/`** - Voting mechanisms
 3. **`multisig/`** - Multi-signature accounts
@@ -66,6 +74,7 @@ Categorize your contract:
 **When to use:** Building DAOs, governance systems, voting
 
 #### Basic Patterns
+
 1. **`hello_blockchain/`** - Module structure basics
 2. **`message_board/`** - Simple state management
 3. **`resource_account/`** - Resource patterns (legacy - avoid for new code)
@@ -73,6 +82,7 @@ Categorize your contract:
 **When to use:** Learning Move basics, simple contracts
 
 #### Advanced Patterns
+
 1. **`object_playground/`** - Object model exploration
 2. **`capability/`** - Capability-based security
 3. **`upgradeable/`** - Upgradeable contracts
@@ -119,16 +129,16 @@ Categorize your contract:
 
 ## Example Discovery Table
 
-| Building | Search For | Key Files |
-|----------|----------|-----------|
-| NFT Collection | `token_objects`, `mint_nft` | `token_objects/sources/token.move` |
-| Fungible Token | `fungible_asset` | `fungible_asset/sources/fungible_asset.move` |
-| Marketplace | `marketplace` | `marketplace/sources/marketplace.move` |
-| DAO | `dao`, `voting` | `dao/sources/dao.move` |
-| Token Swap | `swap`, `liquidity_pool` | `swap/sources/swap.move` |
-| Staking | `staking` | `staking/sources/staking.move` |
-| Simple Contract | `hello_blockchain`, `message_board` | `hello_blockchain/sources/hello.move` |
-| Object Patterns | `object_playground` | `object_playground/sources/playground.move` |
+| Building        | Search For                          | Key Files                                    |
+| --------------- | ----------------------------------- | -------------------------------------------- |
+| NFT Collection  | `token_objects`, `mint_nft`         | `token_objects/sources/token.move`           |
+| Fungible Token  | `fungible_asset`                    | `fungible_asset/sources/fungible_asset.move` |
+| Marketplace     | `marketplace`                       | `marketplace/sources/marketplace.move`       |
+| DAO             | `dao`, `voting`                     | `dao/sources/dao.move`                       |
+| Token Swap      | `swap`, `liquidity_pool`            | `swap/sources/swap.move`                     |
+| Staking         | `staking`                           | `staking/sources/staking.move`               |
+| Simple Contract | `hello_blockchain`, `message_board` | `hello_blockchain/sources/hello.move`        |
+| Object Patterns | `object_playground`                 | `object_playground/sources/playground.move`  |
 
 ## How to Access Examples
 
@@ -274,6 +284,7 @@ Before writing contract code:
 
 1. **Search:** Find `token_objects` example
 2. **Review Structure:**
+
    ```
    token_objects/
    ├── sources/
@@ -308,10 +319,12 @@ Before writing contract code:
 ## References
 
 **Official Examples:**
+
 - Repository: https://github.com/aptos-labs/aptos-core/tree/main/aptos-move/move-examples
 - Documentation: https://aptos.dev/build/smart-contracts
 
 **Related Skills:**
+
 - `write-contracts` - Apply patterns after searching
 - `security-audit` - Verify security of adapted code
 - `generate-tests` - Test adapted patterns

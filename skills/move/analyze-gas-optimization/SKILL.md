@@ -1,6 +1,9 @@
 ---
 name: analyze-gas-optimization
-description: "Analyze and optimize Aptos Move contracts for gas efficiency, identifying expensive operations and suggesting optimizations. Triggers on: 'optimize gas', 'reduce gas costs', 'gas analysis', 'make contract cheaper', 'gas efficiency', 'analyze gas usage', 'reduce transaction costs'."
+description:
+  "Analyze and optimize Aptos Move contracts for gas efficiency, identifying expensive operations and suggesting
+  optimizations. Triggers on: 'optimize gas', 'reduce gas costs', 'gas analysis', 'make contract cheaper', 'gas
+  efficiency', 'analyze gas usage', 'reduce transaction costs'."
 metadata:
   category: move
   tags: ["gas", "optimization", "performance", "costs"]
@@ -399,82 +402,6 @@ public fun is_active(settings: &Settings): bool {
 1. Consider further optimizations for high-frequency functions
 2. Monitor mainnet usage patterns
 3. Set up gas usage alerts
-```
-
-## Usage Examples
-
-```move
-// Example: Optimizing an NFT marketplace
-
-// BEFORE: Expensive marketplace
-module marketplace::expensive {
-    struct Listing has key {
-        nft: Object<Token>,
-        seller: address,
-        price: u64,
-        commission: u64,
-        royalty: u64,
-        metadata: String,        // Expensive to store
-        history: vector<Trade>,  // Grows unbounded
-    }
-
-    public fun buy_nft(
-        buyer: &signer,
-        listing_id: address
-    ) acquires Listing {
-        // Multiple storage reads
-        let listing = borrow_global_mut<Listing>(listing_id);
-        let price = listing.price;
-        let commission = listing.commission;
-        let seller = listing.seller;
-
-        // Process payment...
-        // Update history (expensive)
-        vector::push_back(&mut listing.history, trade);
-    }
-}
-
-// AFTER: Optimized marketplace
-module marketplace::optimized {
-    struct Listing has key {
-        nft: Object<Token>,
-        seller: address,
-        // Pack price data into u128
-        price_data: u128, // price (64) | commission (32) | royalty (32)
-        // Metadata stored off-chain, only hash on-chain
-        metadata_hash: vector<u8>,
-    }
-
-    // History tracked via events, not storage
-    struct TradeEvent has drop, store {
-        listing_id: address,
-        buyer: address,
-        price: u64,
-        timestamp: u64,
-    }
-
-    public fun buy_nft(
-        buyer: &signer,
-        listing_id: address
-    ) acquires Listing {
-        // Single storage read
-        let listing = move_from<Listing>(listing_id);
-
-        // Unpack price data efficiently
-        let price = (listing.price_data as u64);
-        let commission = ((listing.price_data >> 64) as u32);
-
-        // Process payment...
-
-        // Emit event instead of storing history
-        event::emit(TradeEvent {
-            listing_id,
-            buyer: signer::address_of(buyer),
-            price,
-            timestamp: timestamp::now_microseconds(),
-        });
-    }
-}
 ```
 
 ## Integration Notes

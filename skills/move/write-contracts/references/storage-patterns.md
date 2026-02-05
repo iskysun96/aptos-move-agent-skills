@@ -2,8 +2,7 @@
 
 ## Pattern 1: User Registries
 
-**Use Case:** Track data about many users (profiles, balances, settings)
-**Storage:** `Table<address, UserData>`
+**Use Case:** Track data about many users (profiles, balances, settings) **Storage:** `Table<address, UserData>`
 **Why:**
 
 - Unbounded users
@@ -44,9 +43,7 @@ public entry fun register_user(user: &signer, name: String) acquires UserRegistr
 
 ## Pattern 2: Staking Records
 
-**Use Case:** Track which users stake which assets (NFTs, tokens)
-**Storage:** `Table<address, StakeInfo>`
-**Why:**
+**Use Case:** Track which users stake which assets (NFTs, tokens) **Storage:** `Table<address, StakeInfo>` **Why:**
 
 - Unbounded stakers
 - Concurrent stake/unstake operations
@@ -90,8 +87,7 @@ public entry fun stake_nft(
 
 ## Pattern 3: Leaderboards / Rankings
 
-**Use Case:** Sorted list by score, rank, or timestamp
-**Storage:** `BigOrderedMap<u64, address>` (score → player)
+**Use Case:** Sorted list by score, rank, or timestamp **Storage:** `BigOrderedMap<u64, address>` (score → player)
 **Why:**
 
 - Need sorted iteration (top 10, top 100)
@@ -139,9 +135,8 @@ public fun get_top_10(): vector<address> acquires Leaderboard {
 
 ## Pattern 4: Transaction Logs
 
-**Use Case:** Chronological append-only records
-**Storage:** `SmartVector<TransactionRecord>` (if 100+) or `Vector<T>` (if <100)
-**Why:**
+**Use Case:** Chronological append-only records **Storage:** `SmartVector<TransactionRecord>` (if 100+) or `Vector<T>`
+(if <100) **Why:**
 
 - Sequential access
 - Append-only operations
@@ -184,9 +179,7 @@ public entry fun log_transaction(
 
 ## Pattern 5: Small Config Mappings
 
-**Use Case:** Feature flags, settings (<50 items)
-**Storage:** `OrderedMap<String, ConfigValue>`
-**Why:**
+**Use Case:** Feature flags, settings (<50 items) **Storage:** `OrderedMap<String, ConfigValue>` **Why:**
 
 - Small bounded data
 - Sorted iteration helpful
@@ -221,9 +214,7 @@ public entry fun set_feature(
 
 ## Pattern 6: DAO Proposals
 
-**Use Case:** Governance proposals with IDs
-**Storage:** `BigOrderedMap<u64, Proposal>`
-**Why:**
+**Use Case:** Governance proposals with IDs **Storage:** `BigOrderedMap<u64, Proposal>` **Why:**
 
 - Iterate recent proposals (by ID or timestamp)
 - Unbounded growth
@@ -269,9 +260,7 @@ public entry fun create_proposal(
 
 ## Pattern 7: Whitelists / Blacklists
 
-**Use Case:** Small list of addresses (<100)
-**Storage:** `Vector<address>`
-**Why:**
+**Use Case:** Small list of addresses (<100) **Storage:** `Vector<address>` **Why:**
 
 - Bounded size
 - Simple iteration
@@ -305,8 +294,7 @@ public fun is_admin(user: address): bool acquires AccessControl {
 
 ## Pattern 8: Voting Records
 
-**Use Case:** Track who voted on a proposal
-**Storage:** `Table<address, bool>` or `TableWithLength<address, bool>`
+**Use Case:** Track who voted on a proposal **Storage:** `Table<address, bool>` or `TableWithLength<address, bool>`
 **Why:**
 
 - Unbounded voters
@@ -346,9 +334,8 @@ public fun get_vote_count(proposal_id: u64): u64 acquires ProposalRegistry {
 
 ## Pattern 9: Asset Collections
 
-**Use Case:** User's NFT collection, token holdings
-**Storage:** `Vector<Object<T>>` (<100) or `SmartVector<Object<T>>` (100+)
-**Why:**
+**Use Case:** User's NFT collection, token holdings **Storage:** `Vector<Object<T>>` (<100) or `SmartVector<Object<T>>`
+(100+) **Why:**
 
 - Sequential access (show user's NFTs)
 - Append when acquired, swap_remove when transferred
@@ -390,17 +377,17 @@ public entry fun remove_nft_from_collection(
 
 ## Quick Pattern Reference
 
-| Pattern              | Storage                              | Size      | Concurrent | Ordered |
-| -------------------- | ------------------------------------ | --------- | ---------- | ------- |
-| User registry        | `Table<address, UserInfo>`           | Unbounded | ✓          | ✗       |
-| Staking              | `Table<address, StakeInfo>`          | Unbounded | ✓          | ✗       |
-| Leaderboard          | `BigOrderedMap<u64, address>`        | Unbounded | ~          | ✓       |
-| Transaction log      | `SmartVector<TxRecord>`              | 100+      | ✗          | ✓       |
-| Small config         | `OrderedMap<String, Value>`          | <50       | ✗          | ✓       |
-| DAO proposals        | `BigOrderedMap<u64, Proposal>`       | Unbounded | ~          | ✓       |
-| Whitelist            | `Vector<address>`                    | <100      | ✗          | ✓       |
-| Voting               | `TableWithLength<address, bool>`     | Unbounded | ✓          | ✗       |
-| Asset collection     | `Vector<Object<T>>` or `SmartVector` | Varies    | ✗          | ✓       |
+| Pattern          | Storage                              | Size      | Concurrent | Ordered |
+| ---------------- | ------------------------------------ | --------- | ---------- | ------- |
+| User registry    | `Table<address, UserInfo>`           | Unbounded | ✓          | ✗       |
+| Staking          | `Table<address, StakeInfo>`          | Unbounded | ✓          | ✗       |
+| Leaderboard      | `BigOrderedMap<u64, address>`        | Unbounded | ~          | ✓       |
+| Transaction log  | `SmartVector<TxRecord>`              | 100+      | ✗          | ✓       |
+| Small config     | `OrderedMap<String, Value>`          | <50       | ✗          | ✓       |
+| DAO proposals    | `BigOrderedMap<u64, Proposal>`       | Unbounded | ~          | ✓       |
+| Whitelist        | `Vector<address>`                    | <100      | ✗          | ✓       |
+| Voting           | `TableWithLength<address, bool>`     | Unbounded | ✓          | ✗       |
+| Asset collection | `Vector<Object<T>>` or `SmartVector` | Varies    | ✗          | ✓       |
 
 ## When to Use Each Pattern
 

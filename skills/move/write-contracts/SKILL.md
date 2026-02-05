@@ -1,6 +1,11 @@
 ---
 name: write-contracts
-description: "Generates secure Aptos Move V2 smart contracts with Object model, Digital Asset integration, security patterns, and storage type guidance. Includes comprehensive storage decision framework for optimal data structure selection. Triggers on: 'write contract', 'create NFT collection', 'build marketplace', 'implement minting', 'generate Move module', 'create token contract', 'build DAO', 'implement staking'. Ask storage questions when: 'store', 'track', 'registry', 'mapping', 'list', 'collection'."
+description:
+  "Generates secure Aptos Move V2 smart contracts with Object model, Digital Asset integration, security patterns, and
+  storage type guidance. Includes comprehensive storage decision framework for optimal data structure selection.
+  Triggers on: 'write contract', 'create NFT collection', 'build marketplace', 'implement minting', 'generate Move
+  module', 'create token contract', 'build DAO', 'implement staking'. Ask storage questions when: 'store', 'track',
+  'registry', 'mapping', 'list', 'collection'."
 metadata:
   category: move
   tags: ["smart-contracts", "move", "nft", "defi", "objects"]
@@ -12,6 +17,7 @@ metadata:
 ## Core Rules
 
 ### Digital Assets (NFTs) ⭐ CRITICAL
+
 1. **ALWAYS use Digital Asset (DA) standard** for ALL NFT-related contracts (collections, marketplaces, minting)
 2. **ALWAYS import** `aptos_token_objects::collection` and `aptos_token_objects::token` modules
 3. **ALWAYS use** `Object<AptosToken>` for NFT references (NOT generic `Object<T>`)
@@ -19,29 +25,35 @@ metadata:
 5. See `../../../patterns/move/DIGITAL_ASSETS.md` for complete NFT patterns
 
 ### Object Model
+
 6. **ALWAYS use** `Object<T>` for all object references (NEVER raw addresses)
 7. **Generate all refs** (TransferRef, DeleteRef) in constructor before ConstructorRef destroyed
 8. **Return** `Object<T>` from constructors (NEVER return ConstructorRef)
 9. **Verify ownership** with `object::owner(obj) == signer::address_of(user)`
 
 ### Security
-10. **ALWAYS verify signer authority** in entry functions: `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)`
+
+10. **ALWAYS verify signer authority** in entry functions:
+    `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)`
 11. **ALWAYS validate inputs**: non-zero amounts, address validation, string length checks
 12. **NEVER expose** `&mut` references in public functions
 13. **NEVER skip** signer verification in entry functions
 
 ### Modern Syntax
+
 14. **Use inline functions** and lambdas for iteration
 15. **Use receiver-style** method calls: `obj.is_owner(user)` (define first param as `self`)
 16. **Use vector indexing**: `vector[index]` instead of `vector::borrow()`
 17. **Use direct named addresses**: `@marketplace_addr` (NOT helper functions)
 
 ### Required Patterns
+
 18. **Use init_module** for contract initialization on deployment
 19. **Emit events** for ALL significant activities (create, transfer, update, delete)
 20. **Define clear error constants** with descriptive names (E_NOT_OWNER, E_INSUFFICIENT_BALANCE)
 
 ### Testability
+
 21. **Add accessor functions** for struct fields - tests in separate modules cannot access struct fields directly
 22. **Use `#[view]` annotation** for read-only accessor functions
 23. **Return tuples** from accessors for multi-field access: `(seller, price, timestamp)`
@@ -196,24 +208,26 @@ module my_addr::my_module {
 
 ### 2. Recommend from Patterns (`references/storage-patterns.md`)
 
-| Pattern             | Recommended Storage                  |
-| ------------------- | ------------------------------------ |
-| User registry       | `Table<address, UserInfo>`           |
-| Staking records     | `Table<address, StakeInfo>`          |
-| Leaderboard         | `BigOrderedMap<u64, address>`        |
-| Transaction log     | `SmartVector<TxRecord>` or `Vector`  |
-| Whitelist (<100)    | `Vector<address>`                    |
-| Voting records      | `TableWithLength<address, bool>`     |
-| Config (<50)        | `OrderedMap<String, Value>`          |
-| DAO proposals       | `BigOrderedMap<u64, Proposal>`       |
-| Asset collection    | `Vector<Object<T>>` or `SmartVector` |
+| Pattern          | Recommended Storage                  |
+| ---------------- | ------------------------------------ |
+| User registry    | `Table<address, UserInfo>`           |
+| Staking records  | `Table<address, StakeInfo>`          |
+| Leaderboard      | `BigOrderedMap<u64, address>`        |
+| Transaction log  | `SmartVector<TxRecord>` or `Vector`  |
+| Whitelist (<100) | `Vector<address>`                    |
+| Voting records   | `TableWithLength<address, bool>`     |
+| Config (<50)     | `OrderedMap<String, Value>`          |
+| DAO proposals    | `BigOrderedMap<u64, Proposal>`       |
+| Asset collection | `Vector<Object<T>>` or `SmartVector` |
 
 ### 3. Include Brief Gas Context
 
 **Example recommendations:**
 
-- "For staking, I recommend `Table<address, StakeInfo>` because you'll have unbounded users with concurrent operations (separate slots enable parallel access)"
-- "For leaderboard, I recommend `BigOrderedMap<u64, address>` because you need sorted iteration (O(log n), use `allocate_spare_slots` for production)"
+- "For staking, I recommend `Table<address, StakeInfo>` because you'll have unbounded users with concurrent operations
+  (separate slots enable parallel access)"
+- "For leaderboard, I recommend `BigOrderedMap<u64, address>` because you need sorted iteration (O(log n), use
+  `allocate_spare_slots` for production)"
 
 ### Storage Types Available
 
@@ -243,23 +257,24 @@ module my_addr::my_module {
 
 ## Edge Cases to Handle
 
-| Scenario | Check | Error Code |
-|----------|-------|------------|
-| Zero amounts | `assert!(amount > 0, E_ZERO_AMOUNT)` | E_ZERO_AMOUNT |
-| Excessive amounts | `assert!(amount <= MAX, E_AMOUNT_TOO_HIGH)` | E_AMOUNT_TOO_HIGH |
-| Empty vectors | `assert!(vector::length(&v) > 0, E_EMPTY_VECTOR)` | E_EMPTY_VECTOR |
-| Empty strings | `assert!(string::length(&s) > 0, E_EMPTY_STRING)` | E_EMPTY_STRING |
-| Strings too long | `assert!(string::length(&s) <= MAX, E_STRING_TOO_LONG)` | E_STRING_TOO_LONG |
-| Zero address | `assert!(addr != @0x0, E_ZERO_ADDRESS)` | E_ZERO_ADDRESS |
-| Overflow | `assert!(a <= MAX_U64 - b, E_OVERFLOW)` | E_OVERFLOW |
-| Underflow | `assert!(a >= b, E_UNDERFLOW)` | E_UNDERFLOW |
-| Division by zero | `assert!(divisor > 0, E_DIVISION_BY_ZERO)` | E_DIVISION_BY_ZERO |
-| Unauthorized access | `assert!(signer == expected, E_UNAUTHORIZED)` | E_UNAUTHORIZED |
-| Not object owner | `assert!(object::owner(obj) == user, E_NOT_OWNER)` | E_NOT_OWNER |
+| Scenario            | Check                                                   | Error Code         |
+| ------------------- | ------------------------------------------------------- | ------------------ |
+| Zero amounts        | `assert!(amount > 0, E_ZERO_AMOUNT)`                    | E_ZERO_AMOUNT      |
+| Excessive amounts   | `assert!(amount <= MAX, E_AMOUNT_TOO_HIGH)`             | E_AMOUNT_TOO_HIGH  |
+| Empty vectors       | `assert!(vector::length(&v) > 0, E_EMPTY_VECTOR)`       | E_EMPTY_VECTOR     |
+| Empty strings       | `assert!(string::length(&s) > 0, E_EMPTY_STRING)`       | E_EMPTY_STRING     |
+| Strings too long    | `assert!(string::length(&s) <= MAX, E_STRING_TOO_LONG)` | E_STRING_TOO_LONG  |
+| Zero address        | `assert!(addr != @0x0, E_ZERO_ADDRESS)`                 | E_ZERO_ADDRESS     |
+| Overflow            | `assert!(a <= MAX_U64 - b, E_OVERFLOW)`                 | E_OVERFLOW         |
+| Underflow           | `assert!(a >= b, E_UNDERFLOW)`                          | E_UNDERFLOW        |
+| Division by zero    | `assert!(divisor > 0, E_DIVISION_BY_ZERO)`              | E_DIVISION_BY_ZERO |
+| Unauthorized access | `assert!(signer == expected, E_UNAUTHORIZED)`           | E_UNAUTHORIZED     |
+| Not object owner    | `assert!(object::owner(obj) == user, E_NOT_OWNER)`      | E_NOT_OWNER        |
 
 ## References
 
 **Detailed Patterns (references/ folder):**
+
 - `references/storage-decision-tree.md` - ⭐ Storage type selection framework (ask when storage mentioned)
 - `references/storage-patterns.md` - ⭐ Use-case patterns and smart defaults
 - `references/storage-types.md` - Detailed comparison of all 6 storage types
@@ -273,17 +288,20 @@ module my_addr::my_module {
 - `references/complete-example.md` - Full annotated NFT collection contract
 
 **Pattern Documentation (patterns/ folder):**
+
 - `../../../patterns/move/DIGITAL_ASSETS.md` - Digital Asset (NFT) standard - CRITICAL for NFTs
 - `../../../patterns/move/OBJECTS.md` - Comprehensive object model guide
 - `../../../patterns/move/SECURITY.md` - Security checklist and patterns
 - `../../../patterns/move/MOVE_V2_SYNTAX.md` - Modern syntax examples
 
 **Official Documentation:**
+
 - Digital Asset Standard: https://aptos.dev/build/smart-contracts/digital-asset
 - Object Model: https://aptos.dev/build/smart-contracts/object
 - Security Guidelines: https://aptos.dev/build/smart-contracts/move-security-guidelines
 
 **Related Skills:**
+
 - `search-aptos-examples` - Find similar examples (use BEFORE writing)
 - `generate-tests` - Write tests for contracts (use AFTER writing contracts)
 - `security-audit` - Audit contracts before deployment

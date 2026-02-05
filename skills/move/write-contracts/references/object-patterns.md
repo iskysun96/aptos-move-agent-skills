@@ -4,7 +4,8 @@ Detailed patterns for creating and managing Aptos Move objects.
 
 ## Pattern 1: Named Objects (Singletons)
 
-Named objects are deterministic singleton objects created with a unique seed. Perfect for registries, configs, and global state.
+Named objects are deterministic singleton objects created with a unique seed. Perfect for registries, configs, and
+global state.
 
 ```move
 /// Create singleton registry
@@ -32,6 +33,7 @@ public fun get_registry(creator_addr: address): Object<Registry> {
 ```
 
 **Key points:**
+
 - Use `object::create_named_object()` with a unique seed
 - Seed must be unique per creator address
 - Can retrieve object deterministically with `object::create_object_address()`
@@ -83,6 +85,7 @@ public entry fun add_item_to_collection(
 ```
 
 **Key points:**
+
 - Pass collection's address as creator when creating child objects
 - Store parent reference in child for bidirectional navigation
 - Store child references in parent's vector
@@ -124,6 +127,7 @@ public entry fun transfer_object(
 ```
 
 **Key points:**
+
 - Store `TransferRef` in struct
 - Generate `LinearTransferRef` when transferring
 - Always verify ownership before transferring
@@ -155,6 +159,7 @@ public entry fun burn_object(owner: &signer, obj: Object<MyObject>) acquires MyO
 ```
 
 **Key points:**
+
 - Store `DeleteRef` in struct
 - Use `move_from` to extract struct before deleting
 - Destructure to access delete_ref
@@ -207,6 +212,7 @@ public entry fun update_with_extend_ref(
 ```
 
 **Key points:**
+
 - ExtendRef allows getting object signer after construction
 - Useful when object needs to perform actions as itself
 - Store ExtendRef in struct during construction

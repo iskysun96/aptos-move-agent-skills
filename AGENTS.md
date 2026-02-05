@@ -128,54 +128,19 @@ contract
 
 **Output:** Optimized contract with gas savings report
 
-### Workflow 7: Create Move Scripts
-
-**Trigger:** User says "create move script", "atomic transaction", "batch operations", "multiple operations in one
-transaction"
-
-**Steps:**
-
-1. Activate `generate-move-scripts` skill
-2. Identify operations to combine atomically
-3. Generate script structure with proper imports
-4. Implement atomic logic with rollback on any failure
-5. Handle multiple signers if needed
-6. Compile script to bytecode
-7. Provide execution instructions
-
-**Output:** Move script with atomic multi-operation logic
-
-### Workflow 8: Implement Upgradeable Contracts
-
-**Trigger:** User says "upgradeable contract", "contract upgrade", "version management", "migration pattern"
-
-**Steps:**
-
-1. Activate `implement-upgradeable-contracts` skill
-2. Design upgrade strategy (gradual migration, proxy pattern, etc.)
-3. Implement version management
-4. Create migration functions
-5. Ensure backward compatibility
-6. Add upgrade tests
-7. Document upgrade process
-
-**Output:** Upgradeable contract with migration path
-
 ## Skill Activation Table
 
-| Skill                             | Activates When                                                 | Priority | Auto-Active           |
-| --------------------------------- | -------------------------------------------------------------- | -------- | --------------------- |
-| `write-contracts`                 | "write move contract", "create smart contract", "build module" | CRITICAL | No                    |
-| `generate-tests`                  | "write tests", "add coverage", after any contract written      | CRITICAL | Yes (after contracts) |
-| `security-audit`                  | "audit", "check security", before deployment                   | CRITICAL | Yes (before deploy)   |
-| `scaffold-project`                | "create project", "new move app", "scaffold"                   | High     | No                    |
-| `search-aptos-examples`           | "find example", "search aptos", before writing contracts       | High     | Yes (before writing)  |
-| `analyze-gas-optimization`        | "optimize gas", "reduce gas costs", "gas efficiency"           | High     | No                    |
-| `use-aptos-cli`                   | "run aptos", "compile", "test", "deploy"                       | Medium   | No                    |
-| `deploy-contracts`                | "deploy", "publish"                                            | Medium   | No                    |
-| `generate-move-scripts`           | "create script", "atomic transaction", "batch operations"      | Medium   | No                    |
-| `implement-upgradeable-contracts` | "upgradeable", "contract upgrade", "version management"        | Medium   | No                    |
-| `troubleshoot-errors`             | Error messages detected, "fix error", "debug"                  | Medium   | Yes (on errors)       |
+| Skill                      | Activates When                                                 | Priority | Auto-Active           |
+| -------------------------- | -------------------------------------------------------------- | -------- | --------------------- |
+| `write-contracts`          | "write move contract", "create smart contract", "build module" | CRITICAL | No                    |
+| `generate-tests`           | "write tests", "add coverage", after any contract written      | CRITICAL | Yes (after contracts) |
+| `security-audit`           | "audit", "check security", before deployment                   | CRITICAL | Yes (before deploy)   |
+| `scaffold-project`         | "create project", "new move app", "scaffold"                   | High     | No                    |
+| `search-aptos-examples`    | "find example", "search aptos", before writing contracts       | High     | Yes (before writing)  |
+| `analyze-gas-optimization` | "optimize gas", "reduce gas costs", "gas efficiency"           | High     | No                    |
+| `use-aptos-cli`            | "run aptos", "compile", "test", "deploy"                       | Medium   | No                    |
+| `deploy-contracts`         | "deploy", "publish"                                            | Medium   | No                    |
+| `troubleshoot-errors`      | Error messages detected, "fix error", "debug"                  | Medium   | Yes (on errors)       |
 
 **Auto-activation rules:**
 
@@ -463,7 +428,7 @@ public fun test_unauthorized_transfer(owner: &signer, attacker: &signer) {
 **v1.0 (2026-01-23):**
 
 - Initial release
-- 8 core skills implemented
+- 9 core skills implemented
 - Object-centric patterns enforced
 - Security-first approach
 - 100% test coverage requirement

@@ -24,6 +24,7 @@ public entry fun deposit(user: &signer, amount: u64) acquires Account {
 ```
 
 **Pattern:**
+
 ```move
 // Before: a + b
 // After:
@@ -53,6 +54,7 @@ public entry fun withdraw(user: &signer, amount: u64) acquires Account {
 ```
 
 **Pattern:**
+
 ```move
 // Before: a - b
 // After:

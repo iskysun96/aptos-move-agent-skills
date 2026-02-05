@@ -1,6 +1,9 @@
 ---
 name: troubleshoot-errors
-description: "Diagnoses and fixes Aptos Move compilation, runtime, and deployment errors. Triggers on: 'error', 'fix this', 'debug', 'troubleshoot', 'why is this failing', error codes like 'EOBJECT_DOES_NOT_EXIST', 'ABORTED', 'RESOURCE_NOT_FOUND', 'Type mismatch', 'ability constraint'."
+description:
+  "Diagnoses and fixes Aptos Move compilation, runtime, and deployment errors. Triggers on: 'error', 'fix this',
+  'debug', 'troubleshoot', 'why is this failing', error codes like 'EOBJECT_DOES_NOT_EXIST', 'ABORTED',
+  'RESOURCE_NOT_FOUND', 'Type mismatch', 'ability constraint'."
 metadata:
   category: move
   tags: ["debugging", "errors", "troubleshooting", "fixes"]
@@ -92,7 +95,8 @@ public entry fun mint_nft() acquires MarketplaceConfig {
 }
 ```
 
-**Key lesson:** When minting tokens into a collection, use the **collection owner's** signer, not the collection's signer.
+**Key lesson:** When minting tokens into a collection, use the **collection owner's** signer, not the collection's
+signer.
 
 #### Scenario 2: init_module never ran
 
@@ -106,6 +110,7 @@ fun init_module(deployer: &signer) {
 ```
 
 **Fix:**
+
 - Verify `@marketplace_addr` resolves to correct address during deployment
 - For object deployment, use `aptos move deploy-object` not `publish`
 - Check deployment transaction succeeded
@@ -164,6 +169,7 @@ public entry fun mint_and_transfer(creator: &signer, recipient: address) {
 ```
 
 **Rule:**
+
 - `object::disable_ungated_transfer()` called? → Use `object::transfer_with_ref()`
 - Ungated transfers enabled (default)? → Use `object::transfer()`
 
@@ -302,17 +308,13 @@ const E_INSUFFICIENT_BALANCE: u64 = 30;
 
 ## References
 
-**Detailed Error Documentation (references/ folder):**
-- `references/error-catalog.md` - Complete database of all error types
-- `references/error-codes.md` - Framework error codes and meanings
-- `references/debugging-guide.md` - Advanced debugging techniques
-- `references/error-patterns.md` - Anti-patterns and solutions
-
 **Official Documentation:**
+
 - Move Book: https://aptos.dev/build/smart-contracts/book
 - Error Codes: https://aptos.dev/build/smart-contracts/book/abort-and-assert
 
 **Related Skills:**
+
 - `write-contracts` - Write correct code to avoid errors
 - `generate-tests` - Test for errors proactively
 - `security-audit` - Find potential issues before deployment
