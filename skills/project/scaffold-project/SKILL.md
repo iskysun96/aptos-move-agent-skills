@@ -43,13 +43,34 @@ cd my-dapp
 
 ### Step 2: Configure Environment
 
-```bash
-# Copy environment template
-cp .env.example .env
+**Create `.env` file** with the following variables:
 
-# Edit .env with your configuration:
-# - VITE_APP_NETWORK=testnet (or devnet, mainnet)
-# - VITE_MODULE_ADDRESS=0x... (after deployment)
+```bash
+# Create .env file
+cat > .env << 'EOF'
+PROJECT_NAME=my-dapp
+VITE_APP_NETWORK=devnet
+VITE_APTOS_API_KEY=""
+VITE_MODULE_PUBLISHER_ACCOUNT_ADDRESS=
+# This is the module publisher account's private key.
+# Be cautious about who you share it with, and ensure it is not exposed when deploying your dApp.
+VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY=
+EOF
+```
+
+**Configure the values:**
+
+- `PROJECT_NAME` - Your project name
+- `VITE_APP_NETWORK` - Network to use (`devnet`, `testnet`, or `mainnet`)
+- `VITE_APTOS_API_KEY` - Optional API key from Aptos Labs
+- `VITE_MODULE_PUBLISHER_ACCOUNT_ADDRESS` - Your deployer account address (set after `aptos init`)
+- `VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY` - Your deployer private key (from `~/.aptos/config.yaml`)
+
+**⚠️ CRITICAL: Ensure `.env` is in `.gitignore`:**
+
+```bash
+# Verify .env is gitignored (should already be there)
+grep -q "^\.env$" .gitignore || echo ".env" >> .gitignore
 ```
 
 ### Step 3: Update Move.toml
@@ -125,7 +146,8 @@ my-dapp/
 │   └── Move.toml
 ├── scripts/move/             # Deployment scripts
 ├── package.json              # npm scripts for move:compile, move:test, etc.
-├── .env.example              # Environment template
+├── .env                      # Environment variables (NEVER commit!)
+├── .gitignore                # Must include .env
 └── [config files]            # vite, tailwind, typescript, etc.
 ```
 
@@ -154,9 +176,22 @@ cd my-contract
 
 ### Step 2: Configure Environment
 
+**Create `.env` file** with the following variables:
+
 ```bash
-# Copy environment template
-cp .env.example .env
+# Create .env file
+cat > .env << 'EOF'
+PROJECT_NAME=my-contract
+VITE_APP_NETWORK=devnet
+VITE_APTOS_API_KEY=""
+VITE_MODULE_PUBLISHER_ACCOUNT_ADDRESS=
+# This is the module publisher account's private key.
+# Be cautious about who you share it with, and ensure it is not exposed when deploying your dApp.
+VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY=
+EOF
+
+# Ensure .env is gitignored
+grep -q "^\.env$" .gitignore || echo ".env" >> .gitignore
 ```
 
 ### Step 3: Update Move.toml
@@ -210,7 +245,8 @@ my-contract/
 │   └── Move.toml
 ├── scripts/move/             # Deployment scripts
 ├── package.json              # npm scripts
-└── .env.example
+├── .env                      # Environment variables (NEVER commit!)
+└── .gitignore                # Must include .env
 ```
 
 ---
@@ -253,15 +289,25 @@ See the "Move-Only Reference" section below for detailed manual setup.
 ### Fullstack dApp (Recommended)
 
 ```bash
-# One-liner bootstrap
-npx degit aptos-labs/create-aptos-dapp/templates/boilerplate-template my-dapp && cd my-dapp && cp .env.example .env && npm install && git init
+# Bootstrap and setup
+npx degit aptos-labs/create-aptos-dapp/templates/boilerplate-template my-dapp
+cd my-dapp
+npm install
+git init
+
+# Then create .env manually (see Step 2 above) - NEVER commit .env!
 ```
 
 ### Contract-Only
 
 ```bash
-# One-liner bootstrap
-npx degit aptos-labs/create-aptos-dapp/templates/contract-boilerplate-template my-contract && cd my-contract && cp .env.example .env && npm install && git init
+# Bootstrap and setup
+npx degit aptos-labs/create-aptos-dapp/templates/contract-boilerplate-template my-contract
+cd my-contract
+npm install
+git init
+
+# Then create .env manually (see Step 2 above) - NEVER commit .env!
 ```
 
 ---
@@ -270,12 +316,17 @@ npx degit aptos-labs/create-aptos-dapp/templates/contract-boilerplate-template m
 
 After bootstrapping, complete these steps:
 
+- [ ] Create `.env` file with required variables (see Step 2)
+- [ ] Verify `.env` is in `.gitignore`
 - [ ] Update `Move.toml` with project name and address alias
-- [ ] Update `.env` with network configuration
+- [ ] Run `aptos init` to create deployer account
+- [ ] Add account address and private key to `.env`
 - [ ] Verify compilation: `npm run move:compile`
 - [ ] Verify tests pass: `npm run move:test`
 - [ ] Initialize git repository
 - [ ] (Fullstack) Verify frontend runs: `npm run dev`
+
+**⚠️ Before committing:** Double-check that `.env` is NOT staged (`git status`)
 
 ---
 
@@ -349,18 +400,21 @@ aptos move test
 - ✅ ALWAYS use `degit` for bootstrapping (clean copy, no git history)
 - ✅ ALWAYS use the **boilerplate-template** for fullstack dApps
 - ✅ ALWAYS update Move.toml with your project name and address alias
-- ✅ ALWAYS copy `.env.example` to `.env` and configure
+- ✅ ALWAYS create `.env` file with required environment variables
+- ✅ ALWAYS ensure `.env` is listed in `.gitignore`
 - ✅ ALWAYS run `npm install` after bootstrapping
 - ✅ ALWAYS verify compilation and tests pass
 - ✅ ALWAYS initialize git after setup
-- ✅ ALWAYS use named addresses (my*addr = "*")
+- ✅ ALWAYS use named addresses (my_addr = "\_")
 
 ## NEVER Rules
 
+- ❌ NEVER commit `.env` to git (contains private keys!)
+- ❌ NEVER push `.env` to GitHub or any remote repository
+- ❌ NEVER share your `VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY`
 - ❌ NEVER skip Move.toml configuration
 - ❌ NEVER use hardcoded addresses in code
 - ❌ NEVER skip verifying compilation after scaffolding
-- ❌ NEVER commit `.env` to git (contains secrets)
 
 ---
 
