@@ -7,7 +7,7 @@ Aptos Vibe tool) to help developers build secure, well-tested Aptos dApps follow
 
 ## Features
 
-- **9 Specialized Skills** - Context-aware skills for Move smart contract development
+- **10 Specialized Skills** - Context-aware skills for Move smart contract and TypeScript SDK development
 - **Move Smart Contracts** - Modern Move V2 object model patterns
 - **Security-First** - Comprehensive security checklist and audit patterns
 - **100% Test Coverage** - Automated test generation with coverage requirements
@@ -86,6 +86,8 @@ aptos-agent-skills/
 ├── skills/
 │   ├── project/
 │   │   └── scaffold-project/              # Bootstrap from templates
+│   ├── sdk/
+│   │   └── use-typescript-sdk/              # TypeScript SDK guide
 │   └── move/
 │       ├── write-contracts/
 │       ├── generate-tests/
@@ -106,6 +108,8 @@ aptos-agent-skills/
 │       ├── ADVANCED_TYPES.md
 │       ├── STORAGE_OPTIMIZATION.md
 │       └── TESTING.md
+│   └── fullstack/
+│       └── TYPESCRIPT_SDK.md
 │
 └── setups/
     ├── cursor/README.md                   # Cursor setup guide
@@ -185,6 +189,10 @@ const [count] = await aptos.view({
 - **troubleshoot-errors** - Debug common errors
 - **analyze-gas-optimization** - Optimize gas usage
 
+### TypeScript SDK
+
+- **use-typescript-sdk** - Guide for using @aptos-labs/ts-sdk (client setup, transactions, view functions, wallet adapter)
+
 ## Example Workflows
 
 ### Workflow: Build Move Contracts
@@ -241,7 +249,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 - [x] Core Move skills (9 skills)
 - [x] Agent Skills Open Standard compliance
-- [ ] TypeScript SDK skills (Coming Soon)
+- [x] TypeScript SDK skill (use-typescript-sdk)
 - [ ] Wallet integration skills (Coming Soon)
 - [ ] Frontend integration skills (Coming Soon)
 - [ ] E2E testing skills (Coming Soon)

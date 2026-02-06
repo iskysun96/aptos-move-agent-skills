@@ -16,6 +16,7 @@ Specialized skills for AI assistants to build secure, modern Aptos dApps.
 - **[Advanced Types](patterns/move/ADVANCED_TYPES.md)** - Advanced type patterns
 - **[Storage Optimization](patterns/move/STORAGE_OPTIMIZATION.md)** - Storage cost reduction
 - **[Testing Patterns](patterns/move/TESTING.md)** - Unit testing guide
+- **[TypeScript SDK](patterns/fullstack/TYPESCRIPT_SDK.md)** - TS SDK reference
 
 ### Skills
 
@@ -30,6 +31,7 @@ Specialized skills for AI assistants to build secure, modern Aptos dApps.
 | [use-aptos-cli](skills/move/use-aptos-cli/SKILL.md)                       | CLI command reference    |
 | [troubleshoot-errors](skills/move/troubleshoot-errors/SKILL.md)           | Debug common errors      |
 | [analyze-gas-optimization](skills/move/analyze-gas-optimization/SKILL.md) | Optimize gas usage       |
+| [use-typescript-sdk](skills/sdk/use-typescript-sdk/SKILL.md)              | TypeScript SDK guide     |
 
 ## Integration
 
