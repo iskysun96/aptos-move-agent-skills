@@ -339,6 +339,12 @@ await aptos.waitForTransaction({ transactionHash: pendingTx.hash });
 | `u64`        | `number \| bigint`     | `1000000`                                           |
 | `u128`       | `bigint`               | `BigInt("340282366920938463463374607431768211455")` |
 | `u256`       | `bigint`               | `BigInt("...")`                                     |
+| `i8`         | `number`               | `-128` (Move 2.3+)                                  |
+| `i16`        | `number`               | `-32768` (Move 2.3+)                                |
+| `i32`        | `number`               | `-2147483648` (Move 2.3+)                           |
+| `i64`        | `number \| bigint`     | Use `bigint` for large values (Move 2.3+)           |
+| `i128`       | `bigint`               | `BigInt("-170141183460469231731687303715884105728")` |
+| `i256`       | `bigint`               | `BigInt("...")` (Move 2.3+)                         |
 | `bool`       | `boolean`              | `true`                                              |
 | `address`    | `string`               | `"0x1"`                                             |
 | `String`     | `string`               | `"hello"`                                           |
@@ -370,6 +376,21 @@ if (!simResult.success) {
 }
 
 console.log("Gas estimate:", simResult.gas_used);
+```
+
+## Gas Profiling
+
+```typescript
+// Profile gas usage of a transaction (useful for optimization)
+const gasProfile = await aptos.gasProfile({
+  sender: account.accountAddress,
+  data: {
+    function: `${MODULE_ADDRESS}::module::function_name`,
+    functionArguments: [],
+  },
+});
+
+console.log("Gas profile:", gasProfile);
 ```
 
 ## Anti-patterns
@@ -536,11 +557,32 @@ const config = new AptosConfig({
 
 ### Account Abstraction (v1.34+, AIP-104)
 
+The `aptos.abstraction` namespace provides APIs for custom authentication:
+
 ```typescript
-// Access account abstraction APIs
-const abstractedAccount = await aptos.abstraction.lookupAccount({
-  authenticationKey: key,
-});
+// Check if AA is enabled for an account
+const isEnabled =
+  await aptos.abstraction.isAccountAbstractionEnabled({
+    accountAddress: "0x...",
+    authenticationFunction: `${MODULE_ADDRESS}::auth::authenticate`,
+  });
+
+// Enable AA on an account
+const enableTxn =
+  await aptos.abstraction.enableAccountAbstractionTransaction({
+    accountAddress: account.accountAddress,
+    authenticationFunction: `${MODULE_ADDRESS}::auth::authenticate`,
+  });
+
+// Disable AA
+const disableTxn =
+  await aptos.abstraction.disableAccountAbstractionTransaction({
+    accountAddress: account.accountAddress,
+    authenticationFunction: `${MODULE_ADDRESS}::auth::authenticate`,
+  });
+
+// Use AbstractedAccount for signing with custom auth logic
+import { AbstractedAccount } from "@aptos-labs/ts-sdk";
 ```
 
 ## References

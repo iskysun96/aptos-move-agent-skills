@@ -10,6 +10,12 @@
 | `u64`     | `number \| bigint` | Safe as `number` up to 2^53 - 1; use `bigint` for larger values |
 | `u128`    | `bigint`           | ALWAYS use `bigint` - `number` loses precision                  |
 | `u256`    | `bigint`           | ALWAYS use `bigint` - `number` loses precision                  |
+| `i8`      | `number`           | -128 to 127 (Move 2.3+)                                        |
+| `i16`     | `number`           | -32,768 to 32,767 (Move 2.3+)                                  |
+| `i32`     | `number`           | -2^31 to 2^31-1 (Move 2.3+)                                    |
+| `i64`     | `number \| bigint` | Use `bigint` for values outside safe integer range (Move 2.3+)  |
+| `i128`    | `bigint`           | ALWAYS use `bigint` (Move 2.3+)                                 |
+| `i256`    | `bigint`           | ALWAYS use `bigint` (Move 2.3+)                                 |
 | `bool`    | `boolean`          | `true` or `false`                                               |
 | `address` | `string`           | Hex string, e.g., `"0x1"`                                       |
 

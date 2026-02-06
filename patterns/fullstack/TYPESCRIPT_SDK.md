@@ -31,9 +31,9 @@ const devnetConfig = new AptosConfig({ network: Network.DEVNET });
 const testnetConfig = new AptosConfig({ network: Network.TESTNET });
 const mainnetConfig = new AptosConfig({ network: Network.MAINNET });
 
-// Custom endpoint
+// Custom endpoint (network field is REQUIRED for custom endpoints in v5.2+)
 const customConfig = new AptosConfig({
-  network: Network.CUSTOM,
+  network: Network.CUSTOM,  // Required - cannot be omitted
   fullnode: "https://your-fullnode.example.com/v1",
   indexer: "https://your-indexer.example.com/v1/graphql",
   faucet: "https://your-faucet.example.com"
@@ -183,6 +183,12 @@ const pendingTx = await aptos.transaction.submit.multiAgent({
 | `u64`        | `number \| bigint`     | `1000000`                    |
 | `u128`       | `bigint`               | `BigInt("...")`              |
 | `u256`       | `bigint`               | `BigInt("...")`              |
+| `i8`         | `number`               | `-128` (Move 2.3+)          |
+| `i16`        | `number`               | `-32768` (Move 2.3+)        |
+| `i32`        | `number`               | `-2147483648` (Move 2.3+)   |
+| `i64`        | `number \| bigint`     | Use `bigint` for large vals  |
+| `i128`       | `bigint`               | `BigInt("...")` (Move 2.3+)  |
+| `i256`       | `bigint`               | `BigInt("...")` (Move 2.3+)  |
 | `bool`       | `boolean`              | `true`                       |
 | `address`    | `string`               | `"0x1"`                      |
 | `String`     | `string`               | `"hello"`                    |
@@ -200,6 +206,21 @@ const events = await aptos.getAccountEventsByEventType({
   accountAddress: MODULE_ADDRESS,
   eventType: `${MODULE_ADDRESS}::counter::IncrementEvent`,
   options: { offset: 0, limit: 25 }
+});
+```
+
+---
+
+## Gas Profiling
+
+```typescript
+// Profile gas usage of a transaction
+const gasProfile = await aptos.gasProfile({
+  sender: account.accountAddress,
+  data: {
+    function: `${MODULE_ADDRESS}::module::function_name`,
+    functionArguments: [],
+  },
 });
 ```
 
