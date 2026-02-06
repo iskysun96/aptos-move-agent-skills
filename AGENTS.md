@@ -128,6 +128,21 @@ contract
 
 **Output:** Optimized contract with gas savings report
 
+### Workflow 7: Integrate TypeScript SDK
+
+**Trigger:** User says "use typescript sdk", "call contract from frontend", "connect to aptos", "interact with contract"
+
+**Steps:**
+
+1. Activate `use-typescript-sdk` skill
+2. Set up singleton `Aptos` client with environment-based network config
+3. **For reading data:** Create typed view function wrappers
+4. **For writing data:** Create typed entry function payloads
+5. **For frontend:** Set up wallet adapter with `AptosWalletAdapterProvider`
+6. Reference `patterns/fullstack/TYPESCRIPT_SDK.md` for complete API reference
+
+**Output:** TypeScript integration with the Aptos blockchain
+
 ## Skill Activation Table
 
 | Skill                      | Activates When                                                 | Priority | Auto-Active           |
@@ -140,6 +155,7 @@ contract
 | `analyze-gas-optimization` | "optimize gas", "reduce gas costs", "gas efficiency"           | High     | No                    |
 | `use-aptos-cli`            | "run aptos", "compile", "test", "deploy"                       | Medium   | No                    |
 | `deploy-contracts`         | "deploy", "publish"                                            | Medium   | No                    |
+| `use-typescript-sdk`       | "typescript sdk", "ts-sdk", "aptos client", "frontend"         | High     | No                    |
 | `troubleshoot-errors`      | Error messages detected, "fix error", "debug"                  | Medium   | Yes (on errors)       |
 
 **Auto-activation rules:**
