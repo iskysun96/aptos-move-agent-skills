@@ -254,6 +254,8 @@ module my_addr::my_module {
 8. ❌ **Never skip event emission** for significant activities
 9. ❌ **Never use old syntax** when V2 syntax is available
 10. ❌ **Never skip init_module** for contracts that need initialization
+11. ❌ **Never hardcode real private keys** or secrets in code — use `@my_addr` named addresses and `"0x..."` placeholders
+12. ❌ **Never read `.env` or `~/.aptos/config.yaml`** — these contain private keys
 
 ## Edge Cases to Handle
 

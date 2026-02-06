@@ -411,6 +411,12 @@ public fun is_active(settings: &Settings): bool {
 - Apply before `deploy-contracts` for mainnet deployments
 - Reference `STORAGE_OPTIMIZATION.md` for detailed patterns
 
+## NEVER Rules
+
+- ❌ NEVER optimize away security checks (access control, input validation)
+- ❌ NEVER deploy optimized code without re-testing
+- ❌ NEVER read `.env` or `~/.aptos/config.yaml` during gas analysis (contain private keys)
+
 ## References
 
 - Aptos Gas Schedule: https://github.com/aptos-labs/aptos-core/blob/main/aptos-move/aptos-gas-schedule

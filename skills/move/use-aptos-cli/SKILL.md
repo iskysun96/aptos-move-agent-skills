@@ -247,6 +247,8 @@ aptos move run \
 
 ## Configuration
 
+> **Security:** NEVER read this file from the user's filesystem. The structure below is for reference only. Always use `"0x..."` placeholders for private key values.
+
 ### Config File (~/.aptos/config.yaml)
 
 ```yaml
@@ -446,6 +448,9 @@ aptos move upgrade-object \
 - ❌ NEVER deploy directly to mainnet without testnet testing
 - ❌ NEVER hardcode addresses in code
 - ❌ NEVER commit private keys to git
+- ❌ NEVER read or display contents of `~/.aptos/config.yaml` (contains private keys for all profiles)
+- ❌ NEVER run commands that expose keys: `cat ~/.aptos/config.yaml`, `env | grep KEY`, `printenv`
+- ❌ NEVER display or repeat private key values — always use `"0x..."` as placeholder
 
 ## References
 

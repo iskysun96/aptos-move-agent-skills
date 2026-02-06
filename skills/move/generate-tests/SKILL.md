@@ -358,6 +358,8 @@ For each contract, verify you have tests for:
 - ❌ NEVER skip access control tests
 - ❌ NEVER use unclear test names
 - ❌ NEVER batch tests without verifying each case
+- ❌ NEVER hardcode real private keys or account addresses in test code — use test addresses like `@0x1`, `@0x100`, `@0xCAFE`
+- ❌ NEVER read `.env` or `~/.aptos/config.yaml` to get test addresses
 
 ## Common Pitfalls
 

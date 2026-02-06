@@ -264,6 +264,7 @@ public fun transfer<T: key>(
 - ❌ NEVER use deprecated patterns (resource accounts, address-based)
 - ❌ NEVER assume examples are always up-to-date (verify against docs)
 - ❌ NEVER mix V1 and V2 patterns
+- ❌ NEVER include real private keys or credentials when adapting examples — use `"0x..."` placeholders
 
 ## Search Checklist
 

@@ -398,6 +398,8 @@ Review code for:
 - ❌ NEVER deploy with < 100% test coverage
 - ❌ NEVER approve code with critical vulnerabilities
 - ❌ NEVER rush security review
+- ❌ NEVER read `~/.aptos/config.yaml` or `.env` files during audits (contain private keys)
+- ❌ NEVER display or repeat private key values found during audit
 
 ## References
 

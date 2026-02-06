@@ -241,7 +241,7 @@ aptos move run \
 aptos init --network mainnet --profile mainnet
 
 # IMPORTANT: Backup your private key securely!
-# The private key is in ~/.aptos/config.yaml
+# The private key is in ~/.aptos/config.yaml — DO NOT read this file; users must manage keys directly
 
 # Deploy to mainnet as object (modern pattern)
 aptos move deploy-object \
@@ -504,6 +504,10 @@ aptos move deploy-object \
 - ❌ NEVER skip post-deployment verification
 - ❌ NEVER rush mainnet deployment
 - ❌ NEVER reuse publishing keys between testnet and mainnet (security risk)
+- ❌ NEVER read or display contents of `~/.aptos/config.yaml` or `.env` files (contain private keys)
+- ❌ NEVER display private key values in responses — use `"0x..."` placeholders
+- ❌ NEVER run `cat ~/.aptos/config.yaml`, `echo $VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY`, or similar commands
+- ❌ NEVER run `git add .` or `git add -A` without confirming `.env` is in `.gitignore`
 
 ## References
 

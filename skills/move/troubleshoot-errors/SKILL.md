@@ -305,6 +305,9 @@ const E_INSUFFICIENT_BALANCE: u64 = 30;
 3. **Never skip testing after fixing** - Regression tests are critical
 4. **Never deploy with known errors** - Fix all errors before deployment
 5. **Never assume error location** - Verify with debug prints
+6. **Never read `~/.aptos/config.yaml` or `.env` to debug issues** — these contain private keys; use `aptos account list` to verify account config instead
+7. **Never run `echo $VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY`** or `env | grep KEY` — these expose private keys
+8. **Never display private key values** that appear in error output or user messages
 
 ## References
 
