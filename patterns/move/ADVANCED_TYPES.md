@@ -1,7 +1,195 @@
 # Advanced Types in Aptos Move V2
 
-This guide covers advanced type system features including phantom types, generic programming, type constraints, and
-complex struct patterns.
+This guide covers advanced type system features including enum patterns, phantom types, generic programming, type
+constraints, and complex struct patterns.
+
+## Advanced Enum Patterns
+
+Enums (Move 2.0+) enable powerful type-safe patterns beyond basic variant matching. See `MOVE_V2_SYNTAX.md` for basic
+enum syntax.
+
+### 1. State Machine with Enums
+
+Enums are often better than phantom types for state machines when you need to store different data per state:
+
+```move
+module my_addr::order_state_machine {
+    use std::string::String;
+
+    /// Order states with variant-specific data
+    enum OrderState has key, store {
+        Pending { created_at: u64 },
+        Active { created_at: u64, amount: u64 },
+        Completed { created_at: u64, amount: u64, completed_at: u64 },
+        Cancelled { reason: String },
+    }
+
+    struct Order has key {
+        id: u64,
+        owner: address,
+        state: OrderState,
+    }
+
+    const E_INVALID_TRANSITION: u64 = 1;
+    const E_NOT_OWNER: u64 = 2;
+
+    /// Check if order is in a terminal state
+    fun is_terminal(state: &OrderState): bool {
+        state is OrderState::Completed | OrderState::Cancelled
+    }
+
+    /// Transition: Pending -> Active
+    public entry fun activate_order(
+        owner: &signer,
+        order_obj: Object<Order>,
+        amount: u64
+    ) acquires Order {
+        let order = borrow_global_mut<Order>(object::object_address(&order_obj));
+        assert!(order.owner == signer::address_of(owner), E_NOT_OWNER);
+
+        match (&order.state) {
+            OrderState::Pending { created_at } => {
+                order.state = OrderState::Active {
+                    created_at: *created_at,
+                    amount,
+                };
+            },
+            _ => abort E_INVALID_TRANSITION,
+        };
+    }
+
+    /// Transition: Active -> Completed
+    public entry fun complete_order(
+        owner: &signer,
+        order_obj: Object<Order>,
+        timestamp: u64
+    ) acquires Order {
+        let order = borrow_global_mut<Order>(object::object_address(&order_obj));
+        assert!(order.owner == signer::address_of(owner), E_NOT_OWNER);
+
+        match (&order.state) {
+            OrderState::Active { created_at, amount } => {
+                order.state = OrderState::Completed {
+                    created_at: *created_at,
+                    amount: *amount,
+                    completed_at: timestamp,
+                };
+            },
+            _ => abort E_INVALID_TRANSITION,
+        };
+    }
+}
+```
+
+### 2. Recursive Data Structures
+
+Enums with `Box` enable tree-like data structures:
+
+```move
+module my_addr::expression_tree {
+    /// Arithmetic expression tree
+    enum Expr has drop {
+        Literal(u64),
+        Add(Box<Expr>, Box<Expr>),
+        Mul(Box<Expr>, Box<Expr>),
+        Neg(Box<Expr>),
+    }
+
+    /// Evaluate expression recursively
+    fun eval(expr: &Expr): u64 {
+        match (expr) {
+            Expr::Literal(val) => *val,
+            Expr::Add(left, right) => eval(left) + eval(right),
+            Expr::Mul(left, right) => eval(left) * eval(right),
+            Expr::Neg(inner) => {
+                let val = eval(inner);
+                // Saturating negate for unsigned
+                0
+            },
+        }
+    }
+
+    /// Build expression: (2 + 3) * 4
+    fun example(): u64 {
+        let expr = Expr::Mul(
+            Box::new(Expr::Add(
+                Box::new(Expr::Literal(2)),
+                Box::new(Expr::Literal(3)),
+            )),
+            Box::new(Expr::Literal(4)),
+        );
+        eval(&expr) // Returns 20
+    }
+}
+```
+
+### 3. Resource Versioning with Migration
+
+Enums are ideal for on-chain data that evolves across upgrades:
+
+```move
+module my_addr::versioned_config {
+    use std::signer;
+
+    enum Config has key {
+        V1 { admin: address, fee_bps: u64 },
+        V2 { admin: address, fee_bps: u64, paused: bool },
+    }
+
+    const E_NOT_ADMIN: u64 = 1;
+    const E_ALREADY_V2: u64 = 2;
+
+    /// Read admin from any version
+    public fun get_admin(config: &Config): address {
+        match (config) {
+            Config::V1 { admin, .. } => *admin,
+            Config::V2 { admin, .. } => *admin,
+        }
+    }
+
+    /// Check paused status (V1 defaults to false)
+    public fun is_paused(config: &Config): bool {
+        match (config) {
+            Config::V1 { .. } => false,
+            Config::V2 { paused, .. } => *paused,
+        }
+    }
+
+    /// Migrate V1 -> V2 (admin-only)
+    public entry fun migrate_to_v2(admin: &signer) acquires Config {
+        let addr = signer::address_of(admin);
+        let config = borrow_global_mut<Config>(addr);
+
+        match (config) {
+            Config::V1 { admin: config_admin, fee_bps } => {
+                assert!(*config_admin == addr, E_NOT_ADMIN);
+                *config = Config::V2 {
+                    admin: *config_admin,
+                    fee_bps: *fee_bps,
+                    paused: false,
+                };
+            },
+            Config::V2 { .. } => abort E_ALREADY_V2,
+        };
+    }
+}
+```
+
+### 4. Enum vs Phantom Types
+
+Choose the right pattern for your use case:
+
+| Criteria                     | Enum                                | Phantom Type                         |
+| ---------------------------- | ----------------------------------- | ------------------------------------ |
+| Different data per state     | Natural fit                         | Requires separate structs per state  |
+| Compile-time state guarantee | No (runtime matching)               | Yes (type system enforced)           |
+| State stored on-chain        | Single resource, enum field         | Separate resource per state          |
+| State transitions            | Mutate enum variant in place        | Destroy old struct, create new       |
+| Upgrade-friendly             | Add variants at the end             | Add new phantom type structs         |
+| Best for                     | Data versioning, multi-state values | Permission systems, factory patterns |
+
+**Rule of thumb:** Use enums when states carry different data or you need upgrade-safe versioning. Use phantom types
+when you want the compiler to enforce state constraints at the type level.
 
 ## Phantom Types
 
@@ -455,20 +643,22 @@ module my_addr::abilities {
 
 ### 1. Newtype Pattern
 
+With positional structs (Move 2.0+), the newtype pattern is more concise:
+
 ```move
 module my_addr::newtype {
-    /// Wrap primitive for type safety
-    struct UserId has copy, drop, store {
-        value: u64,
-    }
-
-    struct OrderId has copy, drop, store {
-        value: u64,
-    }
+    /// Positional struct newtypes
+    struct UserId(u64) has copy, drop, store;
+    struct OrderId(u64) has copy, drop, store;
 
     /// Can't mix up UserId and OrderId
     public fun get_order(user: UserId, order: OrderId): Order {
         // Type system prevents passing OrderId as UserId
+    }
+
+    /// Named field newtypes (pre-Move 2.0 style, still valid)
+    struct Amount has copy, drop, store {
+        value: u64,
     }
 }
 ```
@@ -529,13 +719,15 @@ module my_addr::builder {
 
 ## Best Practices
 
-1. **Use phantom types for compile-time guarantees**
-2. **Leverage type witnesses for one-time operations**
-3. **Apply appropriate abilities based on use case**
-4. **Use newtype pattern for domain modeling**
-5. **Prefer generic solutions for reusability**
-6. **Document type constraints clearly**
-7. **Test type safety with negative tests**
+1. **Use enums for data versioning and state machines with variant-specific data**
+2. **Use phantom types for compile-time state guarantees**
+3. **Use positional structs for concise newtype wrappers**
+4. **Leverage type witnesses for one-time operations**
+5. **Apply appropriate abilities based on use case**
+6. **Use newtype pattern for domain modeling**
+7. **Prefer generic solutions for reusability**
+8. **Document type constraints clearly**
+9. **Test type safety with negative tests**
 
 ## Common Patterns
 
