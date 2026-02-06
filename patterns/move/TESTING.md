@@ -690,19 +690,22 @@ For each contract, verify you have tests for:
 
 ## Common Testing Mistakes
 
-| Mistake                                | Impact                      | Solution                                                      |
-| -------------------------------------- | --------------------------- | ------------------------------------------------------------- |
-| Not testing error paths                | Bugs in error handling      | Add #[expected_failure] tests                                 |
-| Testing only happy paths               | Miss edge cases             | Test boundaries and invalid inputs                            |
-| Not testing access control             | Security vulnerabilities    | Test unauthorized access attempts                             |
-| Low coverage                           | Untested code has bugs      | Achieve 100% coverage                                         |
-| Unclear test names                     | Hard to understand failures | Use descriptive names like `test_unauthorized_transfer_fails` |
-| No test organization                   | Hard to maintain            | Group tests by feature                                        |
-| Duplicate setup code                   | Hard to maintain            | Use test helper functions                                     |
-| Not verifying all state changes        | Incomplete tests            | Assert all relevant state after operations                    |
-| Accessing struct fields across modules | Compilation error           | Add public view accessor functions (see Pattern 8)            |
-| Wrong error expectation after escrow   | Test fails unexpectedly     | Track ownership changes - after escrow, seller no longer owns |
-| Unnecessary `acquires` annotations     | Compiler warnings/errors    | Only list resources YOUR code borrows, not framework calls    |
+| Mistake                                | Impact                                            | Solution                                                      |
+| -------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------- |
+| Not testing error paths                | Bugs in error handling                            | Add #[expected_failure] tests                                 |
+| Testing only happy paths               | Miss edge cases                                   | Test boundaries and invalid inputs                            |
+| Not testing access control             | Security vulnerabilities                          | Test unauthorized access attempts                             |
+| Low coverage                           | Untested code has bugs                            | Achieve 100% coverage                                         |
+| Unclear test names                     | Hard to understand failures                       | Use descriptive names like `test_unauthorized_transfer_fails` |
+| No test organization                   | Hard to maintain                                  | Group tests by feature                                        |
+| Duplicate setup code                   | Hard to maintain                                  | Use test helper functions                                     |
+| Not verifying all state changes        | Incomplete tests                                  | Assert all relevant state after operations                    |
+| Accessing struct fields across modules | Compilation error                                 | Add public view accessor functions (see Pattern 8)            |
+| Wrong error expectation after escrow   | Test fails unexpectedly                           | Track ownership changes - after escrow, seller no longer owns |
+| Unnecessary `acquires` annotations     | Compiler warnings/errors                          | Only list resources YOUR code borrows, not framework calls    |
+| Constructing enums in test module      | "pack can only be done within defining module"    | Add `#[test_only]` factory functions in source module         |
+| Storing capturing lambda on-chain      | "lambda cannot be reduced to partial application" | Use named function references for `store` ability             |
+| `_name` prefix on `#[test]` parameter  | "Missing test parameter assignment" error         | Remove both the attribute assignment and the parameter        |
 
 ---
 

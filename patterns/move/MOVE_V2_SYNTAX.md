@@ -75,6 +75,11 @@ let is_above = |x| x > threshold;
 
 **Lambda restrictions:** Cannot capture references, parameters cannot be type-annotated, cannot contain `return`.
 
+**Store ability restriction:** Lambdas that capture variables cannot have the `store` ability and cannot be stored
+on-chain. Only named function references (e.g., `my_module::is_even`) or lambdas reducible to partial application of an
+existing function can have `store`. Attempting to store a capturing lambda produces: _"lambda cannot be reduced to
+partial application of existing function"_.
+
 ### Currying Pattern
 
 ```move
@@ -184,6 +189,30 @@ fun get_admin(config: &Config): address {
         Config::V1 { admin, .. } => *admin,
         Config::V2 { admin, .. } => *admin,
     }
+}
+```
+
+### Testing Enums
+
+Enum variants can only be constructed (packed) within their defining module. Test code in a separate `#[test_only]`
+module cannot directly write `Shape::Circle { radius: 5 }`. Provide `#[test_only]` factory functions in the source
+module:
+
+```move
+// In the source module
+#[test_only]
+public fun new_circle(radius: u64): Shape { Shape::Circle { radius } }
+
+#[test_only]
+public fun new_config_v1(admin: address, fee_bps: u64): Config {
+    Config::V1 { admin, fee_bps }
+}
+
+// In the test module
+#[test]
+fun test_area() {
+    let circle = my_module::new_circle(10);
+    assert!(my_module::area(&circle) == 314, 0);
 }
 ```
 
