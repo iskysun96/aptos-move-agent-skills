@@ -1427,8 +1427,8 @@ module 0x42::lending {
 
 ### 12.2 Using #[module_lock]
 
-Use `#[module_lock]` for strong reentrancy protection. While this function runs, ALL calls re-entering the module
-will abort:
+Use `#[module_lock]` for strong reentrancy protection. While this function runs, ALL calls re-entering the module will
+abort:
 
 ```move
 #[module_lock]
@@ -1452,7 +1452,7 @@ public fun transfer_with_notification(
 
 | Scenario                                      | Recommendation                  |
 | --------------------------------------------- | ------------------------------- |
-| Function accepts callback that modifies state  | Use `#[module_lock]`            |
+| Function accepts callback that modifies state | Use `#[module_lock]`            |
 | Function accepts callback for read-only use   | Default protection usually fine |
 | DeFi protocol with external hooks             | Use `#[module_lock]`            |
 | Internal-only function values                 | Default protection usually fine |
@@ -1525,32 +1525,32 @@ aptos move publish --profile mainnet
 
 ## Common Vulnerabilities Table
 
-| Vulnerability              | Example                         | Impact                        | Fix                                                                        |
-| -------------------------- | ------------------------------- | ----------------------------- | -------------------------------------------------------------------------- |
-| Missing access control     | No signer verification          | Anyone calls admin functions  | Add `assert!(signer::address_of(admin) == config.admin, E_NOT_ADMIN)`      |
-| Missing ownership check    | No `object::owner()` check      | Anyone modifies any object    | Add `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)` |
-| Cross-account manipulation | Accepts `target_addr` parameter | User modifies others' storage | Use `borrow_global_mut<T>(signer::address_of(user))`                       |
-| **Implicit amounts**       | **`coin::balance()` as amount** | **User loses entire balance** | **Add explicit `amount: u64` parameter**                                   |
-| Generic type mismatch      | No flash loan type validation   | Borrow BTC, repay junk        | Use `Receipt<phantom T>` pattern                                           |
-| Unbounded iteration        | Loop over global vector         | Gas exhaustion DOS            | Store per-user, use direct lookup                                          |
-| Division rounds to zero    | `(100 * 30) / 10000` = 0        | Fee-free transactions         | Enforce `MIN_ORDER_SIZE`, validate `fee > 0`                               |
-| **Multi-step overflow**    | **`(a * b * c) / d`**           | **Intermediate overflow**     | **Restructure or use u128**                                                |
-| Left shift overflow        | `1 << 64` (wrong value)         | Incorrect calculations        | Validate shift `< 64` or avoid                                             |
-| Returning ConstructorRef   | `return constructor_ref`        | Caller destroys object        | Return `Object<T>` instead                                                 |
-| Exposed &mut               | `public fun get_mut()`          | mem::swap attacks             | Expose specific operations                                                 |
-| **No price oracles**       | **Assume 1:1 ratio**            | **Protocol drained**          | **Use multi-oracle design**                                                |
-| Single price oracle        | Use one pool ratio              | Price manipulation            | Multi-oracle with fallbacks                                                |
-| **Stale prices**           | **No timestamp check**          | **Old prices exploited**      | **Add `MAX_PRICE_AGE` validation**                                         |
-| Front-running              | Two-step operations             | Attacker inserts between      | Atomic finalization                                                        |
-| **No slippage protection** | **No `min_amount_out`**         | **MEV/sandwich attacks**      | **Add slippage parameters**                                                |
-| Token ID collision         | String concatenation            | Same ID, different tokens     | Use object addresses                                                       |
-| No pause mechanism         | No emergency stop               | Can't respond to exploits     | Implement pause functionality                                              |
-| **No proposal expiration** | **Proposals live forever**      | **Stale proposals executed**  | **Add expiration timestamps**                                              |
-| **Threshold > owners**     | **Can't reach threshold**       | **Wallet locked**             | **Validate threshold <= owner count**                                      |
-| Public randomness          | Composable lottery              | Test-and-abort attacks        | Use `entry` visibility                                                     |
-| Undergasing                | Win uses less gas               | Attacker guarantees wins      | Balance gas across paths                                                   |
-| **Callback reentrancy**    | **Function value re-enters module** | **State corruption**     | **Use `#[module_lock]` attribute**                                         |
-| Untrusted stored functions | Store function from any caller  | Malicious code execution      | Only accept function values from authorized sources                        |
+| Vulnerability              | Example                             | Impact                        | Fix                                                                        |
+| -------------------------- | ----------------------------------- | ----------------------------- | -------------------------------------------------------------------------- |
+| Missing access control     | No signer verification              | Anyone calls admin functions  | Add `assert!(signer::address_of(admin) == config.admin, E_NOT_ADMIN)`      |
+| Missing ownership check    | No `object::owner()` check          | Anyone modifies any object    | Add `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)` |
+| Cross-account manipulation | Accepts `target_addr` parameter     | User modifies others' storage | Use `borrow_global_mut<T>(signer::address_of(user))`                       |
+| **Implicit amounts**       | **`coin::balance()` as amount**     | **User loses entire balance** | **Add explicit `amount: u64` parameter**                                   |
+| Generic type mismatch      | No flash loan type validation       | Borrow BTC, repay junk        | Use `Receipt<phantom T>` pattern                                           |
+| Unbounded iteration        | Loop over global vector             | Gas exhaustion DOS            | Store per-user, use direct lookup                                          |
+| Division rounds to zero    | `(100 * 30) / 10000` = 0            | Fee-free transactions         | Enforce `MIN_ORDER_SIZE`, validate `fee > 0`                               |
+| **Multi-step overflow**    | **`(a * b * c) / d`**               | **Intermediate overflow**     | **Restructure or use u128**                                                |
+| Left shift overflow        | `1 << 64` (wrong value)             | Incorrect calculations        | Validate shift `< 64` or avoid                                             |
+| Returning ConstructorRef   | `return constructor_ref`            | Caller destroys object        | Return `Object<T>` instead                                                 |
+| Exposed &mut               | `public fun get_mut()`              | mem::swap attacks             | Expose specific operations                                                 |
+| **No price oracles**       | **Assume 1:1 ratio**                | **Protocol drained**          | **Use multi-oracle design**                                                |
+| Single price oracle        | Use one pool ratio                  | Price manipulation            | Multi-oracle with fallbacks                                                |
+| **Stale prices**           | **No timestamp check**              | **Old prices exploited**      | **Add `MAX_PRICE_AGE` validation**                                         |
+| Front-running              | Two-step operations                 | Attacker inserts between      | Atomic finalization                                                        |
+| **No slippage protection** | **No `min_amount_out`**             | **MEV/sandwich attacks**      | **Add slippage parameters**                                                |
+| Token ID collision         | String concatenation                | Same ID, different tokens     | Use object addresses                                                       |
+| No pause mechanism         | No emergency stop                   | Can't respond to exploits     | Implement pause functionality                                              |
+| **No proposal expiration** | **Proposals live forever**          | **Stale proposals executed**  | **Add expiration timestamps**                                              |
+| **Threshold > owners**     | **Can't reach threshold**           | **Wallet locked**             | **Validate threshold <= owner count**                                      |
+| Public randomness          | Composable lottery                  | Test-and-abort attacks        | Use `entry` visibility                                                     |
+| Undergasing                | Win uses less gas                   | Attacker guarantees wins      | Balance gas across paths                                                   |
+| **Callback reentrancy**    | **Function value re-enters module** | **State corruption**          | **Use `#[module_lock]` attribute**                                         |
+| Untrusted stored functions | Store function from any caller      | Malicious code execution      | Only accept function values from authorized sources                        |
 
 ---
 

@@ -76,8 +76,8 @@ let is_above = |x| x > threshold;
 **Lambda restrictions:** Cannot capture references, parameters cannot be type-annotated, cannot contain `return`.
 
 **Store ability restriction:** Lambdas that capture variables cannot have the `store` ability and cannot be stored
-on-chain. Only named function references (e.g., `my_module::is_even`) or lambdas reducible to partial application of
-an existing function can have `store`. Attempting to store a capturing lambda produces: _"lambda cannot be reduced to
+on-chain. Only named function references (e.g., `my_module::is_even`) or lambdas reducible to partial application of an
+existing function can have `store`. Attempting to store a capturing lambda produces: _"lambda cannot be reduced to
 partial application of existing function"_.
 
 ### Currying Pattern
