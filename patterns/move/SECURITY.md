@@ -105,6 +105,13 @@ Before deploying any Move module, verify ALL items in this checklist:
 - [ ] Gas consumption balanced across win/lose paths to prevent undergasing
 - [ ] Consider commit-reveal pattern for sensitive randomness
 
+### Function Values / Reentrancy (if using Move 2.2+ function values)
+
+- [ ] Functions accepting callbacks that modify state use `#[module_lock]`
+- [ ] Stored function values only accepted from trusted/authorized sources
+- [ ] Non-public functions stored on-chain are marked `#[persistent]`
+- [ ] Reentrancy implications considered for all function value callbacks
+
 ### Testing
 
 - [ ] 100% line coverage achieved: `aptos move test --coverage`
@@ -1396,9 +1403,71 @@ entry fun reveal_game(user: &signer) acquires Game {
 
 ---
 
-## Pattern 12: Move Abilities
+## Pattern 12: Function Value Reentrancy (Move 2.2+)
 
-### 12.1 Ability Restrictions
+Function values (Move 2.2+) enable dynamic dispatch, which introduces reentrancy risks.
+
+### 12.1 Understanding Reentrancy
+
+When a function value passed to another module calls back into the originating module, resources from that module are
+locked by the VM:
+
+```move
+module 0x42::lending {
+    struct Pool has key { balance: u64 }
+
+    public fun process_with_callback(pool: &mut Pool, callback: |u64|) {
+        let amount = pool.balance;
+        callback(amount);
+        // If callback re-enters this module and modifies Pool,
+        // the VM will abort with a reentrancy error
+    }
+}
+```
+
+### 12.2 Using #[module_lock]
+
+Use `#[module_lock]` for strong reentrancy protection. While this function runs, ALL calls re-entering the module
+will abort:
+
+```move
+#[module_lock]
+public fun transfer_with_notification(
+    from: address,
+    to: address,
+    amount: u64,
+    on_transfer: |u64|
+) acquires Account {
+    let from_account = borrow_global_mut<Account>(from);
+    from_account.balance = from_account.balance - amount;
+
+    on_transfer(amount);  // Cannot re-enter this module
+
+    let to_account = borrow_global_mut<Account>(to);
+    to_account.balance = to_account.balance + amount;
+}
+```
+
+### 12.3 When to Use #[module_lock]
+
+| Scenario                                      | Recommendation                  |
+| --------------------------------------------- | ------------------------------- |
+| Function accepts callback that modifies state  | Use `#[module_lock]`            |
+| Function accepts callback for read-only use   | Default protection usually fine |
+| DeFi protocol with external hooks             | Use `#[module_lock]`            |
+| Internal-only function values                 | Default protection usually fine |
+
+### 12.4 Stored Function Values Security
+
+- Only store function values from trusted/authorized sources
+- Always use `#[module_lock]` when executing stored function values that may modify state
+- Non-public functions need `#[persistent]` attribute to gain `store` ability
+
+---
+
+## Pattern 13: Move Abilities
+
+### 13.1 Ability Restrictions
 
 ```move
 // Token type - NO copy (prevents double-spending)
@@ -1428,7 +1497,7 @@ struct NFT has key {
 
 ---
 
-## Pattern 13: Publishing Key Management
+## Pattern 14: Publishing Key Management
 
 **CRITICAL: Separate keys by network**
 
@@ -1480,6 +1549,8 @@ aptos move publish --profile mainnet
 | **Threshold > owners**     | **Can't reach threshold**       | **Wallet locked**             | **Validate threshold <= owner count**                                      |
 | Public randomness          | Composable lottery              | Test-and-abort attacks        | Use `entry` visibility                                                     |
 | Undergasing                | Win uses less gas               | Attacker guarantees wins      | Balance gas across paths                                                   |
+| **Callback reentrancy**    | **Function value re-enters module** | **State corruption**     | **Use `#[module_lock]` attribute**                                         |
+| Untrusted stored functions | Store function from any caller  | Malicious code execution      | Only accept function values from authorized sources                        |
 
 ---
 

@@ -1,6 +1,7 @@
 # Aptos Move V2 Modern Syntax Guide
 
-**Purpose:** Guide to modern Move V2 syntax features including inline functions, lambdas, and current best practices.
+**Purpose:** Guide to modern Move V2 syntax features including function values, enums, signed integers, inline
+functions, lambdas, and current best practices.
 
 **Target:** AI assistants generating Move V2 smart contracts
 
@@ -10,10 +11,251 @@
 
 Move V2 introduces modern syntax features that make code more concise, expressive, and safe:
 
+- **Function values (Move 2.2+)**: First-class functions stored on-chain and passed across modules
+- **Enum types (Move 2.0+)**: Variant types with pattern matching for state machines and data versioning
+- **Signed integers (Move 2.3+)**: Native `i8` through `i256` types
+- **Positional structs (Move 2.0+)**: Wrapper types without named fields (`struct Amount(u64)`)
 - **Inline functions with lambdas**: Higher-order functions for iteration and control flow
+- **Receiver-style method calls (Move 2.0+)**: Dot notation `value.func(arg)`
+- **Index notation (Move 2.0+)**: `vector[i]` instead of `vector::borrow`
+- **Compound assignments (Move 2.1+)**: `x += 1`, `x -= 1`
 - **Modern object model**: Type-safe `Object<T>` instead of raw addresses
 - **Improved error handling**: Clear error constants and abort codes
-- **Enhanced abilities**: Better control over resource behavior
+
+---
+
+## Function Values (Move 2.2+)
+
+Function values are first-class citizens in Move. Unlike inline functions, function values can cross module boundaries,
+be stored on-chain, and enable dynamic dispatch.
+
+### Function Types
+
+```move
+let f: |u64|bool;                   // Takes u64, returns bool
+let g: |u64, bool|(bool, u64);     // Two params, returns tuple
+let h: ||;                          // No params, no return
+```
+
+### Abilities on Function Types
+
+```move
+let f: |u64|bool has copy + drop;           // Can be used multiple times
+let g: |u64|bool has copy + drop + store;   // Can be stored on-chain
+```
+
+Without abilities, a function value can only be moved and evaluated once.
+
+### Creating Function Values
+
+Public and entry functions are persistent by default and gain `store`:
+
+```move
+public fun is_even(x: u64): bool { x % 2 == 0 }
+
+fun example() {
+    let f: |u64|bool has copy + drop + store = is_even;
+    assert!(f(4) == true, 0);
+}
+```
+
+Non-public functions need `#[persistent]` to become storable:
+
+```move
+#[persistent]
+fun is_odd(x: u64): bool { x % 2 == 1 }
+```
+
+Lambdas capture context variables by value:
+
+```move
+let threshold = 100;
+let is_above = |x| x > threshold;
+```
+
+**Lambda restrictions:** Cannot capture references, parameters cannot be type-annotated, cannot contain `return`.
+
+### Currying Pattern
+
+```move
+#[persistent]
+fun add(x: u64, y: u64): u64 { x + y }
+
+fun example() {
+    let x = 22;
+    let add_22: |u64|u64 has copy + drop + store = |y| add(x, y);
+    assert!(add_22(8) == 30, 0);
+}
+```
+
+### Storing Function Values On-Chain
+
+```move
+struct Plugin has key {
+    handler: |u64|bool has copy + drop + store,
+}
+
+public fun register_plugin(account: &signer, handler: |u64|bool has copy + drop + store) {
+    move_to(account, Plugin { handler });
+}
+```
+
+### Reentrancy Safety
+
+The VM detects module reentrancy when function values cause callbacks. Use `#[module_lock]` for strong protection:
+
+```move
+#[module_lock]
+fun transfer(from: address, to: address, amount: u64, notify: |u64|) {
+    account::deposit(to, amount);
+    notify(amount);  // Reentrancy attempts blocked
+    account::withdraw(from, amount);
+}
+```
+
+See `SECURITY.md` Pattern 12 for full reentrancy safety guidance.
+
+### Function Values vs Inline Functions
+
+| Feature               | Inline Functions      | Function Values (2.2+)    |
+| --------------------- | --------------------- | ------------------------- |
+| Cross-module dispatch | No (same module only) | Yes                       |
+| Stored on-chain       | No                    | Yes (with `store`)        |
+| Runtime overhead      | None (inlined)        | Small (dynamic dispatch)  |
+| Use case              | Iteration helpers     | Plugin systems, callbacks |
+
+---
+
+## Enum Types (Move 2.0+)
+
+Enum types define different variants of data layout in a single type.
+
+### Basic Enum Declaration
+
+```move
+enum Color has copy, drop { Red, Blue, Green }
+
+enum Shape has copy, drop {
+    Circle { radius: u64 },
+    Rectangle { width: u64, height: u64 },
+}
+
+enum Result<T> has copy, drop, store {
+    Err(u64),
+    Ok(T),
+}
+```
+
+### Creating and Matching
+
+```move
+let shape = Shape::Circle { radius: 10 };
+
+fun area(shape: &Shape): u64 {
+    match (shape) {
+        Shape::Circle { radius } => *radius * *radius * 314 / 100,
+        Shape::Rectangle { width, height } => *width * *height,
+    }
+}
+```
+
+The compiler enforces exhaustive matching. Use `_` for wildcard.
+
+### Testing Variants
+
+```move
+fun is_success<T>(result: &Result<T>): bool {
+    result is Result::Ok
+}
+```
+
+### Data Versioning Pattern
+
+Enums with `key` are ideal for upgradeable contract data:
+
+```move
+enum Config has key {
+    V1 { admin: address, fee_bps: u64 },
+    V2 { admin: address, fee_bps: u64, paused: bool },
+}
+
+fun get_admin(config: &Config): address {
+    match (config) {
+        Config::V1 { admin, .. } => *admin,
+        Config::V2 { admin, .. } => *admin,
+    }
+}
+```
+
+### Upgrade Compatibility
+
+- Original variants must appear first in identical order
+- New variants can only be added at the end
+- Existing abilities cannot be removed
+
+---
+
+## Signed Integer Types (Move 2.3+)
+
+Native signed integer types with full VM support:
+
+| Type   | Size     | Range             |
+| ------ | -------- | ----------------- |
+| `i8`   | 1 byte   | -128 to 127       |
+| `i16`  | 2 bytes  | -32,768 to 32,767 |
+| `i32`  | 4 bytes  | -2^31 to 2^31-1   |
+| `i64`  | 8 bytes  | -2^63 to 2^63-1   |
+| `i128` | 16 bytes | -2^127 to 2^127-1 |
+| `i256` | 32 bytes | -2^255 to 2^255-1 |
+
+Builtin constants: `MAX_U64`, `MIN_I32`, `MAX_I64`, etc.
+
+Use for price deltas, offsets, coordinates, and profit/loss calculations. Always prefer native signed integers over
+custom libraries.
+
+---
+
+## Positional Structs (Move 2.0+)
+
+```move
+struct Amount(u64) has copy, drop, store;
+
+fun example() {
+    let amount = Amount(100);
+    let Amount(value) = amount;
+    assert!(value == 100, 0);
+}
+```
+
+Use cases: newtype pattern, function type wrappers, simple data containers.
+
+---
+
+## Additional Move 2 Syntax
+
+### Compound Assignments (Move 2.1+)
+
+```move
+x += 5; x -= 2; x *= 3;
+```
+
+### Loop Labels (Move 2.1+)
+
+```move
+'outer: loop {
+    loop { if (done) break 'outer; }
+}
+```
+
+### Package Visibility (Move 2.0+)
+
+```move
+package fun internal_helper(): u64 { 42 }
+```
+
+### Optional Acquires (Move 2.2+)
+
+The compiler can infer `acquires` annotations automatically.
 
 ---
 
@@ -801,7 +1043,12 @@ module my_addr::marketplace {
 
 **DO:**
 
-- ✅ Use inline functions for iteration logic
+- ✅ Use function values for cross-module callbacks and plugin systems (Move 2.2+)
+- ✅ Use enum types for variant data and state machines (Move 2.0+)
+- ✅ Use signed integers (`i8`-`i256`) for deltas and offsets (Move 2.3+)
+- ✅ Use `#[module_lock]` when function value callbacks must not re-enter your module
+- ✅ Use `match` expressions for exhaustive enum handling
+- ✅ Use inline functions for iteration logic within a module
 - ✅ Use lambdas for concise operation definitions
 - ✅ Use `Object<T>` for type-safe object references
 - ✅ Define clear error constants with descriptive names
@@ -824,6 +1071,9 @@ module my_addr::marketplace {
 - ❌ Skip event emission for significant activities
 - ❌ Use old syntax (`vector::borrow`) when V2 syntax (`vector[i]`) is available
 - ❌ Skip `init_module` when contracts need initialization
+- ❌ Use custom signed integer libraries when native `i8`-`i256` types are available
+- ❌ Store function values without considering reentrancy implications
+- ❌ Reorder enum variants during upgrades (breaks compatibility)
 
 ---
 
@@ -832,17 +1082,20 @@ module my_addr::marketplace {
 **Official Documentation:**
 
 - Move Book: https://aptos.dev/build/smart-contracts/book
-- Functions: https://aptos.dev/build/smart-contracts/book/functions
+- Move 2 Release Notes: https://aptos.dev/build/smart-contracts/book/move-2
+- Functions (incl. function values): https://aptos.dev/build/smart-contracts/book/functions
+- Enums: https://aptos.dev/build/smart-contracts/book/enums
 - Object Model: https://aptos.dev/build/smart-contracts/object
 - Generics: https://aptos.dev/build/smart-contracts/book/generics
 
 **Related Patterns:**
 
 - `OBJECTS.md` - Detailed object patterns
-- `SECURITY.md` - Security with modern syntax
+- `SECURITY.md` - Security with modern syntax (incl. reentrancy safety)
+- `ADVANCED_TYPES.md` - Advanced type patterns including enums
 - `TESTING.md` - Testing modern code
 
 ---
 
-**Remember:** Use modern Move V2 syntax for cleaner, safer, more maintainable code. Embrace inline functions, lambdas,
-and type-safe objects.
+**Remember:** Use modern Move V2 syntax for cleaner, safer, more maintainable code. Embrace function values, enums,
+inline functions, lambdas, and type-safe objects.
