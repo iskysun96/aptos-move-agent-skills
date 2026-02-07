@@ -1454,6 +1454,105 @@ aptos move publish --profile mainnet
 
 ---
 
+## Pattern 14: Account Abstraction Security (AIP-104)
+
+Account Abstraction (AA) allows accounts to be authenticated through custom Move code instead of native cryptographic
+schemes. This is live on Aptos mainnet since framework v1.27.1 (March 2025).
+
+### 14.1 Authentication Function Requirements
+
+The authentication function must match this exact signature:
+
+```move
+public fun authenticate(account: signer, auth_data: AbstractionAuthData): signer;
+```
+
+`AbstractionAuthData` is an enum:
+
+```move
+enum AbstractionAuthData has copy, drop {
+    V1 {
+        digest: vector<u8>,         // SHA3-256 hash of signing message
+        authenticator: vector<u8>,  // Custom auth data (signatures, etc.)
+    }
+}
+```
+
+### 14.2 Replay Attack Prevention
+
+**CRITICAL:** Authentication logic must depend on the `digest` field to prevent replay attacks:
+
+```move
+// ❌ DANGEROUS: Ignores digest - vulnerable to replay
+public fun authenticate(account: signer, auth_data: AbstractionAuthData): signer {
+    let authenticator = auth_data.authenticator();
+    assert!(authenticator == b"secret_password", E_INVALID_AUTH);
+    account  // Same auth data replays on any transaction!
+}
+
+// ✅ CORRECT: Validates signature over digest
+public fun authenticate(account: signer, auth_data: AbstractionAuthData): signer {
+    let digest = auth_data.digest();
+    let authenticator = auth_data.authenticator();
+
+    // Parse authenticator into public key + signature
+    let (public_key, signature) = parse_authenticator(authenticator);
+
+    // Verify the public key is authorized
+    let account_addr = signer::address_of(&account);
+    assert!(is_authorized_key(account_addr, public_key), E_UNAUTHORIZED_KEY);
+
+    // Verify signature over the digest (not just authenticator)
+    assert!(
+        ed25519::signature_verify_strict(&signature, &public_key, digest),
+        E_INVALID_SIGNATURE
+    );
+    account
+}
+```
+
+### 14.3 Permission Delegation Security
+
+When implementing permission delegation (allowing other keys to act on behalf of an account):
+
+```move
+struct AuthorizedKeys has key {
+    /// Only these public keys can sign on behalf of the account
+    keys: SmartTable<vector<u8>, bool>,
+    /// Optional: restrict which functions can be called
+    allowed_functions: vector<FunctionInfo>,
+}
+
+// ✅ Always validate both the key AND the signature
+public fun authenticate(account: signer, auth_data: AbstractionAuthData): signer {
+    let account_addr = signer::address_of(&account);
+    let keys = borrow_global<AuthorizedKeys>(account_addr);
+    let (pub_key, sig) = parse_authenticator(auth_data.authenticator());
+
+    // 1. Key must be in authorized set
+    assert!(smart_table::contains(&keys.keys, pub_key), E_KEY_NOT_AUTHORIZED);
+
+    // 2. Signature must be valid over digest
+    assert!(
+        ed25519::signature_verify_strict(&sig, &pub_key, auth_data.digest()),
+        E_INVALID_SIGNATURE
+    );
+
+    account
+}
+```
+
+### 14.4 AA Security Checklist
+
+- [ ] Authentication function validates signature over `digest` (prevents replay)
+- [ ] Authorized keys/permissions stored securely with proper access control
+- [ ] Only account owner can add/remove authorized keys
+- [ ] Gas costs of authentication function are bounded (has gas limit)
+- [ ] Consider time-based or transaction-count-based expiration for delegated keys
+- [ ] Test with multiple accounts to ensure no cross-account authentication
+
+---
+
 ## Common Vulnerabilities Table
 
 | Vulnerability              | Example                         | Impact                        | Fix                                                                        |
